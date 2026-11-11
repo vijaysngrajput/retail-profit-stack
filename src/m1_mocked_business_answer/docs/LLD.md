@@ -13,9 +13,16 @@ Everything lives inside this milestone's folder, `src/m1_mocked_business_answer/
 
 ```
 docs/                           BRD.md, HLD.md, LLD.md
-notebooks/
-  m1_mocked_business_answer.ipynb   the lab
-  m1_key_outputs.json               tool outputs saved by the lab, used by the parity test
+notebooks/                      the lab: six short notebooks, run in order
+  01_the_business_question.ipynb
+  02_first_llm_calls.ipynb
+  03_llm_with_all_the_data.ipynb
+  04_tools_and_agents.ipynb
+  05_the_agent_answers.ipynb
+  06_verify_and_production.ipynb
+  lab_helpers.py                finished versions of what the notebooks build, for reuse
+  results/                      what each notebook saves for the next (answer_key.json is kept;
+                                the learner's own AI answers are not committed)
 data/mock/
   products.csv
   monthly_product_profit.csv
@@ -171,6 +178,7 @@ Tool rules:
 - **Category rows:** summed from product rows. If any product in the category has a null value, the sum covers the other products and `is_complete` is false. Example: Camp's October contribution profit is the sum of three products, because the camp stove has none.
 - **Comparison:** `change = current − previous`. `pct_change = change ÷ previous × 100`, rounded to 1 decimal place. Both are null if either month's value is null or incomplete, because a partial total cannot be compared with a full one. `pct_change` is also null if `previous` is zero. Rows are sorted from the biggest fall to the biggest rise, with rows that have no change last.
 - **Confidence:** the highest severity among the returned flags sets the level. `high` severity gives `low` confidence, `medium` gives `medium`, `low` or no flags gives `high`. Each flag contributes one reason.
+- **Parallel calls:** an agent may call several tools at once, each on its own thread. The store lets one query run at a time, so results never mix.
 - **Bad input:** an unknown month, metric, product, or category raises a `ToolInputError` with a message listing the valid values. The agent receives that message as the tool's reply, so it can correct itself, and the failed call is recorded in the tool log.
 
 ## 5. Answer format
@@ -281,21 +289,21 @@ All tests run offline with no API key.
 |---|---|
 | Mock data | Schemas, row counts, product references, and the section 2 formulas on every row |
 | Definitions | Every term loads, has a version, and its components exist |
-| Tools | Ranking, null handling, category sums and `is_complete`, comparison maths, the confidence rule, bad input |
+| Tools | Ranking, null handling, category sums and `is_complete`, comparison maths, the confidence rule, bad input, and several tools called at the same time |
 | Verifier | Each check passes a correct answer and fails a deliberately broken one |
 | Agent | With a scripted fake model: the tool log is recorded and the answer is verified |
 | Evaluation | The runner scores scripted answers correctly |
-| Notebook parity | Production tools return the same outputs as the lab saved in `notebooks/m1_key_outputs.json` |
+| Notebook parity | Each production tool returns the same result as the lab's version of it in `notebooks/lab_helpers.py`, for the same arguments |
 
 ## 11. Where each part is built
 
-The lab notebook has six parts. Each part shows the document sections it relies on, and each code file names the section it implements.
+The lab is six short notebooks, run in order. Each teaches one idea, shows the document sections it relies on, and saves a result for the next. Code that a later notebook reuses lives in `notebooks/lab_helpers.py`.
 
-| Lab part | What the learner does | Documents shown | This document's sections | Production code |
+| Notebook | What the learner does | Documents shown | This document's sections | Production code |
 |---|---|---|---|---|
-| 1. The business brief | Reads the problem, the question, and what a good answer contains | BRD 1, 3, 5, 9 | None | None |
-| 2. Examine the data | Explores the mock tables and works out the correct answer by hand | LLD 3 | 3. Mock tables | `mock_data.py`, `store.py`, `data/mock/` |
-| 3. Ask AI to draft the metric definitions | Has a model draft formulas and raise ambiguities, then compares with the agreed ones | BRD 6, 7 and LLD 2 | 2. Metric definitions | `definitions/metrics_v1.json` |
-| 4. One model call, with all the data | Asks the question with the data in the prompt and scores the answer | LLD 5 | 5. Answer format, 9. Evaluation set | `schemas.py`, `evaluation.py`, `evals/m1_cases.json` |
-| 5. An agent with tools | Builds the six tools and the agent, and scores it the same way | HLD 2, 4 and LLD 4 | 4. Tools, 6. Agent, 7. Request trace | `tools.py`, `agent.py` |
-| 6. Verify, compare, and move to production | Compares both approaches, checks an answer against its tool log, and runs the production verifier | LLD 8 | 8. Verifier checks, 10. Tests | `verify.py`, `tests/` |
+| 1. The business question | Reads the brief, explores the data, answers the question by hand, and saves the answer key | BRD 1, 3, 7 | 3. Mock tables | `mock_data.py`, `store.py`, `data/mock/` |
+| 2. Your first LLM calls | Makes a plain call and a structured call, and has AI draft the metric definitions | BRD 6 and LLD 2 | 2. Metric definitions | `definitions/metrics_v1.json` |
+| 3. Ask the LLM with all the data | Asks the question with the data in the prompt and checks the answer against the key | BRD 5 | 5. Answer format | `schemas.py` |
+| 4. What is a tool, what is an agent | Builds one tool, runs the agent loop by hand, then lets LangChain run it | None | 4. Tools (the idea) | None |
+| 5. The agent answers the question | Gives an agent the six tools and compares the key, the single call, and the agent | HLD 2, 4, 5 | 4. Tools, 6. Agent, 7. Request trace | `tools.py`, `agent.py` |
+| 6. Verify and go to production | Verifies an answer with code, tries to fool the verifier, and maps the notebooks to production | LLD 8 | 8. Verifier checks, 9. Evaluation set, 10. Tests | `verify.py`, `evaluation.py`, `tests/` |

@@ -40,3 +40,7 @@ Thumbs.db
 # Internal development notes
 HANDOFF.md
 MILESTONES.md
+
+# A learner's own lab results (the answer key is kept)
+src/*/notebooks/results/*
+!src/*/notebooks/results/answer_key.json

@@ -5,6 +5,7 @@ through the connection this module returns.
 """
 
 import json
+import threading
 from functools import lru_cache
 from pathlib import Path
 
@@ -53,6 +54,9 @@ class Store:
 
     def __init__(self, mock_dir: Path = MOCK_DIR, definitions_file: Path = DEFINITIONS_FILE):
         self.db = duckdb.connect(":memory:")
+        # An agent may call several tools at once, each on its own thread. A DuckDB connection
+        # cannot run two queries at the same time, so queries take turns.
+        self._lock = threading.Lock()
         for table, columns in TABLE_COLUMNS.items():
             path = mock_dir / f"{table}.csv"
             if not path.exists():
@@ -82,9 +86,10 @@ class Store:
 
     def rows(self, sql: str, params: list | None = None) -> list[dict]:
         """Run a query and return its rows as dictionaries."""
-        cursor = self.db.execute(sql, params or [])
-        names = [column[0] for column in cursor.description]
-        return [dict(zip(names, row, strict=True)) for row in cursor.fetchall()]
+        with self._lock:
+            cursor = self.db.execute(sql, params or [])
+            names = [column[0] for column in cursor.description]
+            return [dict(zip(names, row, strict=True)) for row in cursor.fetchall()]
 
     def months(self) -> list[str]:
         return [

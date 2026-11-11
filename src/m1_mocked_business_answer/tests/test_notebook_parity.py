@@ -1,32 +1,38 @@
-"""The production tools return what the notebook's tools returned.
+"""The production tools return what the lab notebooks' tools return.
 
-The notebook saves a few of its tool outputs to notebooks/m1_key_outputs.json. This test
-replays the same calls against the production tools and compares every value.
+The notebooks' tools are plain pandas functions in notebooks/lab_helpers.py. The production
+tools in retail_profit_stack/tools.py were rebuilt from them. This test calls both with the
+same arguments and compares every value.
 """
 
-import json
+import sys
 
 import pytest
 
 from retail_profit_stack import tools
 from retail_profit_stack.config import MILESTONE_DIR
 
-KEY_OUTPUTS = MILESTONE_DIR / "notebooks" / "m1_key_outputs.json"
+sys.path.insert(0, str(MILESTONE_DIR / "notebooks"))
+import lab_helpers
 
-PRODUCTION_CALLS = {
-    "reporting_period": lambda: tools.get_reporting_period(),
-    "query_product": lambda: tools.query_profit("2026-10", "product"),
-    "query_category": lambda: tools.query_profit("2026-10", "category"),
-    "query_category_previous_net_sales": lambda: tools.query_profit(
-        "2026-09", "category", metric="net_sales"
-    ),
-    "compare_category": lambda: tools.compare_profit("2026-10", "2026-09", "category"),
-    "compare_product": lambda: tools.compare_profit("2026-10", "2026-09", "product"),
-    "quality_month": lambda: tools.get_quality_flags("2026-10"),
-    "quality_product": lambda: tools.get_quality_flags("2026-10", product_id="P001"),
-    "quality_clean": lambda: tools.get_quality_flags("2026-09", category="Hydration"),
-    "evidence": lambda: tools.get_evidence("2026-10", "P001"),
-}
+CALLS = [
+    ("get_reporting_period", {}),
+    ("get_metric_definition", {"metric": "contribution_profit"}),
+    ("get_metric_definition", {"metric": "units_sold"}),
+    ("query_profit", {"month": "2026-10", "group_by": "product"}),
+    ("query_profit", {"month": "2026-10", "group_by": "category"}),
+    ("query_profit", {"month": "2026-09", "group_by": "category", "metric": "net_sales"}),
+    ("query_profit", {"month": "2026-10", "group_by": "product", "top_n": 3}),
+    ("compare_profit", {"month": "2026-10", "previous_month": "2026-09", "group_by": "category"}),
+    ("compare_profit", {"month": "2026-10", "previous_month": "2026-09", "group_by": "product"}),
+    ("compare_profit", {"month": "2026-10", "previous_month": "2026-09", "group_by": "category",
+                        "metric": "net_sales"}),
+    ("get_evidence", {"month": "2026-10", "product_id": "P001"}),
+    ("get_evidence", {"month": "2026-09", "product_id": "P011", "limit": 2}),
+    ("get_quality_flags", {"month": "2026-10"}),
+    ("get_quality_flags", {"month": "2026-10", "product_id": "P001"}),
+    ("get_quality_flags", {"month": "2026-09", "category": "Hydration"}),
+]  # fmt: skip
 
 
 def assert_same(notebook, production, path):
@@ -45,11 +51,28 @@ def assert_same(notebook, production, path):
         assert notebook == production, path
 
 
-@pytest.mark.parametrize("name", list(PRODUCTION_CALLS))
-def test_production_matches_notebook(name):
-    recorded = json.loads(KEY_OUTPUTS.read_text("utf-8"))
-    assert_same(recorded[name], PRODUCTION_CALLS[name]().model_dump(), name)
+@pytest.mark.parametrize(("name", "arguments"), CALLS)
+def test_production_tool_matches_notebook_tool(name, arguments):
+    notebook_result = getattr(lab_helpers, name)(**arguments)
+    production_result = getattr(tools, name)(**arguments).model_dump()
+    assert_same(notebook_result, production_result, name)
 
 
-def test_every_recorded_output_is_checked():
-    assert set(json.loads(KEY_OUTPUTS.read_text("utf-8"))) == set(PRODUCTION_CALLS)
+def test_all_six_tools_are_compared():
+    assert {name for name, _ in CALLS} == {
+        "get_reporting_period", "get_metric_definition", "query_profit", "compare_profit",
+        "get_evidence", "get_quality_flags",
+    }  # fmt: skip
+
+
+@pytest.mark.parametrize("name", ["query_profit", "get_quality_flags"])
+def test_bad_input_is_rejected_the_same_way(name):
+    with pytest.raises(lab_helpers.ToolInputError) as notebook_error:
+        getattr(lab_helpers, name)(
+            month="2026-12", **({"group_by": "product"} if name == "query_profit" else {})
+        )
+    with pytest.raises(tools.ToolInputError) as production_error:
+        getattr(tools, name)(
+            month="2026-12", **({"group_by": "product"} if name == "query_profit" else {})
+        )
+    assert str(notebook_error.value) == str(production_error.value)

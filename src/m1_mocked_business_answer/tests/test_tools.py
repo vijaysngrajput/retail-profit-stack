@@ -123,3 +123,19 @@ def test_every_result_names_its_sources():
 def test_bad_input_raises_with_valid_values(call):
     with pytest.raises(tools.ToolInputError, match="Valid values"):
         call()
+
+
+def test_tools_can_be_called_from_several_threads_at_once():
+    """An agent runs parallel tool calls on separate threads; they must not corrupt each other."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    calls = [
+        lambda: tools.query_profit("2026-10", "product").rows[0].entity_id,
+        lambda: tools.query_profit("2026-10", "category").rows[0].entity_id,
+        lambda: tools.compare_profit("2026-10", "2026-09", "category").rows[0].entity_id,
+        lambda: tools.get_quality_flags("2026-10").confidence_level,
+        lambda: tools.get_evidence("2026-10", "P001").records[0].product_id,
+    ]
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        results = list(pool.map(lambda call: call(), calls * 40))
+    assert results == ["P001", "Hydration", "Apparel", "low", "P001"] * 40
