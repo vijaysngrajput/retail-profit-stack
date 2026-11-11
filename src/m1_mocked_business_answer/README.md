@@ -52,4 +52,4 @@ To rebuild the mock data from its hand-chosen inputs:
 uv run python -m retail_profit_stack.mock_data
 ```
 
-The expectations for this milestone are in [MILESTONES.md](../../MILESTONES.md).
+The standard every milestone follows is described in the project [README](../../README.md#how-every-milestone-is-built). This milestone is the worked example of it.
