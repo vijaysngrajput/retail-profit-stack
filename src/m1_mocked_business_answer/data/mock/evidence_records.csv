@@ -1,0 +1,97 @@
+evidence_id,month,product_id,record_type,source_table,source_record_id,amount,description
+EV-0001,2026-09,P001,order_item,order_items,ORD-20401,38.0,"1 x Trail water bottle at list price 40.00, discount 5%"
+EV-0002,2026-09,P001,product_cost,product_costs,COST-P001-2026-09,18.0,Unit cost of Trail water bottle agreed with the vendor
+EV-0003,2026-09,P001,refund,refunds,REF-20401,38.0,Full refund of one Trail water bottle issued in 2026-09
+EV-0004,2026-09,P001,payment_fee,payment_fees,FEE-20401,1.14,Payment provider fee on ORD-20401
+EV-0005,2026-09,P002,order_item,order_items,ORD-20402,33.25,"1 x Insulated flask at list price 35.00, discount 5%"
+EV-0006,2026-09,P002,product_cost,product_costs,COST-P002-2026-09,15.0,Unit cost of Insulated flask agreed with the vendor
+EV-0007,2026-09,P002,refund,refunds,REF-20402,33.25,Full refund of one Insulated flask issued in 2026-09
+EV-0008,2026-09,P002,payment_fee,payment_fees,FEE-20402,1.0,Payment provider fee on ORD-20402
+EV-0009,2026-09,P003,order_item,order_items,ORD-20403,81.0,"1 x Hydration pack at list price 90.00, discount 10%"
+EV-0010,2026-09,P003,product_cost,product_costs,COST-P003-2026-09,48.0,Unit cost of Hydration pack agreed with the vendor
+EV-0011,2026-09,P003,refund,refunds,REF-20403,81.0,Full refund of one Hydration pack issued in 2026-09
+EV-0012,2026-09,P003,payment_fee,payment_fees,FEE-20403,2.43,Payment provider fee on ORD-20403
+EV-0013,2026-09,P004,order_item,order_items,ORD-20404,55.0,"1 x Water filter at list price 55.00, discount 0%"
+EV-0014,2026-09,P004,product_cost,product_costs,COST-P004-2026-09,24.0,Unit cost of Water filter agreed with the vendor
+EV-0015,2026-09,P004,refund,refunds,REF-20404,55.0,Full refund of one Water filter issued in 2026-09
+EV-0016,2026-09,P004,payment_fee,payment_fees,FEE-20404,1.65,Payment provider fee on ORD-20404
+EV-0017,2026-09,P005,order_item,order_items,ORD-20405,304.0,"1 x Two-person tent at list price 320.00, discount 5%"
+EV-0018,2026-09,P005,product_cost,product_costs,COST-P005-2026-09,190.0,Unit cost of Two-person tent agreed with the vendor
+EV-0019,2026-09,P005,refund,refunds,REF-20405,304.0,Full refund of one Two-person tent issued in 2026-09
+EV-0020,2026-09,P005,payment_fee,payment_fees,FEE-20405,9.12,Payment provider fee on ORD-20405
+EV-0021,2026-09,P006,order_item,order_items,ORD-20406,142.5,"1 x Sleeping bag at list price 150.00, discount 5%"
+EV-0022,2026-09,P006,product_cost,product_costs,COST-P006-2026-09,82.0,Unit cost of Sleeping bag agreed with the vendor
+EV-0023,2026-09,P006,refund,refunds,REF-20406,142.5,Full refund of one Sleeping bag issued in 2026-09
+EV-0024,2026-09,P006,payment_fee,payment_fees,FEE-20406,4.27,Payment provider fee on ORD-20406
+EV-0025,2026-09,P007,order_item,order_items,ORD-20407,85.0,"1 x Camp stove at list price 85.00, discount 0%"
+EV-0026,2026-09,P007,product_cost,product_costs,COST-P007-2026-09,44.0,Unit cost of Camp stove agreed with the vendor
+EV-0027,2026-09,P007,refund,refunds,REF-20407,85.0,Full refund of one Camp stove issued in 2026-09
+EV-0028,2026-09,P007,payment_fee,payment_fees,FEE-20407,2.55,Payment provider fee on ORD-20407
+EV-0029,2026-09,P008,order_item,order_items,ORD-20408,30.0,"1 x Headlamp at list price 30.00, discount 0%"
+EV-0030,2026-09,P008,product_cost,product_costs,COST-P008-2026-09,11.0,Unit cost of Headlamp agreed with the vendor
+EV-0031,2026-09,P008,refund,refunds,REF-20408,30.0,Full refund of one Headlamp issued in 2026-09
+EV-0032,2026-09,P008,payment_fee,payment_fees,FEE-20408,0.9,Payment provider fee on ORD-20408
+EV-0033,2026-09,P009,order_item,order_items,ORD-20409,133.0,"1 x Rain jacket at list price 140.00, discount 5%"
+EV-0034,2026-09,P009,product_cost,product_costs,COST-P009-2026-09,70.0,Unit cost of Rain jacket agreed with the vendor
+EV-0035,2026-09,P009,refund,refunds,REF-20409,133.0,Full refund of one Rain jacket issued in 2026-09
+EV-0036,2026-09,P009,payment_fee,payment_fees,FEE-20409,3.99,Payment provider fee on ORD-20409
+EV-0037,2026-09,P010,order_item,order_items,ORD-20410,18.0,"1 x Hiking socks at list price 18.00, discount 0%"
+EV-0038,2026-09,P010,product_cost,product_costs,COST-P010-2026-09,6.0,Unit cost of Hiking socks agreed with the vendor
+EV-0039,2026-09,P010,refund,refunds,REF-20410,18.0,Full refund of one Hiking socks issued in 2026-09
+EV-0040,2026-09,P010,payment_fee,payment_fees,FEE-20410,0.54,Payment provider fee on ORD-20410
+EV-0041,2026-09,P011,order_item,order_items,ORD-20411,25.0,"1 x Sun hat at list price 25.00, discount 0%"
+EV-0042,2026-09,P011,product_cost,product_costs,COST-P011-2026-09,9.0,Unit cost of Sun hat agreed with the vendor
+EV-0043,2026-09,P011,refund,refunds,REF-20411,60.0,"Refund against ORD-20411, larger than the order value (see QF-003)"
+EV-0044,2026-09,P011,payment_fee,payment_fees,FEE-20411,0.75,Payment provider fee on ORD-20411
+EV-0045,2026-09,P012,order_item,order_items,ORD-20412,71.25,"1 x Fleece pullover at list price 75.00, discount 5%"
+EV-0046,2026-09,P012,product_cost,product_costs,COST-P012-2026-09,36.0,Unit cost of Fleece pullover agreed with the vendor
+EV-0047,2026-09,P012,refund,refunds,REF-20412,71.25,Full refund of one Fleece pullover issued in 2026-09
+EV-0048,2026-09,P012,payment_fee,payment_fees,FEE-20412,2.14,Payment provider fee on ORD-20412
+EV-0049,2026-10,P001,order_item,order_items,ORD-20413,36.0,"1 x Trail water bottle at list price 40.00, discount 10%"
+EV-0050,2026-10,P001,product_cost,product_costs,COST-P001-2026-10,18.0,Unit cost of Trail water bottle agreed with the vendor
+EV-0051,2026-10,P001,order_item,order_items,ORD-20413,36.0,1 x Trail water bottle; same order ID as the record above (see QF-002)
+EV-0052,2026-10,P001,payment_fee,payment_fees,FEE-20413,1.08,Payment provider fee on ORD-20413
+EV-0053,2026-10,P002,order_item,order_items,ORD-20414,33.25,"1 x Insulated flask at list price 35.00, discount 5%"
+EV-0054,2026-10,P002,product_cost,product_costs,COST-P002-2026-10,15.0,Unit cost of Insulated flask agreed with the vendor
+EV-0055,2026-10,P002,refund,refunds,REF-20414,33.25,Full refund of one Insulated flask issued in 2026-10
+EV-0056,2026-10,P002,payment_fee,payment_fees,FEE-20414,1.0,Payment provider fee on ORD-20414
+EV-0057,2026-10,P003,order_item,order_items,ORD-20415,81.0,"1 x Hydration pack at list price 90.00, discount 10%"
+EV-0058,2026-10,P003,product_cost,product_costs,COST-P003-2026-10,48.0,Unit cost of Hydration pack agreed with the vendor
+EV-0059,2026-10,P003,refund,refunds,REF-20415,81.0,Full refund of one Hydration pack issued in 2026-10
+EV-0060,2026-10,P003,payment_fee,payment_fees,FEE-20415,2.43,Payment provider fee on ORD-20415
+EV-0061,2026-10,P004,order_item,order_items,ORD-20416,52.25,"1 x Water filter at list price 55.00, discount 5%"
+EV-0062,2026-10,P004,product_cost,product_costs,COST-P004-2026-10,24.0,Unit cost of Water filter agreed with the vendor
+EV-0063,2026-10,P004,refund,refunds,REF-20416,52.25,Full refund of one Water filter issued in 2026-10
+EV-0064,2026-10,P004,payment_fee,payment_fees,FEE-20416,1.57,Payment provider fee on ORD-20416
+EV-0065,2026-10,P005,order_item,order_items,ORD-20417,288.0,"1 x Two-person tent at list price 320.00, discount 10%"
+EV-0066,2026-10,P005,product_cost,product_costs,COST-P005-2026-10,190.0,Unit cost of Two-person tent agreed with the vendor
+EV-0067,2026-10,P005,refund,refunds,REF-20417,288.0,Full refund of one Two-person tent issued in 2026-10
+EV-0068,2026-10,P005,payment_fee,payment_fees,FEE-20417,8.64,Payment provider fee on ORD-20417
+EV-0069,2026-10,P006,order_item,order_items,ORD-20418,142.5,"1 x Sleeping bag at list price 150.00, discount 5%"
+EV-0070,2026-10,P006,product_cost,product_costs,COST-P006-2026-10,82.0,Unit cost of Sleeping bag agreed with the vendor
+EV-0071,2026-10,P006,refund,refunds,REF-20418,142.5,Full refund of one Sleeping bag issued in 2026-10
+EV-0072,2026-10,P006,payment_fee,payment_fees,FEE-20418,4.27,Payment provider fee on ORD-20418
+EV-0073,2026-10,P007,order_item,order_items,ORD-20419,80.75,"1 x Camp stove at list price 85.00, discount 5%"
+EV-0074,2026-10,P007,shipment,shipments,SHP-20419,7.0,Carrier cost for ORD-20419
+EV-0075,2026-10,P007,refund,refunds,REF-20419,80.75,Full refund of one Camp stove issued in 2026-10
+EV-0076,2026-10,P007,payment_fee,payment_fees,FEE-20419,2.42,Payment provider fee on ORD-20419
+EV-0077,2026-10,P008,order_item,order_items,ORD-20420,30.0,"1 x Headlamp at list price 30.00, discount 0%"
+EV-0078,2026-10,P008,product_cost,product_costs,COST-P008-2026-10,11.0,Unit cost of Headlamp agreed with the vendor
+EV-0079,2026-10,P008,refund,refunds,REF-20420,30.0,Full refund of one Headlamp issued in 2026-10
+EV-0080,2026-10,P008,payment_fee,payment_fees,FEE-20420,0.9,Payment provider fee on ORD-20420
+EV-0081,2026-10,P009,order_item,order_items,ORD-20421,112.0,"1 x Rain jacket at list price 140.00, discount 20%"
+EV-0082,2026-10,P009,product_cost,product_costs,COST-P009-2026-10,70.0,Unit cost of Rain jacket agreed with the vendor
+EV-0083,2026-10,P009,refund,refunds,REF-20421,112.0,Full refund of one Rain jacket issued in 2026-10
+EV-0084,2026-10,P009,payment_fee,payment_fees,FEE-20421,3.36,Payment provider fee on ORD-20421
+EV-0085,2026-10,P010,order_item,order_items,ORD-20422,16.2,"1 x Hiking socks at list price 18.00, discount 10%"
+EV-0086,2026-10,P010,product_cost,product_costs,COST-P010-2026-10,6.0,Unit cost of Hiking socks agreed with the vendor
+EV-0087,2026-10,P010,refund,refunds,REF-20422,16.2,Full refund of one Hiking socks issued in 2026-10
+EV-0088,2026-10,P010,payment_fee,payment_fees,FEE-20422,0.49,Payment provider fee on ORD-20422
+EV-0089,2026-10,P011,order_item,order_items,ORD-20423,20.0,"1 x Sun hat at list price 25.00, discount 20%"
+EV-0090,2026-10,P011,product_cost,product_costs,COST-P011-2026-10,9.0,Unit cost of Sun hat agreed with the vendor
+EV-0091,2026-10,P011,refund,refunds,REF-20423,20.0,Full refund of one Sun hat issued in 2026-10
+EV-0092,2026-10,P011,payment_fee,payment_fees,FEE-20423,0.6,Payment provider fee on ORD-20423
+EV-0093,2026-10,P012,order_item,order_items,ORD-20424,63.75,"1 x Fleece pullover at list price 75.00, discount 15%"
+EV-0094,2026-10,P012,product_cost,product_costs,COST-P012-2026-10,36.0,Unit cost of Fleece pullover agreed with the vendor
+EV-0095,2026-10,P012,refund,refunds,REF-20424,63.75,Full refund of one Fleece pullover issued in 2026-10
+EV-0096,2026-10,P012,payment_fee,payment_fees,FEE-20424,1.91,Payment provider fee on ORD-20424

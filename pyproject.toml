@@ -1,0 +1,46 @@
+[project]
+name = "retail-profit-stack"
+version = "0.1.0"
+description = "A learning project for AI-assisted retail data engineering."
+requires-python = ">=3.12"
+dependencies = [
+    "duckdb>=1.4.0",
+    "ipykernel>=7.0.0",
+    "langchain>=1.0.0",
+    "langchain-openai>=1.0.0",
+    "openai>=2.0.0",
+    "pandas>=2.3.0",
+    "pydantic>=2.12.0",
+    "python-dotenv>=1.2.0",
+]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.0",
+    "pytest>=9.0.0",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.0",
+]
+
+[tool.ruff]
+line-length = 100
+src = ["src/*", "src/*/tests"]
+
+[tool.ruff.lint.per-file-ignores]
+# Notebooks are brainstorming code: long lines and broad error handling are fine there.
+"*.ipynb" = ["BLE001", "E501", "E402"]
+
+# Tests are run per milestone: cd into src/<milestone>/ and run `uv run pytest`.
+# Each milestone folder has its own pytest.ini.
+
+[tool.pyright]
+include = ["src"]
+# Tests pass deliberately wrong values, and notebooks are brainstorming code.
+exclude = ["**/tests", "**/notebooks", "**/.venv"]
+# Each milestone is a self-contained copy of the code, so each needs its own import root.
+executionEnvironments = [
+    { root = "src/m1_mocked_business_answer" },
+]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.12"

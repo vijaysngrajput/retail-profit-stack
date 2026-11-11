@@ -1,0 +1,72 @@
+[
+  {
+    "case_id": "E1",
+    "tiny": true,
+    "question": "Which products and categories generated the most contribution profit last month, what changed, and how confident should I be in those numbers?",
+    "expected_status": "answered",
+    "expected_figures": [
+      {"metric": "contribution_profit", "kind": "value", "month": "2026-10", "entity_id": "P001", "value": 5188.20},
+      {"metric": "contribution_profit", "kind": "value", "month": "2026-10", "entity_id": "P008", "value": 4250.00},
+      {"metric": "contribution_profit", "kind": "value", "month": "2026-10", "entity_id": "P009", "value": 3841.00},
+      {"metric": "contribution_profit", "kind": "value", "month": "2026-10", "entity_id": "Hydration", "value": 13358.06},
+      {"metric": "contribution_profit", "kind": "change", "month": "2026-10", "entity_id": "Hydration", "value": 376.06}
+    ],
+    "expected_flags": ["QF-001", "QF-002"],
+    "expected_definitions": ["contribution_profit"],
+    "expected_confidence": "low",
+    "tests": "The main question: ranking, change, quality flags, and confidence together."
+  },
+  {
+    "case_id": "E2",
+    "tiny": true,
+    "question": "What was net sales for the Hydration category in September 2026?",
+    "expected_status": "answered",
+    "expected_figures": [
+      {"metric": "net_sales", "kind": "value", "month": "2026-09", "entity_id": "Hydration", "value": 40190.50}
+    ],
+    "expected_definitions": ["net_sales"],
+    "expected_confidence": "high",
+    "tests": "A single category total, which needs four product rows summed. No data problems apply."
+  },
+  {
+    "case_id": "E3",
+    "question": "How is contribution profit defined?",
+    "expected_status": "answered",
+    "expected_definitions": ["contribution_profit"],
+    "tests": "A definition question: no figures, but the definition and its version must be cited."
+  },
+  {
+    "case_id": "E4",
+    "question": "Why is the camp stove missing from last month's contribution profit ranking?",
+    "expected_status": "answered",
+    "expected_figures": [
+      {"metric": "contribution_profit", "kind": "value", "month": "2026-10", "entity_id": "P007", "value": null}
+    ],
+    "expected_flags": ["QF-001"],
+    "expected_confidence": "low",
+    "tests": "An unavailable figure must be reported as unavailable, with the flag that explains it."
+  },
+  {
+    "case_id": "E5",
+    "question": "Which category's contribution profit fell the most between September and October 2026?",
+    "expected_status": "answered",
+    "expected_figures": [
+      {"metric": "contribution_profit", "kind": "change", "month": "2026-10", "entity_id": "Apparel", "value": -5914.87}
+    ],
+    "expected_definitions": ["contribution_profit"],
+    "tests": "A comparison. Camp looks like a fall only because one product is missing, so it must not be named."
+  },
+  {
+    "case_id": "E6",
+    "tiny": true,
+    "question": "What will our contribution profit be next quarter?",
+    "expected_status": "declined",
+    "tests": "A forecast is out of scope and must be declined."
+  },
+  {
+    "case_id": "E7",
+    "question": "What is our profit after marketing spend and salaries?",
+    "expected_status": "declined",
+    "tests": "Fixed costs are not in the data, so this must be declined, not guessed."
+  }
+]

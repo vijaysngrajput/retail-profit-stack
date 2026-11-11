@@ -1,0 +1,892 @@
+{
+  "reporting_period": {
+    "as_of_date": "2026-11-01",
+    "current_month": "2026-10",
+    "previous_month": "2026-09",
+    "available_months": [
+      "2026-09",
+      "2026-10"
+    ],
+    "sources": [
+      {
+        "table": "reporting_period",
+        "keys": [
+          "as_of_date"
+        ]
+      }
+    ]
+  },
+  "query_product": {
+    "month": "2026-10",
+    "group_by": "product",
+    "metric": "contribution_profit",
+    "metric_version": "1.0.0",
+    "rows": [
+      {
+        "entity_type": "product",
+        "entity_id": "P001",
+        "entity_name": "Trail water bottle",
+        "category": "Hydration",
+        "month": "2026-10",
+        "units_sold": 510,
+        "gross_sales": 20400.0,
+        "discounts": 2040.0,
+        "refunds": 108.0,
+        "net_sales": 18252.0,
+        "product_cost": 9180.0,
+        "gross_profit": 9072.0,
+        "fulfillment_cost": 1275.0,
+        "shipping_cost": 2040.0,
+        "payment_fees": 550.8,
+        "return_cost": 18.0,
+        "contribution_profit": 5188.2,
+        "is_complete": true,
+        "rank": 1
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P008",
+        "entity_name": "Headlamp",
+        "category": "Camp",
+        "month": "2026-10",
+        "units_sold": 340,
+        "gross_sales": 10200.0,
+        "discounts": 0.0,
+        "refunds": 30.0,
+        "net_sales": 10170.0,
+        "product_cost": 3740.0,
+        "gross_profit": 6430.0,
+        "fulfillment_cost": 680.0,
+        "shipping_cost": 1190.0,
+        "payment_fees": 306.0,
+        "return_cost": 4.0,
+        "contribution_profit": 4250.0,
+        "is_complete": true,
+        "rank": 2
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P009",
+        "entity_name": "Rain jacket",
+        "category": "Apparel",
+        "month": "2026-10",
+        "units_sold": 150,
+        "gross_sales": 21000.0,
+        "discounts": 4200.0,
+        "refunds": 560.0,
+        "net_sales": 16240.0,
+        "product_cost": 10500.0,
+        "gross_profit": 5740.0,
+        "fulfillment_cost": 450.0,
+        "shipping_cost": 900.0,
+        "payment_fees": 504.0,
+        "return_cost": 45.0,
+        "contribution_profit": 3841.0,
+        "is_complete": true,
+        "rank": 3
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P006",
+        "entity_name": "Sleeping bag",
+        "category": "Camp",
+        "month": "2026-10",
+        "units_sold": 88,
+        "gross_sales": 13200.0,
+        "discounts": 660.0,
+        "refunds": 142.5,
+        "net_sales": 12397.5,
+        "product_cost": 7216.0,
+        "gross_profit": 5181.5,
+        "fulfillment_cost": 440.0,
+        "shipping_cost": 1056.0,
+        "payment_fees": 376.2,
+        "return_cost": 12.0,
+        "contribution_profit": 3297.3,
+        "is_complete": true,
+        "rank": 4
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P004",
+        "entity_name": "Water filter",
+        "category": "Hydration",
+        "month": "2026-10",
+        "units_sold": 165,
+        "gross_sales": 9075.0,
+        "discounts": 453.75,
+        "refunds": 104.5,
+        "net_sales": 8516.75,
+        "product_cost": 3960.0,
+        "gross_profit": 4556.75,
+        "fulfillment_cost": 412.5,
+        "shipping_cost": 742.5,
+        "payment_fees": 258.64,
+        "return_cost": 14.0,
+        "contribution_profit": 3129.11,
+        "is_complete": true,
+        "rank": 5
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P012",
+        "entity_name": "Fleece pullover",
+        "category": "Apparel",
+        "month": "2026-10",
+        "units_sold": 175,
+        "gross_sales": 13125.0,
+        "discounts": 1968.75,
+        "refunds": 255.0,
+        "net_sales": 10901.25,
+        "product_cost": 6300.0,
+        "gross_profit": 4601.25,
+        "fulfillment_cost": 437.5,
+        "shipping_cost": 875.0,
+        "payment_fees": 334.69,
+        "return_cost": 20.0,
+        "contribution_profit": 2934.06,
+        "is_complete": true,
+        "rank": 6
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P002",
+        "entity_name": "Insulated flask",
+        "category": "Hydration",
+        "month": "2026-10",
+        "units_sold": 240,
+        "gross_sales": 8400.0,
+        "discounts": 420.0,
+        "refunds": 33.25,
+        "net_sales": 7946.75,
+        "product_cost": 3600.0,
+        "gross_profit": 4346.75,
+        "fulfillment_cost": 600.0,
+        "shipping_cost": 960.0,
+        "payment_fees": 239.4,
+        "return_cost": 6.0,
+        "contribution_profit": 2541.35,
+        "is_complete": true,
+        "rank": 7
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P003",
+        "entity_name": "Hydration pack",
+        "category": "Hydration",
+        "month": "2026-10",
+        "units_sold": 120,
+        "gross_sales": 10800.0,
+        "discounts": 1080.0,
+        "refunds": 81.0,
+        "net_sales": 9639.0,
+        "product_cost": 5760.0,
+        "gross_profit": 3879.0,
+        "fulfillment_cost": 360.0,
+        "shipping_cost": 720.0,
+        "payment_fees": 291.6,
+        "return_cost": 8.0,
+        "contribution_profit": 2499.4,
+        "is_complete": true,
+        "rank": 8
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P010",
+        "entity_name": "Hiking socks",
+        "category": "Apparel",
+        "month": "2026-10",
+        "units_sold": 480,
+        "gross_sales": 8640.0,
+        "discounts": 864.0,
+        "refunds": 32.4,
+        "net_sales": 7743.6,
+        "product_cost": 2880.0,
+        "gross_profit": 4863.6,
+        "fulfillment_cost": 720.0,
+        "shipping_cost": 1440.0,
+        "payment_fees": 233.28,
+        "return_cost": 6.0,
+        "contribution_profit": 2464.32,
+        "is_complete": true,
+        "rank": 9
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P005",
+        "entity_name": "Two-person tent",
+        "category": "Camp",
+        "month": "2026-10",
+        "units_sold": 36,
+        "gross_sales": 11520.0,
+        "discounts": 1152.0,
+        "refunds": 288.0,
+        "net_sales": 10080.0,
+        "product_cost": 6840.0,
+        "gross_profit": 3240.0,
+        "fulfillment_cost": 288.0,
+        "shipping_cost": 792.0,
+        "payment_fees": 311.04,
+        "return_cost": 30.0,
+        "contribution_profit": 1818.96,
+        "is_complete": true,
+        "rank": 10
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P011",
+        "entity_name": "Sun hat",
+        "category": "Apparel",
+        "month": "2026-10",
+        "units_sold": 90,
+        "gross_sales": 2250.0,
+        "discounts": 450.0,
+        "refunds": 20.0,
+        "net_sales": 1780.0,
+        "product_cost": 810.0,
+        "gross_profit": 970.0,
+        "fulfillment_cost": 135.0,
+        "shipping_cost": 270.0,
+        "payment_fees": 54.0,
+        "return_cost": 4.0,
+        "contribution_profit": 507.0,
+        "is_complete": true,
+        "rank": 11
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P007",
+        "entity_name": "Camp stove",
+        "category": "Camp",
+        "month": "2026-10",
+        "units_sold": 125,
+        "gross_sales": 10625.0,
+        "discounts": 531.25,
+        "refunds": 80.75,
+        "net_sales": 10013.0,
+        "product_cost": null,
+        "gross_profit": null,
+        "fulfillment_cost": 437.5,
+        "shipping_cost": 875.0,
+        "payment_fees": 302.81,
+        "return_cost": 9.0,
+        "contribution_profit": null,
+        "is_complete": false,
+        "rank": null
+      }
+    ],
+    "sources": [
+      {
+        "table": "monthly_product_profit",
+        "keys": [
+          "2026-10/P001",
+          "2026-10/P002",
+          "2026-10/P003",
+          "2026-10/P004",
+          "2026-10/P005",
+          "2026-10/P006",
+          "2026-10/P007",
+          "2026-10/P008",
+          "2026-10/P009",
+          "2026-10/P010",
+          "2026-10/P011",
+          "2026-10/P012"
+        ]
+      },
+      {
+        "table": "products",
+        "keys": []
+      }
+    ]
+  },
+  "query_category": {
+    "month": "2026-10",
+    "group_by": "category",
+    "metric": "contribution_profit",
+    "metric_version": "1.0.0",
+    "rows": [
+      {
+        "entity_type": "category",
+        "entity_id": "Hydration",
+        "entity_name": "Hydration",
+        "category": "Hydration",
+        "month": "2026-10",
+        "units_sold": 1035,
+        "gross_sales": 48675.0,
+        "discounts": 3993.75,
+        "refunds": 326.75,
+        "net_sales": 44354.5,
+        "product_cost": 22500.0,
+        "gross_profit": 21854.5,
+        "fulfillment_cost": 2647.5,
+        "shipping_cost": 4462.5,
+        "payment_fees": 1340.44,
+        "return_cost": 46.0,
+        "contribution_profit": 13358.06,
+        "is_complete": true,
+        "rank": 1
+      },
+      {
+        "entity_type": "category",
+        "entity_id": "Apparel",
+        "entity_name": "Apparel",
+        "category": "Apparel",
+        "month": "2026-10",
+        "units_sold": 895,
+        "gross_sales": 45015.0,
+        "discounts": 7482.75,
+        "refunds": 867.4,
+        "net_sales": 36664.85,
+        "product_cost": 20490.0,
+        "gross_profit": 16174.85,
+        "fulfillment_cost": 1742.5,
+        "shipping_cost": 3485.0,
+        "payment_fees": 1125.97,
+        "return_cost": 75.0,
+        "contribution_profit": 9746.38,
+        "is_complete": true,
+        "rank": 2
+      },
+      {
+        "entity_type": "category",
+        "entity_id": "Camp",
+        "entity_name": "Camp",
+        "category": "Camp",
+        "month": "2026-10",
+        "units_sold": 589,
+        "gross_sales": 45545.0,
+        "discounts": 2343.25,
+        "refunds": 541.25,
+        "net_sales": 42660.5,
+        "product_cost": 17796.0,
+        "gross_profit": 14851.5,
+        "fulfillment_cost": 1845.5,
+        "shipping_cost": 3913.0,
+        "payment_fees": 1296.05,
+        "return_cost": 55.0,
+        "contribution_profit": 9366.26,
+        "is_complete": false,
+        "rank": 3
+      }
+    ],
+    "sources": [
+      {
+        "table": "monthly_product_profit",
+        "keys": [
+          "2026-10/P001",
+          "2026-10/P002",
+          "2026-10/P003",
+          "2026-10/P004",
+          "2026-10/P005",
+          "2026-10/P006",
+          "2026-10/P007",
+          "2026-10/P008",
+          "2026-10/P009",
+          "2026-10/P010",
+          "2026-10/P011",
+          "2026-10/P012"
+        ]
+      },
+      {
+        "table": "products",
+        "keys": []
+      }
+    ]
+  },
+  "query_category_previous_net_sales": {
+    "month": "2026-09",
+    "group_by": "category",
+    "metric": "net_sales",
+    "metric_version": "1.0.0",
+    "rows": [
+      {
+        "entity_type": "category",
+        "entity_id": "Apparel",
+        "entity_name": "Apparel",
+        "category": "Apparel",
+        "month": "2026-09",
+        "units_sold": 1020,
+        "gross_sales": 44810.0,
+        "discounts": 1510.0,
+        "refunds": 758.75,
+        "net_sales": 42541.25,
+        "product_cost": 19870.0,
+        "gross_profit": 22671.25,
+        "fulfillment_cost": 1885.0,
+        "shipping_cost": 3770.0,
+        "payment_fees": 1299.0,
+        "return_cost": 56.0,
+        "contribution_profit": 15661.25,
+        "is_complete": true,
+        "rank": 1
+      },
+      {
+        "entity_type": "category",
+        "entity_id": "Camp",
+        "entity_name": "Camp",
+        "category": "Camp",
+        "month": "2026-09",
+        "units_sold": 528,
+        "gross_sales": 44210.0,
+        "discounts": 1293.0,
+        "refunds": 1123.0,
+        "net_sales": 41794.0,
+        "product_cost": 23000.0,
+        "gross_profit": 18794.0,
+        "fulfillment_cost": 1719.0,
+        "shipping_cost": 3716.0,
+        "payment_fees": 1287.51,
+        "return_cost": 110.0,
+        "contribution_profit": 11961.49,
+        "is_complete": true,
+        "rank": 2
+      },
+      {
+        "entity_type": "category",
+        "entity_id": "Hydration",
+        "entity_name": "Hydration",
+        "category": "Hydration",
+        "month": "2026-09",
+        "units_sold": 925,
+        "gross_sales": 42700.0,
+        "discounts": 2150.0,
+        "refunds": 359.5,
+        "net_sales": 40190.5,
+        "product_cost": 19620.0,
+        "gross_profit": 20570.5,
+        "fulfillment_cost": 2360.0,
+        "shipping_cost": 3965.0,
+        "payment_fees": 1216.5,
+        "return_cost": 47.0,
+        "contribution_profit": 12982.0,
+        "is_complete": true,
+        "rank": 3
+      }
+    ],
+    "sources": [
+      {
+        "table": "monthly_product_profit",
+        "keys": [
+          "2026-09/P001",
+          "2026-09/P002",
+          "2026-09/P003",
+          "2026-09/P004",
+          "2026-09/P005",
+          "2026-09/P006",
+          "2026-09/P007",
+          "2026-09/P008",
+          "2026-09/P009",
+          "2026-09/P010",
+          "2026-09/P011",
+          "2026-09/P012"
+        ]
+      },
+      {
+        "table": "products",
+        "keys": []
+      }
+    ]
+  },
+  "compare_category": {
+    "month": "2026-10",
+    "previous_month": "2026-09",
+    "group_by": "category",
+    "metric": "contribution_profit",
+    "metric_version": "1.0.0",
+    "rows": [
+      {
+        "entity_type": "category",
+        "entity_id": "Apparel",
+        "entity_name": "Apparel",
+        "current": 9746.38,
+        "previous": 15661.25,
+        "change": -5914.87,
+        "pct_change": -37.8,
+        "is_complete": true
+      },
+      {
+        "entity_type": "category",
+        "entity_id": "Hydration",
+        "entity_name": "Hydration",
+        "current": 13358.06,
+        "previous": 12982.0,
+        "change": 376.06,
+        "pct_change": 2.9,
+        "is_complete": true
+      },
+      {
+        "entity_type": "category",
+        "entity_id": "Camp",
+        "entity_name": "Camp",
+        "current": 9366.26,
+        "previous": 11961.49,
+        "change": null,
+        "pct_change": null,
+        "is_complete": false
+      }
+    ],
+    "sources": [
+      {
+        "table": "monthly_product_profit",
+        "keys": [
+          "2026-10/P001",
+          "2026-10/P002",
+          "2026-10/P003",
+          "2026-10/P004",
+          "2026-10/P005",
+          "2026-10/P006",
+          "2026-10/P007",
+          "2026-10/P008",
+          "2026-10/P009",
+          "2026-10/P010",
+          "2026-10/P011",
+          "2026-10/P012",
+          "2026-09/P001",
+          "2026-09/P002",
+          "2026-09/P003",
+          "2026-09/P004",
+          "2026-09/P005",
+          "2026-09/P006",
+          "2026-09/P007",
+          "2026-09/P008",
+          "2026-09/P009",
+          "2026-09/P010",
+          "2026-09/P011",
+          "2026-09/P012"
+        ]
+      },
+      {
+        "table": "products",
+        "keys": []
+      }
+    ]
+  },
+  "compare_product": {
+    "month": "2026-10",
+    "previous_month": "2026-09",
+    "group_by": "product",
+    "metric": "contribution_profit",
+    "metric_version": "1.0.0",
+    "rows": [
+      {
+        "entity_type": "product",
+        "entity_id": "P009",
+        "entity_name": "Rain jacket",
+        "current": 3841.0,
+        "previous": 6075.3,
+        "change": -2234.3,
+        "pct_change": -36.8,
+        "is_complete": true
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P011",
+        "entity_name": "Sun hat",
+        "current": 507.0,
+        "previous": 2139.5,
+        "change": -1632.5,
+        "pct_change": -76.3,
+        "is_complete": true
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P010",
+        "entity_name": "Hiking socks",
+        "current": 2464.32,
+        "previous": 3577.2,
+        "change": -1112.88,
+        "pct_change": -31.1,
+        "is_complete": true
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P005",
+        "entity_name": "Two-person tent",
+        "current": 1818.96,
+        "previous": 2926.24,
+        "change": -1107.28,
+        "pct_change": -37.8,
+        "is_complete": true
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P012",
+        "entity_name": "Fleece pullover",
+        "current": 2934.06,
+        "previous": 3869.25,
+        "change": -935.19,
+        "pct_change": -24.2,
+        "is_complete": true
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P002",
+        "entity_name": "Insulated flask",
+        "current": 2541.35,
+        "previous": 2717.15,
+        "change": -175.8,
+        "pct_change": -6.5,
+        "is_complete": true
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P004",
+        "entity_name": "Water filter",
+        "current": 3129.11,
+        "previous": 3290.5,
+        "change": -161.39,
+        "pct_change": -4.9,
+        "is_complete": true
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P001",
+        "entity_name": "Trail water bottle",
+        "current": 5188.2,
+        "previous": 5103.2,
+        "change": 85.0,
+        "pct_change": 1.7,
+        "is_complete": true
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P008",
+        "entity_name": "Headlamp",
+        "current": 4250.0,
+        "previous": 3712.0,
+        "change": 538.0,
+        "pct_change": 14.5,
+        "is_complete": true
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P003",
+        "entity_name": "Hydration pack",
+        "current": 2499.4,
+        "previous": 1871.15,
+        "change": 628.25,
+        "pct_change": 33.6,
+        "is_complete": true
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P006",
+        "entity_name": "Sleeping bag",
+        "current": 3297.3,
+        "previous": 2436.75,
+        "change": 860.55,
+        "pct_change": 35.3,
+        "is_complete": true
+      },
+      {
+        "entity_type": "product",
+        "entity_id": "P007",
+        "entity_name": "Camp stove",
+        "current": null,
+        "previous": 2886.5,
+        "change": null,
+        "pct_change": null,
+        "is_complete": false
+      }
+    ],
+    "sources": [
+      {
+        "table": "monthly_product_profit",
+        "keys": [
+          "2026-10/P001",
+          "2026-10/P002",
+          "2026-10/P003",
+          "2026-10/P004",
+          "2026-10/P005",
+          "2026-10/P006",
+          "2026-10/P007",
+          "2026-10/P008",
+          "2026-10/P009",
+          "2026-10/P010",
+          "2026-10/P011",
+          "2026-10/P012",
+          "2026-09/P001",
+          "2026-09/P002",
+          "2026-09/P003",
+          "2026-09/P004",
+          "2026-09/P005",
+          "2026-09/P006",
+          "2026-09/P007",
+          "2026-09/P008",
+          "2026-09/P009",
+          "2026-09/P010",
+          "2026-09/P011",
+          "2026-09/P012"
+        ]
+      },
+      {
+        "table": "products",
+        "keys": []
+      }
+    ]
+  },
+  "quality_month": {
+    "month": "2026-10",
+    "product_id": null,
+    "category": null,
+    "flags": [
+      {
+        "flag_id": "QF-001",
+        "month": "2026-10",
+        "product_id": "P007",
+        "check_name": "missing_product_cost",
+        "severity": "high",
+        "affected_metrics": [
+          "product_cost",
+          "gross_profit",
+          "contribution_profit"
+        ],
+        "description": "No product cost is recorded for Camp stove in 2026-10, so its gross profit and contribution profit cannot be calculated. The Camp category total leaves it out.",
+        "product_name": "Camp stove",
+        "category": "Camp"
+      },
+      {
+        "flag_id": "QF-002",
+        "month": "2026-10",
+        "product_id": "P001",
+        "check_name": "duplicate_orders",
+        "severity": "medium",
+        "affected_metrics": [
+          "units_sold",
+          "gross_sales",
+          "net_sales",
+          "gross_profit",
+          "contribution_profit"
+        ],
+        "description": "Three orders for Trail water bottle appear twice in 2026-10. Its sales and profit may be overstated.",
+        "product_name": "Trail water bottle",
+        "category": "Hydration"
+      }
+    ],
+    "confidence_level": "low",
+    "confidence_reasons": [
+      "QF-001 (high): No product cost is recorded for Camp stove in 2026-10, so its gross profit and contribution profit cannot be calculated. The Camp category total leaves it out.",
+      "QF-002 (medium): Three orders for Trail water bottle appear twice in 2026-10. Its sales and profit may be overstated."
+    ],
+    "sources": [
+      {
+        "table": "quality_flags",
+        "keys": [
+          "QF-001",
+          "QF-002"
+        ]
+      }
+    ]
+  },
+  "quality_product": {
+    "month": "2026-10",
+    "product_id": "P001",
+    "category": null,
+    "flags": [
+      {
+        "flag_id": "QF-002",
+        "month": "2026-10",
+        "product_id": "P001",
+        "check_name": "duplicate_orders",
+        "severity": "medium",
+        "affected_metrics": [
+          "units_sold",
+          "gross_sales",
+          "net_sales",
+          "gross_profit",
+          "contribution_profit"
+        ],
+        "description": "Three orders for Trail water bottle appear twice in 2026-10. Its sales and profit may be overstated.",
+        "product_name": "Trail water bottle",
+        "category": "Hydration"
+      }
+    ],
+    "confidence_level": "medium",
+    "confidence_reasons": [
+      "QF-002 (medium): Three orders for Trail water bottle appear twice in 2026-10. Its sales and profit may be overstated."
+    ],
+    "sources": [
+      {
+        "table": "quality_flags",
+        "keys": [
+          "QF-002"
+        ]
+      }
+    ]
+  },
+  "quality_clean": {
+    "month": "2026-09",
+    "product_id": null,
+    "category": "Hydration",
+    "flags": [],
+    "confidence_level": "high",
+    "confidence_reasons": [
+      "No known data problems for this scope."
+    ],
+    "sources": [
+      {
+        "table": "quality_flags",
+        "keys": []
+      }
+    ]
+  },
+  "evidence": {
+    "month": "2026-10",
+    "product_id": "P001",
+    "records": [
+      {
+        "evidence_id": "EV-0049",
+        "month": "2026-10",
+        "product_id": "P001",
+        "record_type": "order_item",
+        "source_table": "order_items",
+        "source_record_id": "ORD-20413",
+        "amount": 36.0,
+        "description": "1 x Trail water bottle at list price 40.00, discount 10%"
+      },
+      {
+        "evidence_id": "EV-0050",
+        "month": "2026-10",
+        "product_id": "P001",
+        "record_type": "product_cost",
+        "source_table": "product_costs",
+        "source_record_id": "COST-P001-2026-10",
+        "amount": 18.0,
+        "description": "Unit cost of Trail water bottle agreed with the vendor"
+      },
+      {
+        "evidence_id": "EV-0051",
+        "month": "2026-10",
+        "product_id": "P001",
+        "record_type": "order_item",
+        "source_table": "order_items",
+        "source_record_id": "ORD-20413",
+        "amount": 36.0,
+        "description": "1 x Trail water bottle; same order ID as the record above (see QF-002)"
+      },
+      {
+        "evidence_id": "EV-0052",
+        "month": "2026-10",
+        "product_id": "P001",
+        "record_type": "payment_fee",
+        "source_table": "payment_fees",
+        "source_record_id": "FEE-20413",
+        "amount": 1.08,
+        "description": "Payment provider fee on ORD-20413"
+      }
+    ],
+    "is_sample": true,
+    "note": "These are sample records. They illustrate the figures and do not add up to them.",
+    "sources": [
+      {
+        "table": "evidence_records",
+        "keys": [
+          "EV-0049",
+          "EV-0050",
+          "EV-0051",
+          "EV-0052"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a product reaches a customer</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f6f4ef;
+    --surface: #fffdf9;
+    --ink: #1d2327;
+    --muted: #5c6670;
+    --line: #d9d4c8;
+    --accent: #0f6b5c;
+    --accent-ink: #ffffff;
+    --accent-soft: #dcefe9;
+    --neg: #a23b2a;
+    --pos: #1f6f43;
+    --tag-bg: #ecebe4;
+    --shadow: 0 1px 2px rgba(29, 35, 39, .06), 0 6px 18px rgba(29, 35, 39, .06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #14181a;
+      --surface: #1c2226;
+      --ink: #e8e6e1;
+      --muted: #9aa4ab;
+      --line: #2e373c;
+      --accent: #5fc5b0;
+      --accent-ink: #0d1f1c;
+      --accent-soft: #1d3a35;
+      --neg: #e58a78;
+      --pos: #7fd0a0;
+      --tag-bg: #262e33;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 18px rgba(0, 0, 0, .25);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .page { max-width: 1200px; margin: 0 auto; padding: 36px 24px 56px; }
+
+  .eyebrow {
+    margin: 0 0 6px;
+    font-size: 12px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  h1 {
+    margin: 0 0 8px;
+    font: 600 34px/1.15 "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    text-wrap: balance;
+  }
+  .lede { margin: 0 0 26px; max-width: 64ch; color: var(--muted); font-size: 16px; }
+
+  /* Point-of-view switcher */
+  .pov-label { margin: 0 0 8px; font-size: 13px; font-weight: 600; }
+  .povs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pov {
+    display: flex; flex-direction: column; align-items: flex-start;
+    padding: 8px 14px; min-width: 118px;
+    font: inherit; color: var(--ink); text-align: left;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+  }
+  .pov:hover { border-color: var(--accent); }
+  .pov b { font-weight: 600; }
+  .pov small { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .pov[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .pov[aria-pressed="true"] small { color: inherit; opacity: .85; }
+  .pov-blurb { margin: 12px 0 0; min-height: 1.5em; max-width: 70ch; }
+
+  /* Playback toolbar */
+  .toolbar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
+    margin: 22px 0 8px; padding-top: 18px; border-top: 1px solid var(--line);
+  }
+  .btns { display: flex; gap: 6px; }
+  .btn {
+    padding: 7px 14px; font: inherit; font-weight: 500; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px; cursor: pointer;
+  }
+  .btn:hover:not(:disabled) { border-color: var(--accent); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .btn.primary { min-width: 76px; background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .progress-text { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .switch { margin-left: auto; display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500; }
+  .switch input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+  .bar { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; margin-bottom: 22px; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .5s ease; }
+
+  :is(.pov, .btn, .step, .switch input):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Layout */
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px; align-items: start; }
+  .side { position: sticky; top: 16px; display: grid; gap: 16px; }
+
+  /* Flow diagram */
+  .diagram {
+    position: relative;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 30px;
+    padding-left: 10px; align-items: start;
+  }
+  .col { position: relative; }
+  .col::before { /* connector running down a stage */
+    content: ""; position: absolute; left: 22px; top: 12px; bottom: 12px; width: 2px;
+    background: var(--line);
+  }
+  .col + .col::after { /* arrow from the previous stage */
+    content: "\2192"; position: absolute; left: -24px; top: 17px;
+    color: var(--muted); font-size: 18px; line-height: 1;
+  }
+
+  .wrap { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .45s ease, opacity .35s ease; }
+  .wrap.off { grid-template-rows: 0fr; opacity: 0; }
+  .wrap > .clip { min-height: 0; overflow: hidden; }
+  .pad { padding: 5px 4px; position: relative; }
+  .pad.sub { padding-left: 18px; }
+
+  .step {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 3px 8px; width: 100%;
+    padding: 9px 10px; min-height: 42px;
+    font: inherit; font-size: 13.5px; line-height: 1.3; color: var(--ink); text-align: left;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 9px;
+    cursor: pointer;
+    transition: border-color .25s, background .25s, box-shadow .25s;
+  }
+  .step:hover { border-color: var(--accent); }
+  .step.anchor { grid-template-columns: auto minmax(0, 1fr) auto; padding: 11px 10px; font-size: 15px; font-weight: 600; border-width: 2px; border-color: var(--ink); }
+  .step.active { background: var(--accent-soft); border-color: var(--accent); box-shadow: var(--shadow); }
+  .badge {
+    grid-row: 1 / span 2; width: 22px; height: 22px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--ink); color: var(--bg); font-size: 12px; font-weight: 600;
+  }
+  .txt { display: contents; }
+  .ttl { grid-area: 1 / 1; min-width: 0; }
+  .step.anchor .ttl { grid-area: 1 / 2; }
+  .step.anchor .tbl { grid-area: 2 / 2 / auto / 4; }
+  .step.anchor .amt { grid-area: 1 / 3; }
+  .tbl, code {
+    font: 11.5px/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--muted); overflow-wrap: anywhere;
+  }
+  .tbl { display: none; grid-area: 2 / 1 / auto / 3; font-weight: 400; white-space: pre-line; }
+  .diagram[data-pov="data"] .tbl { display: block; }
+  .amt {
+    display: none; grid-area: 1 / 2; padding: 1px 6px; border-radius: 6px;
+    background: var(--tag-bg); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  body.money .amt { display: block; }
+  .neg { color: var(--neg); }
+  .pos { color: var(--pos); }
+
+  .wrap.fresh .step { animation: fresh 1.8s ease; }
+  @keyframes fresh {
+    0%, 60% { box-shadow: 0 0 0 3px var(--accent-soft), 0 0 0 4px var(--accent); }
+    100% { box-shadow: 0 0 0 3px transparent, 0 0 0 4px transparent; }
+  }
+
+  .token { /* the product travelling through the flow */
+    position: absolute; left: 0; top: 0; z-index: 2; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--accent); border: 3px solid var(--bg); box-shadow: 0 0 0 2px var(--accent);
+    pointer-events: none;
+    transition: transform .7s cubic-bezier(.5, 0, .2, 1);
+  }
+  .token.snap { transition: none; }
+  .token::after {
+    content: ""; position: absolute; inset: -6px; border-radius: 50%;
+    border: 2px solid var(--accent); opacity: 0; animation: ping 1.8s ease-out infinite;
+  }
+  @keyframes ping { 0% { transform: scale(.6); opacity: .7; } 100% { transform: scale(1.5); opacity: 0; } }
+
+  /* Side panels */
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+  .panel h2 { margin: 0 0 6px; font-size: 19px; line-height: 1.25; }
+  .kicker { margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .panel p { margin: 0; }
+  .facts { margin: 14px 0 0; padding: 12px 0 0; border-top: 1px solid var(--line); display: grid; gap: 8px; font-size: 13.5px; }
+  .facts div { display: grid; grid-template-columns: 82px 1fr; gap: 8px; }
+  .facts dt { color: var(--muted); }
+  .facts dd { margin: 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chip { padding: 1px 7px; border-radius: 999px; background: var(--tag-bg); font-size: 12px; }
+
+  .ledger h2 { font-size: 16px; }
+  .ledger .note { color: var(--muted); font-size: 12.5px; margin-bottom: 10px; }
+  .ledger table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .ledger td { padding: 4px 0; transition: opacity .4s; }
+  .ledger td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ledger tr.pending td { opacity: .4; }
+  .ledger tr.total td { border-top: 1px solid var(--line); font-weight: 700; padding: 6px 0 10px; }
+  .ledger tr.total:last-child td { padding-bottom: 0; }
+
+  .foot { margin: 34px 0 0; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; max-width: 80ch; }
+
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    .side { display: contents; }
+    .detail { order: 1; }
+    .diagram { order: 2; }
+    .ledger { order: 3; }
+  }
+  @media (max-width: 700px) {
+    .page { padding: 24px 16px 40px; }
+    h1 { font-size: 27px; }
+    .diagram { grid-template-columns: minmax(0, 1fr); gap: 30px; }
+    .col + .col::after { content: "\2193"; left: 16px; top: -24px; }
+    .pov { min-width: 0; flex: 1 1 130px; }
+    .switch { margin-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <p class="eyebrow">Understand the business</p>
+    <h1>How a product reaches a customer</h1>
+    <p class="lede">Every retailer runs the same basic chain: a product, a vendor who supplies it, a platform that sells it, and a customer who receives it. How much of that chain you see depends on who you are. Pick a point of view and watch the same flow grow.</p>
+  </header>
+
+  <section aria-label="Point of view">
+    <p class="pov-label" id="pov-label">Point of view</p>
+    <div class="povs" id="povs" role="group" aria-labelledby="pov-label"></div>
+    <p class="pov-blurb" id="pov-blurb"></p>
+  </section>
+
+  <div class="toolbar">
+    <div class="btns">
+      <button class="btn" id="back" type="button">Back</button>
+      <button class="btn primary" id="play" type="button">Pause</button>
+      <button class="btn" id="next" type="button">Next</button>
+      <button class="btn" id="restart" type="button">Restart</button>
+    </div>
+    <span class="progress-text" id="progress-text"></span>
+    <label class="switch"><input type="checkbox" id="money"> Show money</label>
+  </div>
+  <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+
+  <main class="layout">
+    <div class="diagram" id="diagram" data-pov="customer">
+      <div class="token snap" id="token" aria-hidden="true"></div>
+    </div>
+
+    <aside class="side">
+      <section class="panel detail" id="detail" aria-label="Current step">
+        <p class="kicker" id="d-kicker"></p>
+        <h2 id="d-title"></h2>
+        <p id="d-desc"></p>
+        <dl class="facts" id="d-facts"></dl>
+      </section>
+
+      <section class="panel ledger" id="ledger" aria-label="Profit on one order" hidden>
+        <h2>Profit on one bottle</h2>
+        <p class="note">Fills in as the product moves through the flow.</p>
+        <table><tbody id="ledger-rows"></tbody></table>
+      </section>
+    </aside>
+  </main>
+
+  <p class="foot">Everything here is fictional: the product, the prices, the costs and the table names are invented for learning. The flow is a simplified model of how a retailer could work, not a description of any real company's systems, data or accounting.</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---- Content -------------------------------------------------------------
+
+  var POVS = [
+    { id: 'customer', name: 'Customer',
+      blurb: 'What a shopper sees: a product, someone who supplies it, a store, and a delivery. Everything in between is invisible.' },
+    { id: 'vendor', name: 'Vendor',
+      blurb: 'What a supplier sees: the paperwork and deliveries needed to get a product onto the platform, and then getting paid.' },
+    { id: 'ops', name: 'Operations',
+      blurb: 'What warehouse and delivery teams see: every physical move, from the vendor’s dock to the customer’s door and sometimes back.' },
+    { id: 'leader', name: 'Business leader',
+      blurb: 'What a CEO or finance lead sees: the steps where money is earned or spent. Turn on “Show money” to follow it.' },
+    { id: 'data', name: 'Data engineer',
+      blurb: 'What you will build from: every step, with the records each one leaves behind. These records are the raw material for measuring profit.' }
+  ];
+
+  var STAGES = ['Product', 'Vendor', 'Retail platform', 'Customer'];
+
+  // Steps in the order they happen. `povs: null` means every point of view.
+  var STEPS = [
+    { id: 'product', stage: 0, anchor: true, title: 'Product', povs: null, tables: ['products'],
+      desc: 'A stainless steel water bottle. Everything in retail starts with something a customer wants to buy.' },
+    { id: 'catalog', stage: 0, title: 'Catalog details', povs: ['vendor', 'data'], tables: ['categories'],
+      desc: 'The product gets a name, a category, photos and a unique ID so it can be found, sold and tracked.' },
+
+    { id: 'vendor', stage: 1, anchor: true, title: 'Vendor', povs: null, tables: ['vendors'],
+      desc: 'The company that makes or supplies the bottle. The platform buys from the vendor and sells to the customer.' },
+    { id: 'agreement', stage: 1, title: 'Agreement', povs: ['vendor', 'leader', 'data'],
+      tables: ['vendor_agreements', 'product_costs'], money: { row: 'cost' },
+      desc: 'Vendor and platform agree the terms: what the platform pays per bottle, when it pays, and who covers returns.' },
+    { id: 'approval', stage: 1, title: 'Approval', povs: ['vendor', 'data'], tables: ['vendor_approvals'],
+      desc: 'The platform checks the vendor and the product (safety, legal, quality) before anything can be sold.' },
+    { id: 'po', stage: 1, title: 'Purchase order', povs: ['vendor', 'ops', 'data'], tables: ['purchase_orders'],
+      desc: 'The platform orders 500 bottles from the vendor. This is the platform buying stock, not a customer buying a product.' },
+    { id: 'inbound', stage: 1, title: 'Inbound shipment', povs: ['vendor', 'ops', 'data'], tables: ['inbound_shipments'],
+      desc: 'The vendor ships the bottles to the platform’s warehouse.' },
+    { id: 'paid', stage: 1, title: 'Vendor gets paid', povs: ['vendor', 'leader', 'data'], tables: ['vendor_payments'],
+      desc: 'The platform pays the vendor’s invoice on the agreed terms, for example 30 days after delivery. This is cash leaving, but not a new cost: it is the product cost already agreed.' },
+
+    { id: 'platform', stage: 2, anchor: true, title: 'Retail platform', povs: null, tables: ['sales_channels'],
+      desc: 'The online store. It lists the product, takes the order and gets the parcel to the customer.' },
+    { id: 'receive', stage: 2, title: 'Receive and store', povs: ['ops', 'data'], tables: ['inventory_movements'],
+      desc: 'The warehouse counts the delivered bottles and shelves them. The stock is now available to sell.' },
+    { id: 'listing', stage: 2, title: 'Listing and price', povs: ['leader', 'data'], tables: ['prices'], money: { row: 'list' },
+      desc: 'The bottle goes on sale at a list price of $40.00.' },
+    { id: 'order', stage: 2, title: 'Order placed', povs: ['ops', 'leader', 'data'],
+      tables: ['orders', 'order_items', 'discounts'], money: { row: 'disc' },
+      desc: 'A customer buys one bottle and uses a 10% promotion. The order records what was bought, at what price and when.' },
+    { id: 'payment', stage: 2, title: 'Payment captured', povs: ['leader', 'data'], tables: ['payments', 'payment_fees'], money: { row: 'fee' },
+      desc: 'A payment provider charges the customer’s card and keeps a small fee for doing so.' },
+    { id: 'pick', stage: 2, title: 'Pick and pack', povs: ['ops', 'leader', 'data'],
+      tables: ['inventory_movements', 'fulfillment_costs'], money: { row: 'fulfil' },
+      desc: 'A warehouse worker takes the bottle off the shelf, boxes it and labels it. Labour and packaging cost money on every order.' },
+    { id: 'linehaul', stage: 2, title: 'City-to-city transport', povs: ['ops', 'leader', 'data'], tables: ['shipments'], money: { row: 'haul' },
+      desc: 'A truck carries the parcel from the warehouse’s city to a delivery hub in the customer’s city.' },
+    { id: 'lastmile', stage: 2, title: 'Last-mile delivery', povs: ['ops', 'leader', 'data'], tables: ['shipments', 'shipment_events'], money: { row: 'mile' },
+      desc: 'A driver takes the parcel from the local hub to the customer’s home. This short final leg is often the most expensive one.' },
+
+    { id: 'customer', stage: 3, anchor: true, title: 'Customer', povs: null, tables: ['customers'],
+      desc: 'The bottle arrives. For the shopper this is the whole story: I ordered it, and it came.' },
+    { id: 'delivered', stage: 3, title: 'Delivery confirmed', povs: ['ops', 'data'], tables: ['shipment_events'],
+      desc: 'The driver records the drop-off. Until this happens, the platform cannot be sure the order is complete.' },
+    { id: 'returns', stage: 3, title: 'Returns and refunds', povs: ['ops', 'leader', 'data'], tables: ['returns', 'refunds'], money: { row: 'ret' },
+      desc: 'Some customers send products back. The platform refunds them and pays for the return trip. This customer keeps the bottle, but returns across all orders cost about $0.90 per order on average.' }
+  ];
+
+  // The profit stack for one bottle. Rows without `amount` are subtotals.
+  var LEDGER = [
+    { id: 'list', label: 'List price', amount: 40.00 },
+    { id: 'disc', label: 'Promotion discount', amount: -4.00 },
+    { total: 'Net sales' },
+    { id: 'cost', label: 'Product cost', amount: -18.00 },
+    { total: 'Gross profit' },
+    { id: 'fee', label: 'Payment fee', amount: -1.20 },
+    { id: 'fulfil', label: 'Pick and pack', amount: -2.50 },
+    { id: 'haul', label: 'City-to-city transport', amount: -1.50 },
+    { id: 'mile', label: 'Last-mile delivery', amount: -2.50 },
+    { id: 'ret', label: 'Returns (average per order)', amount: -0.90 },
+    { total: 'Contribution profit' }
+  ];
+
+  var STEP_MS = 3000;
+
+  // ---- State and lookups ---------------------------------------------------
+
+  var $ = function (id) { return document.getElementById(id); };
+  var diagram = $('diagram'), token = $('token');
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var state = { pov: 'customer', active: 'product', playing: !reduceMotion, money: false };
+  var timer = null;
+  var stepIndex = {}, rowById = {}, rowStep = {}, els = {};
+
+  STEPS.forEach(function (s, i) {
+    stepIndex[s.id] = i;
+    if (s.money) rowStep[s.money.row] = s.id;
+  });
+  LEDGER.forEach(function (r) { if (r.id) rowById[r.id] = r; });
+
+  function inPov(step, pov) { return !step.povs || step.povs.indexOf(pov) !== -1; }
+  function visibleSteps(pov) { return STEPS.filter(function (s) { return inPov(s, pov || state.pov); }); }
+  function money(n) {
+    return (n < 0 ? '−' : '') + '$' + Math.abs(n).toFixed(2);
+  }
+  function signed(n) { return (n > 0 ? '+' : '') + money(n); }
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  // ---- Build the page once -------------------------------------------------
+
+  POVS.forEach(function (p) {
+    var b = el('button', 'pov');
+    b.type = 'button';
+    b.dataset.pov = p.id;
+    b.appendChild(el('b', null, p.name));
+    b.appendChild(el('small', null, visibleSteps(p.id).length + ' steps'));
+    b.addEventListener('click', function () { setPov(p.id); });
+    $('povs').appendChild(b);
+  });
+
+  var cols = STAGES.map(function (name) {
+    var c = el('div', 'col');
+    c.setAttribute('role', 'group');
+    c.setAttribute('aria-label', name + ' stage');
+    diagram.appendChild(c);
+    return c;
+  });
+
+  STEPS.forEach(function (s) {
+    var wrap = el('div', 'wrap'), clip = el('div', 'clip'), pad = el('div', 'pad' + (s.anchor ? '' : ' sub'));
+    var btn = el('button', 'step' + (s.anchor ? ' anchor' : ''));
+    btn.type = 'button';
+    if (s.anchor) btn.appendChild(el('span', 'badge', String(s.stage + 1)));
+    var txt = el('span', 'txt');
+    txt.appendChild(el('span', 'ttl', s.title));
+    txt.appendChild(el('span', 'tbl', s.tables.join(',\n')));
+    btn.appendChild(txt);
+    if (s.money) {
+      var amount = rowById[s.money.row].amount;
+      btn.appendChild(el('span', 'amt ' + (amount < 0 ? 'neg' : 'pos'), signed(amount)));
+    }
+    btn.addEventListener('click', function () { pause(); go(s.id); });
+    pad.appendChild(btn); clip.appendChild(pad); wrap.appendChild(clip);
+    cols[s.stage].appendChild(wrap);
+    els[s.id] = { wrap: wrap, btn: btn };
+  });
+
+  LEDGER.forEach(function (r) {
+    var tr = el('tr', r.total ? 'total' : null);
+    tr.appendChild(el('td', null, r.total || r.label));
+    tr.appendChild(el('td'));
+    $('ledger-rows').appendChild(tr);
+    r.tr = tr;
+  });
+
+  // ---- Rendering -----------------------------------------------------------
+
+  function placeToken() {
+    var d = diagram.getBoundingClientRect();
+    var r = els[state.active].btn.getBoundingClientRect();
+    token.style.transform = 'translate(' + (r.left - d.left - 8) + 'px,' + (r.top - d.top + r.height / 2 - 8) + 'px)';
+  }
+
+  // Keep the token glued to its card while the layout is still moving.
+  function followToken(ms) {
+    var end = performance.now() + ms;
+    token.classList.add('snap');
+    (function tick() {
+      placeToken();
+      if (performance.now() < end) requestAnimationFrame(tick);
+      else requestAnimationFrame(function () { token.classList.remove('snap'); });
+    })();
+  }
+
+  function renderLedger(vis, idx) {
+    // Hidden steps between this one and the next visible one count as done.
+    var next = vis[idx + 1];
+    var limit = next ? stepIndex[next.id] : Infinity;
+    var sum = 0, complete = true;
+    LEDGER.forEach(function (r) {
+      var cell = r.tr.lastChild, shown;
+      if (r.total) {
+        shown = complete;
+        cell.textContent = shown ? money(sum) : '—';
+        cell.className = '';
+      } else {
+        shown = stepIndex[rowStep[r.id]] < limit;
+        if (shown) sum += r.amount; else complete = false;
+        cell.textContent = shown ? signed(r.amount) : '—';
+        cell.className = shown ? (r.amount < 0 ? 'neg' : 'pos') : '';
+      }
+      r.tr.classList.toggle('pending', !shown);
+    });
+  }
+
+  function addFact(label, node) {
+    var row = el('div');
+    row.appendChild(el('dt', null, label));
+    var dd = el('dd');
+    dd.appendChild(node);
+    row.appendChild(dd);
+    $('d-facts').appendChild(row);
+  }
+
+  function render() {
+    var vis = visibleSteps();
+    var idx = vis.findIndex(function (s) { return s.id === state.active; });
+    var step = vis[idx];
+
+    STEPS.forEach(function (s) {
+      var on = s.id === state.active;
+      els[s.id].btn.classList.toggle('active', on);
+      if (on) els[s.id].btn.setAttribute('aria-current', 'step');
+      else els[s.id].btn.removeAttribute('aria-current');
+    });
+
+    $('d-kicker').textContent = 'Step ' + (idx + 1) + ' of ' + vis.length + ' · ' + STAGES[step.stage] + ' stage';
+    $('d-title').textContent = step.title;
+    $('d-desc').textContent = step.desc;
+
+    var facts = $('d-facts');
+    facts.textContent = '';
+    if (state.money && step.money) {
+      var row = rowById[step.money.row];
+      var m = el('span');
+      m.appendChild(document.createTextNode(row.label + ' '));
+      m.appendChild(el('b', row.amount < 0 ? 'neg' : 'pos', signed(row.amount)));
+      addFact('Money', m);
+    }
+    if (state.pov === 'data') addFact('Records', el('code', null, step.tables.join(', ')));
+    var chips = el('span', 'chips');
+    POVS.forEach(function (p) { if (inPov(step, p.id)) chips.appendChild(el('span', 'chip', p.name)); });
+    addFact('Seen by', chips);
+
+    $('progress-text').textContent = 'Step ' + (idx + 1) + ' of ' + vis.length;
+    $('bar').style.width = ((idx + 1) / vis.length * 100) + '%';
+    $('back').disabled = idx === 0;
+    $('next').disabled = idx === vis.length - 1;
+    $('play').textContent = state.playing ? 'Pause' : (idx === vis.length - 1 ? 'Replay' : 'Play');
+    $('detail').setAttribute('aria-live', state.playing ? 'off' : 'polite');
+
+    renderLedger(vis, idx);
+    placeToken();
+  }
+
+  // ---- Actions -------------------------------------------------------------
+
+  function go(id) { state.active = id; render(); schedule(); }
+
+  function move(delta) {
+    var vis = visibleSteps();
+    var idx = vis.findIndex(function (s) { return s.id === state.active; }) + delta;
+    if (idx < 0 || idx >= vis.length) return false;
+    go(vis[idx].id);
+    return true;
+  }
+
+  function schedule() {
+    clearTimeout(timer);
+    if (!state.playing) return;
+    timer = setTimeout(function () {
+      if (!move(1)) { state.playing = false; render(); }
+    }, STEP_MS);
+  }
+
+  function pause() { state.playing = false; clearTimeout(timer); }
+
+  function setPov(pov, first) {
+    var before = state.pov;
+    state.pov = pov;
+    diagram.dataset.pov = pov;
+
+    STEPS.forEach(function (s) {
+      var show = inPov(s, pov), w = els[s.id].wrap;
+      var isNew = show && !first && !inPov(s, before);
+      w.classList.toggle('off', !show);
+      w.inert = !show;
+      w.classList.remove('fresh');
+      if (isNew) { void w.offsetWidth; w.classList.add('fresh'); }
+    });
+
+    // If the current step is not part of this view, fall back to the step before it.
+    if (!inPov(STEPS[stepIndex[state.active]], pov)) {
+      for (var i = stepIndex[state.active]; i >= 0; i--) {
+        if (inPov(STEPS[i], pov)) { state.active = STEPS[i].id; break; }
+      }
+    }
+
+    Array.prototype.forEach.call($('povs').children, function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.pov === pov));
+    });
+    $('pov-blurb').textContent = POVS.filter(function (p) { return p.id === pov; })[0].blurb;
+
+    render();
+    schedule();
+    followToken(first ? 100 : 650);
+  }
+
+  $('back').addEventListener('click', function () { pause(); move(-1); render(); });
+  $('next').addEventListener('click', function () { pause(); move(1); render(); });
+  $('restart').addEventListener('click', function () { pause(); go(visibleSteps()[0].id); });
+  $('play').addEventListener('click', function () {
+    if (state.playing) { pause(); render(); return; }
+    var vis = visibleSteps();
+    state.playing = true;
+    if (state.active === vis[vis.length - 1].id) go(vis[0].id); else { render(); schedule(); }
+  });
+  $('money').addEventListener('change', function (e) {
+    state.money = e.target.checked;
+    document.body.classList.toggle('money', state.money);
+    $('ledger').hidden = !state.money;
+    render();
+    followToken(100);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.target.closest('input, textarea, select') || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'ArrowRight') { pause(); move(1); render(); }
+    if (e.key === 'ArrowLeft') { pause(); move(-1); render(); }
+  });
+  window.addEventListener('resize', function () { followToken(100); });
+
+  setPov('customer', true);
+})();
+</script>
+</body>
+</html>
