@@ -42,7 +42,7 @@ Copy `.env.example` to `.env` and add your OpenRouter key:
 
 ```text
 OPENROUTER_API_KEY=your-key-here
-MODEL_NAME=openrouter/free
+MODEL_NAME=anthropic/claude-haiku-5.5
 ```
 
 Never commit `.env`. It is already listed in `.gitignore`.

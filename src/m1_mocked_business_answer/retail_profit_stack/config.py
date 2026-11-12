@@ -12,6 +12,6 @@ EVALS_DIR = MILESTONE_DIR / "evals"
 DEFINITIONS_FILE = Path(__file__).resolve().parent / "definitions" / "metrics_v1.json"
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
-DEFAULT_MODEL = "openrouter/free"
+DEFAULT_MODEL = "anthropic/claude-haiku-5.5"
 
 METRIC_VERSION = "1.0.0"

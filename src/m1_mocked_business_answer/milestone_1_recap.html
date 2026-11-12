@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Milestone 1 complete</title>
+<script>document.documentElement.classList.add('js');</script>
+<style>
+  /* Same palette and type as understand_business/business_workflow.html */
+  :root {
+    color-scheme: light;
+    --bg: #f6f4ef;
+    --surface: #fffdf9;
+    --ink: #1d2327;
+    --muted: #5c6670;
+    --line: #d9d4c8;
+    --accent: #0f6b5c;
+    --accent-ink: #ffffff;
+    --accent-soft: #dcefe9;
+    --gold: #9a6b0c;
+    --gold-soft: #f6ead0;
+    --shadow: 0 1px 2px rgba(29, 35, 39, .06), 0 10px 30px rgba(29, 35, 39, .08);
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #14181a;
+      --surface: #1c2226;
+      --ink: #e8e6e1;
+      --muted: #9aa4ab;
+      --line: #2e373c;
+      --accent: #5fc5b0;
+      --accent-ink: #0d1f1c;
+      --accent-soft: #1d3a35;
+      --gold: #e7c36a;
+      --gold-soft: #3a3220;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px rgba(0, 0, 0, .3);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+  a { color: var(--accent); }
+
+  /* ---- Scenes ---- */
+  .scene {
+    position: relative;
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 88px 24px;
+  }
+  .inner { width: 100%; max-width: 1060px; margin: 0 auto; }
+  .eyebrow {
+    margin: 0 0 10px;
+    font-size: 12.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--accent);
+  }
+  h1, h2 { font-family: var(--serif); font-weight: 600; text-wrap: balance; margin: 0; }
+  h2 { font-size: clamp(28px, 4.2vw, 44px); line-height: 1.12; }
+  .lede { max-width: 62ch; margin: 14px 0 0; color: var(--muted); font-size: 17.5px; }
+  .scene + .scene:not(.cinema) { border-top: 1px solid var(--line); }
+
+  /* The two "cinema" scenes are always dark, in both themes */
+  .cinema {
+    --ink: #f1efe9; --muted: #a9b3b8; --accent: #5fc5b0; --accent-soft: #17332f;
+    --line: #2a3438; --surface: #151c1f; --gold: #e7c36a; --gold-soft: #322a17; --accent-ink: #0d1f1c;
+    color: var(--ink);
+    background:
+      radial-gradient(900px 520px at 50% 38%, rgba(95, 197, 176, .16), transparent 70%),
+      radial-gradient(700px 500px at 82% 88%, rgba(231, 195, 106, .08), transparent 70%),
+      #0b1012;
+    text-align: center; align-items: center;
+    overflow: hidden;
+  }
+
+  /* ---- Reveal on scroll ---- */
+  .js .r {
+    opacity: 0; transform: translateY(22px);
+    transition: opacity .9s cubic-bezier(.2, .7, .2, 1), transform .9s cubic-bezier(.2, .7, .2, 1);
+    transition-delay: calc(var(--i, 0) * 130ms);
+  }
+  .js .in .r { opacity: 1; transform: none; }
+
+  /* ---- Opening: letterbox bars, progress bar, section rail ---- */
+  .bars i {
+    position: fixed; left: 0; right: 0; height: 50vh; background: #000; z-index: 50;
+    transition: transform 1.5s cubic-bezier(.7, 0, .2, 1) .25s;
+  }
+  .bars i:first-child { top: 0; }
+  .bars i:last-child { bottom: 0; }
+  .bars.open i:first-child { transform: translateY(-100%); }
+  .bars.open i:last-child { transform: translateY(100%); }
+  html:not(.js) .bars { display: none; }
+
+  .topbar { position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 40; }
+  .topbar i { display: block; height: 100%; width: 0; background: #5fc5b0; }
+
+  .rail { position: fixed; right: 18px; top: 50%; transform: translateY(-50%); z-index: 30; display: grid; gap: 12px; }
+  .rail a {
+    width: 10px; height: 10px; border-radius: 50%;
+    border: 1.5px solid #8b979d; background: transparent;
+    transition: background .3s, transform .3s, border-color .3s;
+  }
+  .rail a.on { background: #5fc5b0; border-color: #5fc5b0; transform: scale(1.35); }
+  .rail a:focus-visible, .btn:focus-visible { outline: 2px solid #5fc5b0; outline-offset: 3px; }
+
+  /* ---- Title scene ---- */
+  .title h1 { font-size: clamp(36px, 6vw, 70px); line-height: 1.06; letter-spacing: -.01em; }
+  .title h1 em { font-style: normal; color: var(--accent); }
+  .title .lede { margin-left: auto; margin-right: auto; font-size: 19px; }
+  .scroll-cue { margin-top: 54px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .scroll-cue::after {
+    content: ""; display: block; width: 1px; height: 44px; margin: 12px auto 0;
+    background: linear-gradient(var(--accent), transparent);
+    animation: cue 2s ease-in-out infinite;
+  }
+  @keyframes cue { 0%, 100% { transform: scaleY(.4); transform-origin: top; opacity: .4; } 50% { transform: scaleY(1); transform-origin: top; opacity: 1; } }
+
+  /* ---- Business chain (matches the workflow page's four anchors) ---- */
+  .chain { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 34px; margin-top: 44px; }
+  .chain::before { /* the track the product travels along */
+    content: ""; position: absolute; left: 6%; right: 6%; top: 25px; height: 2px; background: var(--line);
+  }
+  .traveller {
+    position: absolute; top: 18px; left: 6%; width: 16px; height: 16px; border-radius: 50%; z-index: 2;
+    background: var(--accent); border: 3px solid var(--bg); box-shadow: 0 0 0 2px var(--accent);
+    opacity: 0;
+  }
+  .in .traveller { animation: travel 6s cubic-bezier(.5, 0, .5, 1) 1.2s infinite; }
+  @keyframes travel { 0% { left: 6%; opacity: 0; } 8% { opacity: 1; } 88% { opacity: 1; } 100% { left: calc(94% - 16px); opacity: 0; } }
+  .anchor {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px; font-weight: 600;
+    background: var(--surface); border: 2px solid var(--ink); border-radius: 9px;
+  }
+  .badge {
+    flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--ink); color: var(--bg); font-size: 12px; font-weight: 600;
+  }
+  .leaves { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .leaves li {
+    padding: 5px 9px; border-radius: 7px; background: var(--surface); border: 1px solid var(--line);
+    font: 12px/1.3 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--muted);
+  }
+  .funnel { margin: 26px auto 0; text-align: center; color: var(--muted); font-size: 22px; line-height: 1; }
+  .profit-box {
+    max-width: 640px; margin: 14px auto 0; padding: 18px 22px; text-align: center;
+    background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 12px;
+  }
+  .profit-box b { display: block; font-family: var(--serif); font-size: 22px; }
+  .note { margin: 26px auto 0; max-width: 66ch; text-align: center; color: var(--muted); }
+
+  /* ---- Requirement ---- */
+  .question {
+    margin: 34px 0 0; padding: 26px 30px; border-left: 4px solid var(--accent);
+    background: var(--surface); border-radius: 0 12px 12px 0; box-shadow: var(--shadow);
+    font-family: var(--serif); font-size: clamp(20px, 2.6vw, 28px); line-height: 1.35;
+  }
+  .needs { margin: 30px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .needs li { padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+  .needs b { display: block; }
+  .needs span { color: var(--muted); font-size: 14.5px; }
+
+  /* ---- System architecture ---- */
+  .arch {
+    margin-top: 36px;
+    display: grid; align-items: center; gap: 10px 8px;
+    grid-template-columns: 1fr 28px 1.25fr 28px 1fr 28px 1fr;
+  }
+  .node {
+    position: relative; padding: 14px 14px 12px; text-align: center;
+    background: var(--surface); border: 2px solid var(--line); border-radius: 12px;
+    transition: border-color .45s, box-shadow .45s, background .45s, transform .45s;
+  }
+  .node b { display: block; font-size: 15.5px; }
+  .node span { display: block; color: var(--muted); font-size: 13px; line-height: 1.35; margin-top: 2px; }
+  .node.mock { border-style: dashed; }
+  .tag {
+    display: inline-block; margin-top: 8px; padding: 1px 8px; border-radius: 999px;
+    font-size: 11px; font-weight: 600; font-style: normal; letter-spacing: .05em; text-transform: uppercase;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .mock .tag { background: var(--gold-soft); color: var(--gold); }
+  .node.lit { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow); transform: translateY(-2px); }
+  .arr, .varr { text-align: center; color: var(--muted); font-size: 20px; line-height: 1; transition: color .45s; }
+  .arr::before { content: "\2192"; }
+  .varr::before { content: "\2195"; }
+  .arr.lit, .varr.lit { color: var(--accent); }
+  .n-leader { grid-area: 1 / 1; } .a1 { grid-area: 1 / 2; } .n-agent { grid-area: 1 / 3; } .a2 { grid-area: 1 / 4; }
+  .n-verifier { grid-area: 1 / 5; } .a3 { grid-area: 1 / 6; } .n-answer { grid-area: 1 / 7; }
+  .v1 { grid-area: 2 / 3; } .n-tools { grid-area: 3 / 2 / auto / 5; } .v2 { grid-area: 4 / 3; }
+  .stores { grid-area: 5 / 1 / auto / 8; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .caption {
+    margin: 26px 0 0; min-height: 3.2em; padding: 14px 18px; border-radius: 10px;
+    background: var(--surface); border: 1px solid var(--line);
+  }
+  .caption b { color: var(--accent); }
+  .legend { margin: 14px 0 0; color: var(--muted); font-size: 13.5px; }
+
+  /* ---- The road: layers of the data system ---- */
+  .stack { margin: 36px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; counter-reset: none; }
+  .layer {
+    display: grid; grid-template-columns: 150px 1fr auto; align-items: center; gap: 16px;
+    padding: 14px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  }
+  .layer .ms { font-size: 12.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .layer b { display: block; }
+  .layer span.what { color: var(--muted); font-size: 14.5px; }
+  .chip { padding: 3px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600; white-space: nowrap; background: var(--gold-soft); color: var(--gold); }
+  .layer.done { border: 2px solid var(--accent); background: var(--accent-soft); box-shadow: var(--shadow); }
+  .layer.done .ms { color: var(--accent); }
+  .layer.done .chip { background: var(--accent); color: var(--accent-ink); }
+  .layer.next { border: 2px dashed var(--accent); }
+  .layer.next .chip { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); animation: pulse 2s ease-in-out infinite; }
+  .layer.source { border-style: dashed; background: transparent; }
+  .layer.source .chip { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+  @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 transparent; } 50% { box-shadow: 0 0 0 6px var(--accent-soft); } }
+  .flow-up { text-align: center; color: var(--muted); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; margin: 18px 0 0; }
+
+  /* ---- Covered ---- */
+  .stats { margin: 36px 0 0; display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+  .stat { padding: 16px 10px; text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+  .stat b { display: block; font-family: var(--serif); font-size: 40px; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .stat span { display: block; margin-top: 6px; color: var(--muted); font-size: 13.5px; line-height: 1.3; }
+  .books { margin: 22px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .books li { padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+  .books .no { font: 600 12.5px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--accent); }
+  .books b { display: block; margin: 6px 0 4px; font-size: 16.5px; }
+  .books span { color: var(--muted); font-size: 14.5px; }
+
+  /* ---- Learned ---- */
+  .lessons { margin: 34px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; counter-reset: lesson; }
+  .lessons li {
+    counter-increment: lesson;
+    display: grid; grid-template-columns: 54px 1fr; gap: 6px; align-items: baseline;
+    padding: 18px 0; border-bottom: 1px solid var(--line);
+  }
+  .lessons li::before { content: counter(lesson, decimal-leading-zero); font-family: var(--serif); font-size: 26px; color: var(--accent); }
+  .lessons b { display: block; font-family: var(--serif); font-size: clamp(19px, 2.3vw, 24px); font-weight: 600; line-height: 1.25; }
+  .lessons span { display: block; margin-top: 4px; color: var(--muted); max-width: 70ch; }
+
+  /* ---- Finale ---- */
+  #confetti { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .stamp {
+    position: relative; width: 190px; height: 190px; margin: 0 auto 30px; border-radius: 50%;
+    display: grid; place-items: center;
+    border: 3px solid var(--gold); color: var(--gold);
+    box-shadow: 0 0 0 8px rgba(231, 195, 106, .08), 0 0 70px rgba(231, 195, 106, .25);
+  }
+  .stamp::before { content: ""; position: absolute; inset: 9px; border-radius: 50%; border: 1px solid var(--gold); opacity: .6; }
+  .stamp svg { width: 62px; height: 62px; }
+  .stamp path { stroke: var(--gold); stroke-width: 6; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 90; stroke-dashoffset: 0; }
+  .stamp small { position: absolute; bottom: 30px; font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+  .js .stamp { opacity: 0; transform: scale(2.4) rotate(-18deg); }
+  .js .in .stamp { animation: stamp .7s cubic-bezier(.2, 1.3, .4, 1) .25s forwards; }
+  .js .stamp path { stroke-dashoffset: 90; }
+  .js .in .stamp path { animation: draw .6s ease-out .95s forwards; }
+  @keyframes stamp { to { opacity: 1; transform: scale(1) rotate(-8deg); } }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .finale h2 { font-size: clamp(34px, 6vw, 68px); line-height: 1.05; }
+  .rule { max-width: 30ch; margin: 22px auto 0; font-family: var(--serif); font-size: clamp(19px, 2.4vw, 25px); line-height: 1.4; color: var(--ink); }
+  .rule em { font-style: normal; color: var(--accent); }
+  .nextcard {
+    max-width: 680px; margin: 44px auto 0; padding: 24px 26px; text-align: left;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  }
+  .nextcard h3 { margin: 4px 0 8px; font-family: var(--serif); font-size: 25px; font-weight: 600; }
+  .nextcard p { margin: 0; color: var(--muted); }
+  .nextcard ul { margin: 12px 0 0; padding-left: 18px; color: var(--muted); }
+  .actions { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn {
+    display: inline-block; padding: 10px 18px; border-radius: 9px; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
+    background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent);
+  }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn:hover { filter: brightness(1.08); }
+
+  @media (max-width: 860px) {
+    .rail { display: none; }
+    .scene { padding: 64px 18px; }
+    .chain { grid-template-columns: 1fr 1fr; gap: 18px; }
+    .chain::before, .traveller { display: none; }
+    .needs, .books { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(3, 1fr); }
+    .layer { grid-template-columns: 1fr auto; }
+    .layer .ms { grid-column: 1 / -1; }
+    /* The architecture becomes one column, in the order the data moves */
+    .arch { display: flex; flex-direction: column; align-items: stretch; }
+    .arch > * { grid-area: auto; }
+    .n-leader { order: 1; } .a1 { order: 2; } .n-agent { order: 3; } .v1 { order: 4; } .n-tools { order: 5; }
+    .v2 { order: 6; } .stores { order: 7; grid-template-columns: 1fr 1fr; } .a2 { order: 8; }
+    .n-verifier { order: 9; } .a3 { order: 10; } .n-answer { order: 11; }
+    .arr::before { content: "\2193"; }
+  }
+  @media (max-width: 480px) {
+    .chain { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .lessons li { grid-template-columns: 40px 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .js .r, .js .stamp { opacity: 1; transform: none; }
+    .js .stamp path { stroke-dashoffset: 0; }
+    .bars { display: none; }
+    .traveller { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bars" id="bars" aria-hidden="true"><i></i><i></i></div>
+<div class="topbar" aria-hidden="true"><i id="progress"></i></div>
+<nav class="rail" id="rail" aria-label="Sections"></nav>
+
+<main>
+
+  <!-- 1. Title -->
+  <section class="scene cinema title" id="title" data-name="Start">
+    <div class="inner">
+      <p class="eyebrow r">Retail Profit Stack &middot; Milestone 1</p>
+      <h1 class="r" style="--i:2">You asked a business question.<br><em>And you can trust the answer.</em></h1>
+      <p class="lede r" style="--i:4">A look back at what was asked, what you built, and what you learned, before the data system grows.</p>
+      <p class="scroll-cue r" style="--i:7">Scroll</p>
+    </div>
+  </section>
+
+  <!-- 2. Where we started: the business -->
+  <section class="scene" id="business" data-name="The business">
+    <div class="inner">
+      <p class="eyebrow r">Where it all comes from</p>
+      <h2 class="r" style="--i:1">The business runs left to right.</h2>
+      <p class="lede r" style="--i:2">You saw this chain on the business workflow page. A product travels from a vendor, through the retail platform, to a customer. Every step along the way leaves records behind.</p>
+
+      <div class="chain">
+        <span class="traveller" aria-hidden="true"></span>
+        <div class="r" style="--i:3">
+          <div class="anchor"><span class="badge">1</span>Product</div>
+          <ul class="leaves"><li>products</li><li>categories</li></ul>
+        </div>
+        <div class="r" style="--i:4">
+          <div class="anchor"><span class="badge">2</span>Vendor</div>
+          <ul class="leaves"><li>agreements</li><li>product costs</li></ul>
+        </div>
+        <div class="r" style="--i:5">
+          <div class="anchor"><span class="badge">3</span>Retail platform</div>
+          <ul class="leaves"><li>orders, discounts</li><li>payments, shipments</li></ul>
+        </div>
+        <div class="r" style="--i:6">
+          <div class="anchor"><span class="badge">4</span>Customer</div>
+          <ul class="leaves"><li>deliveries</li><li>returns, refunds</li></ul>
+        </div>
+      </div>
+
+      <p class="funnel r" style="--i:8" aria-hidden="true">&darr;</p>
+      <div class="profit-box r" style="--i:9">
+        <b>Profit</b>
+        What is left of a sale after discounts, refunds, product cost, and the cost of getting it to the customer.
+      </div>
+      <p class="note r" style="--i:10">A data system exists to turn those records into answers. We did not start at the records. We started where the business leader sits: <strong>at the answer</strong>. <a href="../../understand_business/business_workflow.html">Open the business workflow page</a></p>
+    </div>
+  </section>
+
+  <!-- 3. The requirement -->
+  <section class="scene" id="requirement" data-name="The requirement">
+    <div class="inner">
+      <p class="eyebrow r">The requirement</p>
+      <h2 class="r" style="--i:1">One question, in plain language.</h2>
+      <blockquote class="question r" style="--i:3">&ldquo;Which products and categories generated the most contribution profit last month, what changed, and how confident should I be in those numbers?&rdquo;</blockquote>
+      <p class="lede r" style="--i:5">The business requirements document said a good answer must contain six things.</p>
+      <ul class="needs">
+        <li class="r" style="--i:6"><b>A headline</b><span>The answer in a sentence or two</span></li>
+        <li class="r" style="--i:7"><b>The figures</b><span>Each with its month, product or category, and source</span></li>
+        <li class="r" style="--i:8"><b>The definition</b><span>Which metric definition was used, and its version</span></li>
+        <li class="r" style="--i:9"><b>The assumptions</b><span>What shapes the figures</span></li>
+        <li class="r" style="--i:10"><b>The data problems</b><span>Anything known that affects the figures</span></li>
+        <li class="r" style="--i:11"><b>A confidence level</b><span>High, medium, or low, with reasons</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 4. The system -->
+  <section class="scene" id="system" data-name="The system">
+    <div class="inner">
+      <p class="eyebrow r">The data system you built</p>
+      <h2 class="r" style="--i:1">An analyst that shows its working.</h2>
+      <p class="lede r" style="--i:2">Watch one question travel through it. The model understands, chooses, and explains. Code does every calculation and checks the result.</p>
+
+      <div class="arch r" style="--i:3" id="arch">
+        <div class="node n-leader" data-n="leader"><b>Retail leader</b><span>asks the question</span></div>
+        <div class="arr a1" data-n="a1"></div>
+        <div class="node n-agent" data-n="agent"><b>Analyst agent</b><span>an AI model that picks tools and writes the answer</span><i class="tag">real</i></div>
+        <div class="arr a2" data-n="a2"></div>
+        <div class="node n-verifier" data-n="verifier"><b>Verifier</b><span>code that checks every figure</span><i class="tag">real</i></div>
+        <div class="arr a3" data-n="a3"></div>
+        <div class="node n-answer" data-n="answer"><b>Verified answer</b><span>figures, sources, caveats, confidence</span></div>
+
+        <div class="varr v1" data-n="v1"></div>
+        <div class="node n-tools" data-n="tools"><b>Six tools</b><span>plain code: look up, add up, rank, compare, find data problems</span><i class="tag">real</i></div>
+        <div class="varr v2" data-n="v2"></div>
+
+        <div class="stores">
+          <div class="node" data-n="defs"><b>Metric definitions</b><span>versioned formulas</span><i class="tag">real</i></div>
+          <div class="node mock" data-n="profit"><b>Monthly profit</b><span>prepared by hand</span><i class="tag">mocked</i></div>
+          <div class="node mock" data-n="evidence"><b>Evidence records</b><span>hand-written samples</span><i class="tag">mocked</i></div>
+          <div class="node mock" data-n="flags"><b>Quality flags</b><span>planted problems</span><i class="tag">mocked</i></div>
+        </div>
+      </div>
+
+      <p class="caption r" style="--i:5" id="caption" aria-live="off"></p>
+      <p class="legend r" style="--i:6">Solid boxes are real in this milestone. Dashed boxes are mocked: they stand in for parts of the system you have not built yet.</p>
+    </div>
+  </section>
+
+  <!-- 5. The road -->
+  <section class="scene" id="road" data-name="The road">
+    <div class="inner">
+      <p class="eyebrow r">Where this is going</p>
+      <h2 class="r" style="--i:1">You built the top. Next, you build what holds it up.</h2>
+      <p class="lede r" style="--i:2">Data flows upward, from the business's records to the answer. We are building downward: each milestone replaces one mocked layer with a real one, and the same question must keep getting the right answer.</p>
+
+      <ol class="stack">
+        <li class="layer done r" style="--i:3"><span class="ms">Milestone 1</span><div><b>The business answer</b><span class="what">AI analyst, six tools, verifier, evaluation set</span></div><span class="chip">Done</span></li>
+        <li class="layer r" style="--i:4"><span class="ms">Milestone 4</span><div><b>Lineage and run history</b><span class="what">Trace any figure back to the inputs that produced it</span></div><span class="chip">Mocked for now</span></li>
+        <li class="layer r" style="--i:5"><span class="ms">Milestone 3</span><div><b>Quality checks</b><span class="what">Real checks that decide what data can be trusted</span></div><span class="chip">Mocked for now</span></li>
+        <li class="layer next r" style="--i:6"><span class="ms">Milestone 2</span><div><b>Metric calculations</b><span class="what">Calculate profit from orders, refunds, and costs</span></div><span class="chip">Next</span></li>
+        <li class="layer r" style="--i:7"><span class="ms">Milestone 5</span><div><b>Ingestion</b><span class="what">Load source files repeatably, and cope when they change</span></div><span class="chip">Mocked for now</span></li>
+        <li class="layer source r" style="--i:8"><span class="ms">The business</span><div><b>Business records</b><span class="what">Orders, discounts, refunds, shipments, product costs, payment fees: everything the workflow page showed</span></div><span class="chip">Source</span></li>
+      </ol>
+      <p class="flow-up r" style="--i:9">&uarr; data flows up &nbsp;&middot;&nbsp; we build down &darr;</p>
+      <p class="note r" style="--i:10">Milestone 6 then makes the whole stack behave when data arrives late, is corrected, or is run again.</p>
+    </div>
+  </section>
+
+  <!-- 6. What you covered -->
+  <section class="scene" id="covered" data-name="What you covered">
+    <div class="inner">
+      <p class="eyebrow r">What you covered</p>
+      <h2 class="r" style="--i:1">From a requirement to tested code.</h2>
+
+      <div class="stats">
+        <div class="stat r" style="--i:2"><b data-count="3">3</b><span>design documents: BRD, HLD, LLD</span></div>
+        <div class="stat r" style="--i:3"><b data-count="6">6</b><span>lab notebooks</span></div>
+        <div class="stat r" style="--i:4"><b data-count="6">6</b><span>tools the analyst can call</span></div>
+        <div class="stat r" style="--i:5"><b data-count="7">7</b><span>checks on every answer</span></div>
+        <div class="stat r" style="--i:6"><b data-count="7">7</b><span>evaluation questions</span></div>
+        <div class="stat r" style="--i:7"><b data-count="79">79</b><span>automated tests</span></div>
+      </div>
+
+      <ol class="books">
+        <li class="r" style="--i:8"><span class="no">01</span><b>The business question</b><span>You answered it by hand and wrote down the answer key.</span></li>
+        <li class="r" style="--i:9"><span class="no">02</span><b>Your first LLM calls</b><span>A plain call, a structured call, and AI drafting metric definitions.</span></li>
+        <li class="r" style="--i:10"><span class="no">03</span><b>The LLM with all the data</b><span>You pasted the table into the prompt and checked the answer against the key.</span></li>
+        <li class="r" style="--i:11"><span class="no">04</span><b>Tools and agents</b><span>You ran the agent loop by hand, then let LangChain run it.</span></li>
+        <li class="r" style="--i:12"><span class="no">05</span><b>The agent answers</b><span>Six tools, one question, and a three-way comparison.</span></li>
+        <li class="r" style="--i:13"><span class="no">06</span><b>Verify and go to production</b><span>You checked an answer with code alone, and met the production version.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 7. What you learned -->
+  <section class="scene" id="learned" data-name="What you learned">
+    <div class="inner">
+      <p class="eyebrow r">What you learned</p>
+      <h2 class="r" style="--i:1">Five things an AI data engineer knows.</h2>
+      <ol class="lessons">
+        <li class="r" style="--i:2"><div><b>Know the right answer before you ask the AI.</b><span>You started from the business requirement and worked the answer out by hand. Without an answer key, you cannot tell a correct answer from a confident one.</span></div></li>
+        <li class="r" style="--i:3"><div><b>A structured reply is something code can use.</b><span>A plain call returns text to read. A structured call returns a filled-in form, with every number in its own labelled slot, ready to be checked.</span></div></li>
+        <li class="r" style="--i:4"><div><b>An agent is a model, with tools, in a loop.</b><span>The model never runs anything. It asks, your code runs the tool, and you reply. LangChain writes the tool descriptions and runs that loop for you.</span></div></li>
+        <li class="r" style="--i:5"><div><b>Right this time is not the same as trustworthy.</b><span>A capable model got every figure right from a pasted table. But you could not trace a number, check it without a key, or rely on it at a larger scale.</span></div></li>
+        <li class="r" style="--i:6"><div><b>AI drafts and explains. Code decides and checks.</b><span>AI drafted the metric definitions and wrote the answer. A person fixed the definitions, code calculated every figure, and a verifier checked the result.</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 8. Finale -->
+  <section class="scene cinema finale" id="finale" data-name="Complete">
+    <canvas id="confetti" aria-hidden="true"></canvas>
+    <div class="inner">
+      <div class="stamp" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><path d="M14 34 l12 12 l24 -28"/></svg>
+        <small>Complete</small>
+      </div>
+      <p class="eyebrow r" style="--i:8">Milestone 1 of 6</p>
+      <h2 class="r" style="--i:9">Milestone 1 complete.</h2>
+      <p class="rule r" style="--i:11">Let the model do what it is good at. <em>Keep every number in code.</em> Check the result with code.</p>
+
+      <div class="nextcard r" style="--i:13">
+        <p class="eyebrow">Next &middot; Milestone 2</p>
+        <h3>The metric and calculation layer</h3>
+        <p>Right now the profit figures are prepared by hand. Next you will calculate them, from the orders, refunds, and costs the business actually produces.</p>
+        <ul>
+          <li>The mocked profit table becomes real, repeatable calculations.</li>
+          <li>The same six tools and the same question stay exactly as they are.</li>
+          <li>The evaluation set you built must keep passing.</li>
+        </ul>
+        <div class="actions">
+          <a class="btn" href="../m2_metric_calculation_layer/README.md">Go to milestone 2</a>
+          <a class="btn ghost" href="../../understand_business/business_workflow.html">Revisit the business workflow</a>
+          <button class="btn ghost" id="again" type="button">Celebrate again</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var scenes = Array.prototype.slice.call(document.querySelectorAll('.scene'));
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---- Opening: the letterbox bars slide away
+  requestAnimationFrame(function () { $('bars').classList.add('open'); });
+  setTimeout(function () { $('bars').style.display = 'none'; }, 2200);
+
+  // ---- Section rail and progress bar
+  var rail = $('rail');
+  scenes.forEach(function (scene) {
+    var dot = document.createElement('a');
+    dot.href = '#' + scene.id;
+    dot.title = scene.dataset.name;
+    dot.setAttribute('aria-label', scene.dataset.name);
+    rail.appendChild(dot);
+  });
+  function onScroll() {
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    $('progress').style.width = (max > 0 ? window.scrollY / max * 100 : 0) + '%';
+    var middle = window.scrollY + window.innerHeight / 2;
+    scenes.forEach(function (scene, index) {
+      var on = middle >= scene.offsetTop && middle < scene.offsetTop + scene.offsetHeight;
+      rail.children[index].classList.toggle('on', on);
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  // ---- Count-up numbers
+  function countUp(element) {
+    var target = Number(element.dataset.count);
+    if (reduceMotion) { element.textContent = target; return; }
+    var start = performance.now(), duration = 1100 + target * 8;
+    (function tick(now) {
+      var t = Math.min((now - start) / duration, 1);
+      element.textContent = Math.round(target * (1 - Math.pow(1 - t, 3)));
+      if (t < 1) requestAnimationFrame(tick);
+    })(start);
+  }
+
+  // ---- The architecture: one question travelling through the system
+  var STEPS = [
+    { lit: ['leader'], text: '<b>1. The question.</b> The retail leader asks, in plain language, which products made the most contribution profit and how far to trust it.' },
+    { lit: ['a1', 'agent'], text: '<b>2. The agent plans.</b> The AI model reads the question and decides what it needs to look up. It has no data of its own.' },
+    { lit: ['agent', 'v1', 'tools'], text: '<b>3. It asks for tools.</b> The model cannot run anything. It asks, and code runs the tool: rank the products, compare the months, list the data problems.' },
+    { lit: ['tools', 'v2', 'defs', 'profit', 'evidence', 'flags'], text: '<b>4. The tools read the data.</b> Code does every sum, ranking, and comparison. Today the tables behind the tools are mocked.' },
+    { lit: ['tools', 'v1', 'agent'], text: '<b>5. Results come back.</b> The model writes the answer using only the numbers the tools returned, and every call is recorded in a tool log.' },
+    { lit: ['agent', 'a2', 'verifier'], text: '<b>6. The verifier checks it.</b> Code compares every figure in the answer with the tool log. An invented number is caught here.' },
+    { lit: ['verifier', 'a3', 'answer'], text: '<b>7. A verified answer.</b> The leader gets figures, sources, caveats, and a confidence level that was set by a rule, not by the model.' }
+  ];
+  var nodes = {};
+  Array.prototype.forEach.call(document.querySelectorAll('#arch [data-n]'), function (element) { nodes[element.dataset.n] = element; });
+  var step = -1, timer = null;
+  function showStep(index) {
+    step = index;
+    Object.keys(nodes).forEach(function (name) { nodes[name].classList.toggle('lit', STEPS[index].lit.indexOf(name) !== -1); });
+    $('caption').innerHTML = STEPS[index].text;
+  }
+  function playSystem(on) {
+    clearInterval(timer);
+    if (!on) return;
+    if (step < 0) showStep(0);
+    if (!reduceMotion) timer = setInterval(function () { showStep((step + 1) % STEPS.length); }, 3200);
+  }
+  showStep(0);
+
+  // ---- Confetti for the finale
+  var canvas = $('confetti'), context = canvas.getContext('2d'), pieces = [], running = false;
+  var COLOURS = ['#5fc5b0', '#e7c36a', '#f1efe9', '#2f9c88', '#f0d99a'];
+  function celebrate() {
+    if (reduceMotion) return;
+    var ratio = Math.min(window.devicePixelRatio || 1, 2);
+    var width = canvas.clientWidth, height = canvas.clientHeight;
+    canvas.width = width * ratio; canvas.height = height * ratio;
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    for (var i = 0; i < 170; i++) {
+      var fromLeft = i % 2 === 0;
+      pieces.push({
+        x: fromLeft ? width * 0.12 : width * 0.88, y: height * 0.62,
+        vx: (fromLeft ? 1 : -1) * (2 + Math.random() * 7), vy: -(8 + Math.random() * 11),
+        size: 5 + Math.random() * 6, spin: Math.random() * Math.PI, vspin: (Math.random() - 0.5) * 0.35,
+        colour: COLOURS[i % COLOURS.length], life: 1
+      });
+    }
+    if (!running) { running = true; requestAnimationFrame(draw); }
+  }
+  function draw() {
+    var width = canvas.clientWidth, height = canvas.clientHeight;
+    context.clearRect(0, 0, width, height);
+    pieces = pieces.filter(function (p) { return p.life > 0 && p.y < height + 20; });
+    pieces.forEach(function (p) {
+      p.vy += 0.22; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.spin += p.vspin;
+      if (p.vy > 0) p.life -= 0.006;
+      context.save();
+      context.globalAlpha = Math.max(p.life, 0);
+      context.translate(p.x, p.y); context.rotate(p.spin);
+      context.fillStyle = p.colour;
+      context.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+      context.restore();
+    });
+    if (pieces.length) requestAnimationFrame(draw); else { running = false; context.clearRect(0, 0, width, height); }
+  }
+  $('again').addEventListener('click', celebrate);
+
+  // ---- Reveal each scene as it scrolls into view
+  var seen = {};
+  function enter(scene) {
+    scene.classList.add('in');
+    if (seen[scene.id]) return;
+    seen[scene.id] = true;
+    if (scene.id === 'covered') {
+      Array.prototype.forEach.call(scene.querySelectorAll('[data-count]'), function (element) { setTimeout(function () { countUp(element); }, 350); });
+    }
+    if (scene.id === 'finale') setTimeout(celebrate, 1100);
+  }
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) enter(entry.target);
+        if (entry.target.id === 'system') playSystem(entry.isIntersecting);
+      });
+    }, { threshold: 0.22 });
+    scenes.forEach(function (scene) { observer.observe(scene); });
+  } else {
+    scenes.forEach(enter);
+    playSystem(true);
+  }
+})();
+</script>
+</body>
+</html>

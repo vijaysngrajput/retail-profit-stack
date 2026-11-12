@@ -95,7 +95,7 @@ def connect() -> tuple[OpenAI, str]:
     """Return an OpenRouter client and the model name, using the key in the project's .env."""
     load_dotenv(find_dotenv(usecwd=True), override=True)
     api_key = os.getenv("OPENROUTER_API_KEY")
-    model = os.getenv("MODEL_NAME", "openrouter/free")
+    model = os.getenv("MODEL_NAME", "anthropic/claude-haiku-5.5")
     if not api_key:
         raise RuntimeError(
             "No OpenRouter API key found. Copy .env.example to .env in the project root, "
@@ -179,6 +179,49 @@ def show_answer(answer: AnalystAnswer) -> None:
         reasons = " ".join(answer.confidence.reasons)
         lines.append(f"\n**Confidence: {answer.confidence.level}.** {reasons}")
     display(Markdown("\n".join(lines)))
+
+
+def is_filled(answer) -> bool:
+    """True when a model actually filled in the form, not just returned an empty one."""
+    if answer is None:
+        return False
+    if isinstance(answer, AnalystAnswer):
+        if answer.status == "declined":
+            return bool(answer.decline_reason and answer.decline_reason.strip())
+        return bool(answer.headline.strip()) and bool(answer.figures)
+    return True
+
+
+def structured_call(client: OpenAI, model: str, messages: list, form, attempts: int = 3):
+    """Make the structured call from notebook 2, and try again if the reply is unusable.
+
+    A model can send back the form with nothing in it, or fail to produce the form at all.
+    Free models do this often. Each attempt is one model request.
+    """
+    problem = ""
+    for attempt in range(1, attempts + 1):
+        try:
+            response = client.chat.completions.parse(
+                model=model,
+                messages=messages,
+                response_format=form,
+                extra_body={"provider": {"require_parameters": True}},
+            )
+        except Exception as error:  # noqa: BLE001 - any failure here just means "try again"
+            problem = f"the request failed ({type(error).__name__}: {str(error)[:150]})"
+            print(f"Attempt {attempt}: {problem}")
+            continue
+        answer = response.choices[0].message.parsed
+        if is_filled(answer):
+            print(f"Attempt {attempt}: answered by {response.model}")
+            return answer
+        problem = f"{response.model} sent back an empty form"
+        print(f"Attempt {attempt}: {problem}")
+    raise RuntimeError(
+        f"No usable answer after {attempts} attempts (last problem: {problem}). "
+        "Run this cell again. If it keeps failing, check MODEL_NAME in your .env: the lab is "
+        "tested with anthropic/claude-haiku-5.5."
+    )
 
 
 # ---- Checking an answer against the truth (notebooks 3 and 5) ---------------
@@ -281,7 +324,9 @@ def compare_with_key(answer_key: dict, answers: dict) -> pd.DataFrame:
                 continue
             given = {(f.metric, f.kind, f.month, f.entity_id): f.value for f in answer.figures}
             if key not in given:
-                row[f"{name} said"], row[f"{name} right?"] = "not given", "no"
+                # Leaving out a figure that is unavailable is as correct as reporting it as null
+                row[f"{name} said"] = "not given"
+                row[f"{name} right?"] = "yes" if line["value"] is None else "no"
             else:
                 row[f"{name} said"] = _money(given[key], line["kind"])
                 row[f"{name} right?"] = "yes" if same_value(given[key], line["value"]) else "NO"

@@ -34,6 +34,14 @@ def test_invented_number_in_the_text_is_caught():
     assert failed(answer) == {"no_unsupported_numbers"}
 
 
+def test_a_year_written_in_words_is_not_treated_as_a_figure():
+    answer = main_answer()
+    answer.headline = "In October 2026, Hydration led the categories."
+    assert failed(answer) == set()
+    answer.headline = "In October 2031, Hydration led the categories."
+    assert failed(answer) == {"no_unsupported_numbers"}
+
+
 def test_rounded_number_in_the_text_is_allowed():
     answer = main_answer()
     answer.narrative = "Trail water bottle made about $5,188 and ranked 1 of 12 products."

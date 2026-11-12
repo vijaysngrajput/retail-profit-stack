@@ -38,6 +38,7 @@ src/<milestone>/
   tests/                 tests for the production code
   data/                  this milestone's data
   evals/                 questions with known correct answers
+  milestone_N_recap.html a closing page: what was asked, what you built, what you learned
 ```
 
 **Each milestone is built in the same order**, the way a real data team works:
@@ -48,6 +49,7 @@ src/<milestone>/
    - **LLD** (low-level design): the exact tables, formulas, functions, and checks
 2. **Lab notebooks.** A short series of Jupyter notebooks that work the solution out step by step. They are written for someone who has never written LLM or agent code.
 3. **Production code and tests.** The same logic rebuilt properly, with tests that prove it matches the notebooks.
+4. **Recap page.** An animated page to open when you finish, showing how far the data system has come and what the next milestone adds.
 
 **The lab notebooks teach you to use AI to meet a business requirement, and to know how far to trust it.** In every milestone:
 
@@ -68,6 +70,8 @@ uv sync
 ```
 
 Copy `.env.example` to `.env` and add an OpenRouter API key. Keep `.env` private; it is ignored by Git.
+
+The labs are tested with `anthropic/claude-haiku-5.5`, a low-cost paid model, which is the default in `.env.example`. A whole milestone's lab costs a few US cents. You can set `MODEL_NAME=openrouter/free` to pay nothing, but free models are slow and often fail at the structured calls the labs rely on.
 
 In VS Code, install the Python and Jupyter extensions. Open a notebook, choose **Select Kernel**, then **Python Environments**, and select this project's `.venv`.
 

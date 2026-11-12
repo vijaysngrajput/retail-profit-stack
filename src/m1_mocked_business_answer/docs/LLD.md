@@ -256,7 +256,7 @@ sequenceDiagram
 | Check | Passes when |
 |---|---|
 | `figures_match_tools` | Every figure's value equals a value in the named tool's results for the same metric, month, and entity |
-| `no_unsupported_numbers` | Every number in the headline and narrative matches a number in the run's tool results, allowing for rounding and currency formatting. Dates, identifiers, version numbers, and counts up to 12 are ignored |
+| `no_unsupported_numbers` | Every number in the headline and narrative matches a number in the run's tool results, allowing for rounding and currency formatting. Dates, the years of the months that were read, identifiers, version numbers, and counts up to 12 are ignored |
 | `sources_cited` | An answered response lists at least one source, and each source appears in the tool log |
 | `definitions_stated` | Each metric used in a figure has a definition reference with the current version |
 | `confidence_matches_rule` | An answer with figures has a confidence level equal to the level returned by `get_quality_flags` in that run (the worst one if it was called more than once) |

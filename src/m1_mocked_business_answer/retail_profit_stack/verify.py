@@ -4,6 +4,7 @@ Implements LLD section 8 (Verifier checks). The verifier compares the answer
 with the tool log from the same run. It never asks a model for an opinion.
 """
 
+import json
 import re
 
 from retail_profit_stack.config import METRIC_VERSION
@@ -113,11 +114,14 @@ def _check_figures(answer, tool_log) -> CheckResult:
 
 
 def _check_prose_numbers(answer, tool_log) -> CheckResult:
-    known = _numbers_in_results([call.result for call in tool_log])
+    results = [call.result for call in tool_log]
+    known = _numbers_in_results(results)
+    # "September 2026" is a date, not a figure: allow the years of the months the tools read
+    years = {int(year) for year in re.findall(r"\b(\d{4})-\d{2}\b", json.dumps(results))}
     known += [abs(figure.value) for figure in answer.figures if figure.value is not None]
     unsupported = []
     for number, decimals in numbers_in_text(f"{answer.headline} {answer.narrative}"):
-        if decimals == 0 and number <= SMALL_COUNT:
+        if decimals == 0 and (number <= SMALL_COUNT or int(number) in years):
             continue
         tolerance = 0.5 * 10 ** (-decimals) + 1e-9
         if not any(abs(number - value) <= tolerance for value in known):

@@ -107,7 +107,7 @@ Python 3.12, CSV files in this milestone's `data/mock/` folder, DuckDB for queri
 
 | Risk | Handling |
 |---|---|
-| The free OpenRouter model may handle tool calls or structured answers poorly | The model name is configurable. The verifier reports failures plainly so a weak model is visible, not hidden |
+| A weak model may handle tool calls or structured answers poorly (free models often do) | The default is a low-cost paid model that handles both well. The model name is configurable. The verifier reports failures plainly so a weak model is visible, not hidden |
 | Live model answers vary between runs | Tests use the fake model. Live evaluation reports a pass rate per check |
 | The model states a number in prose that no tool returned | The verifier scans the headline and narrative for numbers and fails the answer if one is unmatched |
 
