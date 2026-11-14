@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "A learning project for AI-assisted retail data engineering."
 requires-python = ">=3.12"
 dependencies = [
+    "deepagents>=0.7.38",
     "duckdb>=1.4.0",
     "ipykernel>=7.0.0",
     "langchain>=1.0.0",
@@ -44,6 +45,7 @@ exclude = ["**/tests", "**/notebooks", "**/.venv"]
 executionEnvironments = [
     { root = "src/m1_mocked_business_answer" },
     { root = "src/m2_metric_calculation_layer" },
+    { root = "src/m3_quality_trust_layer" },
 ]
 venvPath = "."
 venv = ".venv"

@@ -18,7 +18,7 @@ The project starts at the business answer and works backward, replacing one mock
 |---|---|---|
 | [1. Mocked business answer](src/m1_mocked_business_answer/) | An AI analyst answers a profit question from prepared figures and shows its evidence | Done |
 | [2. Metric and calculation layer](src/m2_metric_calculation_layer/) | Profit is calculated from orders, refunds, and costs, on interchangeable engines; AI drafts the calculations | Done |
-| [3. Quality and trust layer](src/m3_quality_trust_layer/) | Real data quality checks replace the planted problems | Not started |
+| [3. Quality and trust layer](src/m3_quality_trust_layer/) | Real data quality checks replace the hand-written list of problems; an AI agent investigates what they find | Done |
 | [4. Lineage and run history](src/m4_lineage_run_history/) | Every figure can be traced to its inputs and compared between runs | Not started |
 | [5. Raw data and ingestion](src/m5_raw_data_ingestion/) | Source files are generated and loaded repeatably | Not started |
 | [6. Realistic operations](src/m6_realistic_operations/) | Late data, corrections, and reruns are handled | Not started |

@@ -1,0 +1,1247 @@
+[
+ {
+  "transformation": "sales",
+  "name": "a plain order",
+  "why": "Two units at list price, no discount.",
+  "inputs": {
+   "orders": [
+    {
+     "order_id": "O1",
+     "order_date": "2026-10-05",
+     "status": "completed"
+    }
+   ],
+   "order_items": [
+    {
+     "order_item_id": "I1",
+     "order_id": "O1",
+     "product_id": "P001",
+     "quantity": 2,
+     "unit_list_price": 40.0,
+     "discount_amount": 0.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "units_sold": 2,
+    "gross_sales": 80.0,
+    "discounts": 0.0
+   }
+  ]
+ },
+ {
+  "transformation": "sales",
+  "name": "a discounted line",
+  "why": "The discount is recorded, not taken off gross sales.",
+  "inputs": {
+   "orders": [
+    {
+     "order_id": "O1",
+     "order_date": "2026-10-05",
+     "status": "completed"
+    }
+   ],
+   "order_items": [
+    {
+     "order_item_id": "I1",
+     "order_id": "O1",
+     "product_id": "P001",
+     "quantity": 1,
+     "unit_list_price": 40.0,
+     "discount_amount": 4.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "units_sold": 1,
+    "gross_sales": 40.0,
+    "discounts": 4.0
+   }
+  ]
+ },
+ {
+  "transformation": "sales",
+  "name": "a cancelled order is left out",
+  "why": "Only the completed order counts.",
+  "inputs": {
+   "orders": [
+    {
+     "order_id": "O1",
+     "order_date": "2026-10-05",
+     "status": "completed"
+    },
+    {
+     "order_id": "O2",
+     "order_date": "2026-10-06",
+     "status": "cancelled"
+    }
+   ],
+   "order_items": [
+    {
+     "order_item_id": "I1",
+     "order_id": "O1",
+     "product_id": "P001",
+     "quantity": 1,
+     "unit_list_price": 40.0,
+     "discount_amount": 0.0
+    },
+    {
+     "order_item_id": "I2",
+     "order_id": "O2",
+     "product_id": "P001",
+     "quantity": 3,
+     "unit_list_price": 40.0,
+     "discount_amount": 0.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "units_sold": 1,
+    "gross_sales": 40.0,
+    "discounts": 0.0
+   }
+  ]
+ },
+ {
+  "transformation": "sales",
+  "name": "two months and two products",
+  "why": "Sales are grouped by the order's month and by product.",
+  "inputs": {
+   "orders": [
+    {
+     "order_id": "O1",
+     "order_date": "2026-09-30",
+     "status": "completed"
+    },
+    {
+     "order_id": "O2",
+     "order_date": "2026-10-01",
+     "status": "completed"
+    },
+    {
+     "order_id": "O3",
+     "order_date": "2026-10-02",
+     "status": "completed"
+    }
+   ],
+   "order_items": [
+    {
+     "order_item_id": "I1",
+     "order_id": "O1",
+     "product_id": "P001",
+     "quantity": 1,
+     "unit_list_price": 40.0,
+     "discount_amount": 0.0
+    },
+    {
+     "order_item_id": "I2",
+     "order_id": "O2",
+     "product_id": "P001",
+     "quantity": 2,
+     "unit_list_price": 40.0,
+     "discount_amount": 8.0
+    },
+    {
+     "order_item_id": "I3",
+     "order_id": "O3",
+     "product_id": "P008",
+     "quantity": 1,
+     "unit_list_price": 30.0,
+     "discount_amount": 0.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-09",
+    "product_id": "P001",
+    "units_sold": 1,
+    "gross_sales": 40.0,
+    "discounts": 0.0
+   },
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "units_sold": 2,
+    "gross_sales": 80.0,
+    "discounts": 8.0
+   },
+   {
+    "month": "2026-10",
+    "product_id": "P008",
+    "units_sold": 1,
+    "gross_sales": 30.0,
+    "discounts": 0.0
+   }
+  ]
+ },
+ {
+  "transformation": "sales",
+  "name": "a line that appears twice is counted twice",
+  "why": "Removing duplicates is a quality check for milestone 3. Until then, count what is there.",
+  "inputs": {
+   "orders": [
+    {
+     "order_id": "O1",
+     "order_date": "2026-10-05",
+     "status": "completed"
+    }
+   ],
+   "order_items": [
+    {
+     "order_item_id": "I1",
+     "order_id": "O1",
+     "product_id": "P001",
+     "quantity": 1,
+     "unit_list_price": 40.0,
+     "discount_amount": 4.0
+    },
+    {
+     "order_item_id": "I1",
+     "order_id": "O1",
+     "product_id": "P001",
+     "quantity": 1,
+     "unit_list_price": 40.0,
+     "discount_amount": 4.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "units_sold": 2,
+    "gross_sales": 80.0,
+    "discounts": 8.0
+   }
+  ]
+ },
+ {
+  "transformation": "refund_totals",
+  "name": "one refund",
+  "why": "",
+  "inputs": {
+   "refunds": [
+    {
+     "refund_id": "R1",
+     "order_item_id": "I1",
+     "product_id": "P001",
+     "refund_date": "2026-10-10",
+     "refund_amount": 36.0,
+     "return_handling_cost": 6.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "refunds": 36.0,
+    "return_cost": 6.0
+   }
+  ]
+ },
+ {
+  "transformation": "refund_totals",
+  "name": "two refunds on one line",
+  "why": "A partial refund followed by the rest. Both count.",
+  "inputs": {
+   "refunds": [
+    {
+     "refund_id": "R1",
+     "order_item_id": "I1",
+     "product_id": "P009",
+     "refund_date": "2026-10-10",
+     "refund_amount": 50.0,
+     "return_handling_cost": 9.0
+    },
+    {
+     "refund_id": "R2",
+     "order_item_id": "I1",
+     "product_id": "P009",
+     "refund_date": "2026-10-12",
+     "refund_amount": 62.0,
+     "return_handling_cost": 9.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P009",
+    "refunds": 112.0,
+    "return_cost": 18.0
+   }
+  ]
+ },
+ {
+  "transformation": "refund_totals",
+  "name": "a refund counts in the month it is issued",
+  "why": "The month comes from refund_date, whenever the order was placed.",
+  "inputs": {
+   "refunds": [
+    {
+     "refund_id": "R1",
+     "order_item_id": "I1",
+     "product_id": "P001",
+     "refund_date": "2026-09-28",
+     "refund_amount": 38.0,
+     "return_handling_cost": 6.0
+    },
+    {
+     "refund_id": "R2",
+     "order_item_id": "I2",
+     "product_id": "P001",
+     "refund_date": "2026-10-02",
+     "refund_amount": 38.0,
+     "return_handling_cost": 6.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-09",
+    "product_id": "P001",
+    "refunds": 38.0,
+    "return_cost": 6.0
+   },
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "refunds": 38.0,
+    "return_cost": 6.0
+   }
+  ]
+ },
+ {
+  "transformation": "delivery_costs",
+  "name": "one shipment",
+  "why": "",
+  "inputs": {
+   "shipments": [
+    {
+     "shipment_id": "S1",
+     "order_item_id": "I1",
+     "product_id": "P001",
+     "ship_date": "2026-10-06",
+     "pick_pack_cost": 2.5,
+     "carrier_cost": 4.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "fulfillment_cost": 2.5,
+    "shipping_cost": 4.0
+   }
+  ]
+ },
+ {
+  "transformation": "delivery_costs",
+  "name": "several products and months",
+  "why": "Costs count in the month the line shipped.",
+  "inputs": {
+   "shipments": [
+    {
+     "shipment_id": "S1",
+     "order_item_id": "I1",
+     "product_id": "P001",
+     "ship_date": "2026-09-30",
+     "pick_pack_cost": 2.5,
+     "carrier_cost": 4.0
+    },
+    {
+     "shipment_id": "S2",
+     "order_item_id": "I2",
+     "product_id": "P001",
+     "ship_date": "2026-10-01",
+     "pick_pack_cost": 5.0,
+     "carrier_cost": 8.0
+    },
+    {
+     "shipment_id": "S3",
+     "order_item_id": "I3",
+     "product_id": "P001",
+     "ship_date": "2026-10-09",
+     "pick_pack_cost": 2.5,
+     "carrier_cost": 4.0
+    },
+    {
+     "shipment_id": "S4",
+     "order_item_id": "I4",
+     "product_id": "P005",
+     "ship_date": "2026-10-03",
+     "pick_pack_cost": 8.0,
+     "carrier_cost": 22.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-09",
+    "product_id": "P001",
+    "fulfillment_cost": 2.5,
+    "shipping_cost": 4.0
+   },
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "fulfillment_cost": 7.5,
+    "shipping_cost": 12.0
+   },
+   {
+    "month": "2026-10",
+    "product_id": "P005",
+    "fulfillment_cost": 8.0,
+    "shipping_cost": 22.0
+   }
+  ]
+ },
+ {
+  "transformation": "fee_totals",
+  "name": "one fee",
+  "why": "",
+  "inputs": {
+   "payment_fees": [
+    {
+     "fee_id": "F1",
+     "order_item_id": "I1",
+     "product_id": "P001",
+     "capture_date": "2026-10-05",
+     "fee_amount": 1.08
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "payment_fees": 1.08
+   }
+  ]
+ },
+ {
+  "transformation": "fee_totals",
+  "name": "several products and months",
+  "why": "Fees count in the month the payment was captured.",
+  "inputs": {
+   "payment_fees": [
+    {
+     "fee_id": "F1",
+     "order_item_id": "I1",
+     "product_id": "P001",
+     "capture_date": "2026-09-30",
+     "fee_amount": 1.14
+    },
+    {
+     "fee_id": "F2",
+     "order_item_id": "I2",
+     "product_id": "P001",
+     "capture_date": "2026-10-01",
+     "fee_amount": 2.16
+    },
+    {
+     "fee_id": "F3",
+     "order_item_id": "I3",
+     "product_id": "P001",
+     "capture_date": "2026-10-09",
+     "fee_amount": 1.08
+    },
+    {
+     "fee_id": "F4",
+     "order_item_id": "I4",
+     "product_id": "P008",
+     "capture_date": "2026-10-03",
+     "fee_amount": 0.9
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-09",
+    "product_id": "P001",
+    "payment_fees": 1.14
+   },
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "payment_fees": 3.24
+   },
+   {
+    "month": "2026-10",
+    "product_id": "P008",
+    "payment_fees": 0.9
+   }
+  ]
+ },
+ {
+  "transformation": "product_cost",
+  "name": "cost present",
+  "why": "Ten units at $18.00 each.",
+  "inputs": {
+   "sales": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "units_sold": 10,
+     "gross_sales": 400.0,
+     "discounts": 0.0
+    }
+   ],
+   "product_costs": [
+    {
+     "product_id": "P001",
+     "month": "2026-10",
+     "unit_cost": 18.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "product_cost": 180.0
+   }
+  ]
+ },
+ {
+  "transformation": "product_cost",
+  "name": "cost missing",
+  "why": "The camp stove has no cost. Its row is kept and its cost is unavailable, not zero.",
+  "inputs": {
+   "sales": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "units_sold": 10,
+     "gross_sales": 400.0,
+     "discounts": 0.0
+    },
+    {
+     "month": "2026-10",
+     "product_id": "P007",
+     "units_sold": 5,
+     "gross_sales": 425.0,
+     "discounts": 0.0
+    }
+   ],
+   "product_costs": [
+    {
+     "product_id": "P001",
+     "month": "2026-10",
+     "unit_cost": 18.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "product_cost": 180.0
+   },
+   {
+    "month": "2026-10",
+    "product_id": "P007",
+    "product_cost": null
+   }
+  ]
+ },
+ {
+  "transformation": "product_cost",
+  "name": "the cost for the right month is used",
+  "why": "A different cost in another month must not be picked up.",
+  "inputs": {
+   "sales": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "units_sold": 10,
+     "gross_sales": 400.0,
+     "discounts": 0.0
+    }
+   ],
+   "product_costs": [
+    {
+     "product_id": "P001",
+     "month": "2026-09",
+     "unit_cost": 17.0
+    },
+    {
+     "product_id": "P001",
+     "month": "2026-10",
+     "unit_cost": 18.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "product_cost": 180.0
+   }
+  ]
+ },
+ {
+  "transformation": "monthly_product_profit",
+  "name": "every term present",
+  "why": "net 400 - 40 - 36 = 324. gross profit 324 - 180 = 144. contribution 144 - 25 - 40 - 10.80 - 6 = 62.20.",
+  "inputs": {
+   "sales": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "units_sold": 10,
+     "gross_sales": 400.0,
+     "discounts": 40.0
+    }
+   ],
+   "refund_totals": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "refunds": 36.0,
+     "return_cost": 6.0
+    }
+   ],
+   "delivery_costs": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "fulfillment_cost": 25.0,
+     "shipping_cost": 40.0
+    }
+   ],
+   "fee_totals": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "payment_fees": 10.8
+    }
+   ],
+   "product_cost": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "product_cost": 180.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "units_sold": 10,
+    "gross_sales": 400.0,
+    "discounts": 40.0,
+    "refunds": 36.0,
+    "net_sales": 324.0,
+    "product_cost": 180.0,
+    "gross_profit": 144.0,
+    "fulfillment_cost": 25.0,
+    "shipping_cost": 40.0,
+    "payment_fees": 10.8,
+    "return_cost": 6.0,
+    "contribution_profit": 62.2,
+    "metric_version": "1.0.0"
+   }
+  ]
+ },
+ {
+  "transformation": "monthly_product_profit",
+  "name": "no refunds that month",
+  "why": "With nothing to report, refunds and return cost are 0.00, not missing.",
+  "inputs": {
+   "sales": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "units_sold": 10,
+     "gross_sales": 400.0,
+     "discounts": 40.0
+    }
+   ],
+   "refund_totals": [],
+   "delivery_costs": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "fulfillment_cost": 25.0,
+     "shipping_cost": 40.0
+    }
+   ],
+   "fee_totals": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "payment_fees": 10.8
+    }
+   ],
+   "product_cost": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "product_cost": 180.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "units_sold": 10,
+    "gross_sales": 400.0,
+    "discounts": 40.0,
+    "refunds": 0.0,
+    "net_sales": 360.0,
+    "product_cost": 180.0,
+    "gross_profit": 180.0,
+    "fulfillment_cost": 25.0,
+    "shipping_cost": 40.0,
+    "payment_fees": 10.8,
+    "return_cost": 0.0,
+    "contribution_profit": 104.2,
+    "metric_version": "1.0.0"
+   }
+  ]
+ },
+ {
+  "transformation": "monthly_product_profit",
+  "name": "cost missing",
+  "why": "Sales are still shown. Product cost and both profit lines are unavailable.",
+  "inputs": {
+   "sales": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "units_sold": 10,
+     "gross_sales": 400.0,
+     "discounts": 40.0
+    }
+   ],
+   "refund_totals": [],
+   "delivery_costs": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "fulfillment_cost": 25.0,
+     "shipping_cost": 40.0
+    }
+   ],
+   "fee_totals": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "payment_fees": 10.8
+    }
+   ],
+   "product_cost": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "product_cost": null
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "units_sold": 10,
+    "gross_sales": 400.0,
+    "discounts": 40.0,
+    "refunds": 0.0,
+    "net_sales": 360.0,
+    "product_cost": null,
+    "gross_profit": null,
+    "fulfillment_cost": 25.0,
+    "shipping_cost": 40.0,
+    "payment_fees": 10.8,
+    "return_cost": 0.0,
+    "contribution_profit": null,
+    "metric_version": "1.0.0"
+   }
+  ]
+ },
+ {
+  "transformation": "monthly_product_profit",
+  "name": "two products, one with refunds",
+  "why": "Each product keeps its own figures.",
+  "inputs": {
+   "sales": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "units_sold": 10,
+     "gross_sales": 400.0,
+     "discounts": 40.0
+    },
+    {
+     "month": "2026-10",
+     "product_id": "P008",
+     "units_sold": 4,
+     "gross_sales": 120.0,
+     "discounts": 0.0
+    }
+   ],
+   "refund_totals": [
+    {
+     "month": "2026-10",
+     "product_id": "P008",
+     "refunds": 30.0,
+     "return_cost": 4.0
+    }
+   ],
+   "delivery_costs": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "fulfillment_cost": 25.0,
+     "shipping_cost": 40.0
+    },
+    {
+     "month": "2026-10",
+     "product_id": "P008",
+     "fulfillment_cost": 8.0,
+     "shipping_cost": 14.0
+    }
+   ],
+   "fee_totals": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "payment_fees": 10.8
+    },
+    {
+     "month": "2026-10",
+     "product_id": "P008",
+     "payment_fees": 3.6
+    }
+   ],
+   "product_cost": [
+    {
+     "month": "2026-10",
+     "product_id": "P001",
+     "product_cost": 180.0
+    },
+    {
+     "month": "2026-10",
+     "product_id": "P008",
+     "product_cost": 44.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "units_sold": 10,
+    "gross_sales": 400.0,
+    "discounts": 40.0,
+    "refunds": 0.0,
+    "net_sales": 360.0,
+    "product_cost": 180.0,
+    "gross_profit": 180.0,
+    "fulfillment_cost": 25.0,
+    "shipping_cost": 40.0,
+    "payment_fees": 10.8,
+    "return_cost": 0.0,
+    "contribution_profit": 104.2,
+    "metric_version": "1.0.0"
+   },
+   {
+    "month": "2026-10",
+    "product_id": "P008",
+    "units_sold": 4,
+    "gross_sales": 120.0,
+    "discounts": 0.0,
+    "refunds": 30.0,
+    "net_sales": 90.0,
+    "product_cost": 44.0,
+    "gross_profit": 46.0,
+    "fulfillment_cost": 8.0,
+    "shipping_cost": 14.0,
+    "payment_fees": 3.6,
+    "return_cost": 4.0,
+    "contribution_profit": 16.4,
+    "metric_version": "1.0.0"
+   }
+  ]
+ },
+ {
+  "transformation": "profit_all_in_one",
+  "name": "one plain order",
+  "why": "net 80. cost 36. gross profit 44. contribution 44 - 5 - 8 - 2.40 = 28.60.",
+  "inputs": {
+   "orders": [
+    {
+     "order_id": "O1",
+     "order_date": "2026-10-05",
+     "status": "completed"
+    }
+   ],
+   "order_items": [
+    {
+     "order_item_id": "I1",
+     "order_id": "O1",
+     "product_id": "P001",
+     "quantity": 2,
+     "unit_list_price": 40.0,
+     "discount_amount": 0.0
+    }
+   ],
+   "refunds": [],
+   "shipments": [
+    {
+     "shipment_id": "S1",
+     "order_item_id": "I1",
+     "product_id": "P001",
+     "ship_date": "2026-10-06",
+     "pick_pack_cost": 5.0,
+     "carrier_cost": 8.0
+    }
+   ],
+   "payment_fees": [
+    {
+     "fee_id": "F1",
+     "order_item_id": "I1",
+     "product_id": "P001",
+     "capture_date": "2026-10-05",
+     "fee_amount": 2.4
+    }
+   ],
+   "product_costs": [
+    {
+     "product_id": "P001",
+     "month": "2026-10",
+     "unit_cost": 18.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "units_sold": 2,
+    "gross_sales": 80.0,
+    "discounts": 0.0,
+    "refunds": 0.0,
+    "net_sales": 80.0,
+    "product_cost": 36.0,
+    "gross_profit": 44.0,
+    "fulfillment_cost": 5.0,
+    "shipping_cost": 8.0,
+    "payment_fees": 2.4,
+    "return_cost": 0.0,
+    "contribution_profit": 28.6,
+    "metric_version": "1.0.0"
+   }
+  ]
+ },
+ {
+  "transformation": "profit_all_in_one",
+  "name": "everything at once",
+  "why": "A September order refunded in October, a line with two refunds, a cancelled order, and a product with no cost. Joining order lines straight to refunds would count line I2 twice.",
+  "inputs": {
+   "orders": [
+    {
+     "order_id": "O1",
+     "order_date": "2026-09-28",
+     "status": "completed"
+    },
+    {
+     "order_id": "O2",
+     "order_date": "2026-10-03",
+     "status": "completed"
+    },
+    {
+     "order_id": "O3",
+     "order_date": "2026-10-04",
+     "status": "cancelled"
+    },
+    {
+     "order_id": "O4",
+     "order_date": "2026-10-06",
+     "status": "completed"
+    }
+   ],
+   "order_items": [
+    {
+     "order_item_id": "I1",
+     "order_id": "O1",
+     "product_id": "P009",
+     "quantity": 1,
+     "unit_list_price": 140.0,
+     "discount_amount": 0.0
+    },
+    {
+     "order_item_id": "I2",
+     "order_id": "O2",
+     "product_id": "P009",
+     "quantity": 2,
+     "unit_list_price": 140.0,
+     "discount_amount": 28.0
+    },
+    {
+     "order_item_id": "I3",
+     "order_id": "O3",
+     "product_id": "P009",
+     "quantity": 1,
+     "unit_list_price": 140.0,
+     "discount_amount": 0.0
+    },
+    {
+     "order_item_id": "I4",
+     "order_id": "O4",
+     "product_id": "P007",
+     "quantity": 1,
+     "unit_list_price": 85.0,
+     "discount_amount": 0.0
+    }
+   ],
+   "refunds": [
+    {
+     "refund_id": "R1",
+     "order_item_id": "I1",
+     "product_id": "P009",
+     "refund_date": "2026-10-02",
+     "refund_amount": 140.0,
+     "return_handling_cost": 9.0
+    },
+    {
+     "refund_id": "R2",
+     "order_item_id": "I2",
+     "product_id": "P009",
+     "refund_date": "2026-10-10",
+     "refund_amount": 50.0,
+     "return_handling_cost": 4.0
+    },
+    {
+     "refund_id": "R3",
+     "order_item_id": "I2",
+     "product_id": "P009",
+     "refund_date": "2026-10-12",
+     "refund_amount": 76.0,
+     "return_handling_cost": 5.0
+    }
+   ],
+   "shipments": [
+    {
+     "shipment_id": "S1",
+     "order_item_id": "I1",
+     "product_id": "P009",
+     "ship_date": "2026-09-29",
+     "pick_pack_cost": 3.0,
+     "carrier_cost": 6.0
+    },
+    {
+     "shipment_id": "S2",
+     "order_item_id": "I2",
+     "product_id": "P009",
+     "ship_date": "2026-10-04",
+     "pick_pack_cost": 6.0,
+     "carrier_cost": 12.0
+    },
+    {
+     "shipment_id": "S4",
+     "order_item_id": "I4",
+     "product_id": "P007",
+     "ship_date": "2026-10-07",
+     "pick_pack_cost": 3.5,
+     "carrier_cost": 7.0
+    }
+   ],
+   "payment_fees": [
+    {
+     "fee_id": "F1",
+     "order_item_id": "I1",
+     "product_id": "P009",
+     "capture_date": "2026-09-28",
+     "fee_amount": 4.2
+    },
+    {
+     "fee_id": "F2",
+     "order_item_id": "I2",
+     "product_id": "P009",
+     "capture_date": "2026-10-03",
+     "fee_amount": 7.56
+    },
+    {
+     "fee_id": "F4",
+     "order_item_id": "I4",
+     "product_id": "P007",
+     "capture_date": "2026-10-06",
+     "fee_amount": 2.55
+    }
+   ],
+   "product_costs": [
+    {
+     "product_id": "P009",
+     "month": "2026-09",
+     "unit_cost": 70.0
+    },
+    {
+     "product_id": "P009",
+     "month": "2026-10",
+     "unit_cost": 70.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-09",
+    "product_id": "P009",
+    "units_sold": 1,
+    "gross_sales": 140.0,
+    "discounts": 0.0,
+    "refunds": 0.0,
+    "net_sales": 140.0,
+    "product_cost": 70.0,
+    "gross_profit": 70.0,
+    "fulfillment_cost": 3.0,
+    "shipping_cost": 6.0,
+    "payment_fees": 4.2,
+    "return_cost": 0.0,
+    "contribution_profit": 56.8,
+    "metric_version": "1.0.0"
+   },
+   {
+    "month": "2026-10",
+    "product_id": "P007",
+    "units_sold": 1,
+    "gross_sales": 85.0,
+    "discounts": 0.0,
+    "refunds": 0.0,
+    "net_sales": 85.0,
+    "product_cost": null,
+    "gross_profit": null,
+    "fulfillment_cost": 3.5,
+    "shipping_cost": 7.0,
+    "payment_fees": 2.55,
+    "return_cost": 0.0,
+    "contribution_profit": null,
+    "metric_version": "1.0.0"
+   },
+   {
+    "month": "2026-10",
+    "product_id": "P009",
+    "units_sold": 2,
+    "gross_sales": 280.0,
+    "discounts": 28.0,
+    "refunds": 266.0,
+    "net_sales": -14.0,
+    "product_cost": 140.0,
+    "gross_profit": -154.0,
+    "fulfillment_cost": 6.0,
+    "shipping_cost": 12.0,
+    "payment_fees": 7.56,
+    "return_cost": 18.0,
+    "contribution_profit": -197.56,
+    "metric_version": "1.0.0"
+   }
+  ]
+ },
+ {
+  "transformation": "profit_all_in_one",
+  "name": "a line loaded twice",
+  "why": "The line, its shipment, and its fee each appear twice, and each is counted twice.",
+  "inputs": {
+   "orders": [
+    {
+     "order_id": "O1",
+     "order_date": "2026-10-05",
+     "status": "completed"
+    }
+   ],
+   "order_items": [
+    {
+     "order_item_id": "I1",
+     "order_id": "O1",
+     "product_id": "P001",
+     "quantity": 1,
+     "unit_list_price": 40.0,
+     "discount_amount": 4.0
+    },
+    {
+     "order_item_id": "I1",
+     "order_id": "O1",
+     "product_id": "P001",
+     "quantity": 1,
+     "unit_list_price": 40.0,
+     "discount_amount": 4.0
+    }
+   ],
+   "refunds": [],
+   "shipments": [
+    {
+     "shipment_id": "S1",
+     "order_item_id": "I1",
+     "product_id": "P001",
+     "ship_date": "2026-10-06",
+     "pick_pack_cost": 2.5,
+     "carrier_cost": 4.0
+    },
+    {
+     "shipment_id": "S1",
+     "order_item_id": "I1",
+     "product_id": "P001",
+     "ship_date": "2026-10-06",
+     "pick_pack_cost": 2.5,
+     "carrier_cost": 4.0
+    }
+   ],
+   "payment_fees": [
+    {
+     "fee_id": "F1",
+     "order_item_id": "I1",
+     "product_id": "P001",
+     "capture_date": "2026-10-05",
+     "fee_amount": 1.08
+    },
+    {
+     "fee_id": "F1",
+     "order_item_id": "I1",
+     "product_id": "P001",
+     "capture_date": "2026-10-05",
+     "fee_amount": 1.08
+    }
+   ],
+   "product_costs": [
+    {
+     "product_id": "P001",
+     "month": "2026-10",
+     "unit_cost": 18.0
+    }
+   ]
+  },
+  "expected": [
+   {
+    "month": "2026-10",
+    "product_id": "P001",
+    "units_sold": 2,
+    "gross_sales": 80.0,
+    "discounts": 8.0,
+    "refunds": 0.0,
+    "net_sales": 72.0,
+    "product_cost": 36.0,
+    "gross_profit": 36.0,
+    "fulfillment_cost": 5.0,
+    "shipping_cost": 8.0,
+    "payment_fees": 2.16,
+    "return_cost": 0.0,
+    "contribution_profit": 20.84,
+    "metric_version": "1.0.0"
+   }
+  ]
+ }
+]

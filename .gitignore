@@ -46,4 +46,7 @@ src/*/data/warehouse/
 
 # A learner's own lab results (the answer key is kept)
 src/*/notebooks/results/*
-!src/*/notebooks/results/answer_key.json
+!src/*/notebooks/results/answer_key*.json
+
+# Folders an AI agent works in during a lab
+src/*/notebooks/desk*/

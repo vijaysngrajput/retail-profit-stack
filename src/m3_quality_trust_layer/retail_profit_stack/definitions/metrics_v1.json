@@ -1,0 +1,159 @@
+{
+  "version": "1.0.0",
+  "currency": "USD",
+  "note": "Teaching definitions for a fictional retailer. Not any real company's accounting policy.",
+  "metrics": [
+    {
+      "name": "units_sold",
+      "version": "1.0.0",
+      "approved": false,
+      "unit": "units",
+      "description": "Units on order items placed in the month, excluding cancelled orders.",
+      "formula": "count of units on non-cancelled order items placed in the month",
+      "components": [],
+      "assumptions": [
+        "An order cancelled before shipping is not a sale."
+      ]
+    },
+    {
+      "name": "gross_sales",
+      "version": "1.0.0",
+      "approved": false,
+      "unit": "USD",
+      "description": "Sales at list price before any discount or refund.",
+      "formula": "sum(quantity x list_price) for non-cancelled order items placed in the month",
+      "components": [],
+      "assumptions": [
+        "An order cancelled before shipping is not a sale."
+      ]
+    },
+    {
+      "name": "discounts",
+      "version": "1.0.0",
+      "approved": false,
+      "unit": "USD",
+      "description": "Discounts given on the month's order items.",
+      "formula": "sum(discount) on the order items counted in gross_sales",
+      "components": [],
+      "assumptions": []
+    },
+    {
+      "name": "refunds",
+      "version": "1.0.0",
+      "approved": false,
+      "unit": "USD",
+      "description": "Refunds issued to customers in the month.",
+      "formula": "sum(refund_amount) for refunds issued in the month",
+      "components": [],
+      "assumptions": [
+        "A refund counts in the month it is issued, not the month of the original order."
+      ]
+    },
+    {
+      "name": "net_sales",
+      "version": "1.0.0",
+      "approved": true,
+      "unit": "USD",
+      "description": "What customers paid for products in the month, after discounts, less refunds issued in the month.",
+      "formula": "gross_sales - discounts - refunds",
+      "components": [
+        "gross_sales",
+        "discounts",
+        "refunds"
+      ],
+      "assumptions": [
+        "A refund counts in the month it is issued, not the month of the original order.",
+        "If any component is missing, the result is missing. Nothing is estimated or treated as zero."
+      ]
+    },
+    {
+      "name": "product_cost",
+      "version": "1.0.0",
+      "approved": false,
+      "unit": "USD",
+      "description": "What the retailer paid its vendors for the units sold.",
+      "formula": "sum(units_sold x unit_cost)",
+      "components": [
+        "units_sold"
+      ],
+      "assumptions": [
+        "Returned units are not resaleable, so product cost is not reduced by returns.",
+        "If any component is missing, the result is missing. Nothing is estimated or treated as zero."
+      ]
+    },
+    {
+      "name": "gross_profit",
+      "version": "1.0.0",
+      "approved": true,
+      "unit": "USD",
+      "description": "Net sales less the cost of the products sold.",
+      "formula": "net_sales - product_cost",
+      "components": [
+        "net_sales",
+        "product_cost"
+      ],
+      "assumptions": [
+        "If any component is missing, the result is missing. Nothing is estimated or treated as zero."
+      ]
+    },
+    {
+      "name": "fulfillment_cost",
+      "version": "1.0.0",
+      "approved": false,
+      "unit": "USD",
+      "description": "Pick-and-pack cost for orders shipped in the month.",
+      "formula": "sum(pick_and_pack_cost) for orders shipped in the month",
+      "components": [],
+      "assumptions": []
+    },
+    {
+      "name": "shipping_cost",
+      "version": "1.0.0",
+      "approved": false,
+      "unit": "USD",
+      "description": "Carrier cost for orders shipped in the month.",
+      "formula": "sum(carrier_cost) for orders shipped in the month",
+      "components": [],
+      "assumptions": []
+    },
+    {
+      "name": "payment_fees",
+      "version": "1.0.0",
+      "approved": false,
+      "unit": "USD",
+      "description": "Payment provider fees on payments captured in the month.",
+      "formula": "sum(payment_fee) for payments captured in the month",
+      "components": [],
+      "assumptions": []
+    },
+    {
+      "name": "return_cost",
+      "version": "1.0.0",
+      "approved": false,
+      "unit": "USD",
+      "description": "Cost of handling returns for refunds issued in the month.",
+      "formula": "sum(return_handling_cost) for refunds issued in the month",
+      "components": [],
+      "assumptions": []
+    },
+    {
+      "name": "contribution_profit",
+      "version": "1.0.0",
+      "approved": true,
+      "unit": "USD",
+      "description": "Gross profit less the costs that rise with each order: fulfilment, shipping, payment fees, and handling returns.",
+      "formula": "gross_profit - fulfillment_cost - shipping_cost - payment_fees - return_cost",
+      "components": [
+        "gross_profit",
+        "fulfillment_cost",
+        "shipping_cost",
+        "payment_fees",
+        "return_cost"
+      ],
+      "assumptions": [
+        "Fixed costs such as salaries, rent, and marketing are not included.",
+        "If any component is missing, the result is missing. Nothing is estimated or treated as zero."
+      ]
+    }
+  ]
+}
