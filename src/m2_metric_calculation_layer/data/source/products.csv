@@ -1,0 +1,13 @@
+product_id,product_name,category
+P001,Trail water bottle,Hydration
+P002,Insulated flask,Hydration
+P003,Hydration pack,Hydration
+P004,Water filter,Hydration
+P005,Two-person tent,Camp
+P006,Sleeping bag,Camp
+P007,Camp stove,Camp
+P008,Headlamp,Camp
+P009,Rain jacket,Apparel
+P010,Hiking socks,Apparel
+P011,Sun hat,Apparel
+P012,Fleece pullover,Apparel

@@ -1,0 +1,73 @@
+{
+  "figures": [
+    {
+      "what": "#1 product: Trail water bottle",
+      "metric": "contribution_profit",
+      "kind": "value",
+      "month": "2026-10",
+      "entity_id": "P001",
+      "value": 5188.2
+    },
+    {
+      "what": "#2 product: Headlamp",
+      "metric": "contribution_profit",
+      "kind": "value",
+      "month": "2026-10",
+      "entity_id": "P008",
+      "value": 4250.0
+    },
+    {
+      "what": "#3 product: Rain jacket",
+      "metric": "contribution_profit",
+      "kind": "value",
+      "month": "2026-10",
+      "entity_id": "P009",
+      "value": 3841.0
+    },
+    {
+      "what": "Top category: Hydration",
+      "metric": "contribution_profit",
+      "kind": "value",
+      "month": "2026-10",
+      "entity_id": "Hydration",
+      "value": 13358.06
+    },
+    {
+      "what": "Hydration, change since the month before",
+      "metric": "contribution_profit",
+      "kind": "change",
+      "month": "2026-10",
+      "entity_id": "Hydration",
+      "value": 376.06
+    },
+    {
+      "what": "Apparel, change since the month before (the biggest fall)",
+      "metric": "contribution_profit",
+      "kind": "change",
+      "month": "2026-10",
+      "entity_id": "Apparel",
+      "value": -5914.87
+    },
+    {
+      "what": "Camp, change since the month before (cannot be compared)",
+      "metric": "contribution_profit",
+      "kind": "change",
+      "month": "2026-10",
+      "entity_id": "Camp",
+      "value": null
+    },
+    {
+      "what": "Camp stove (its cost is missing)",
+      "metric": "contribution_profit",
+      "kind": "value",
+      "month": "2026-10",
+      "entity_id": "P007",
+      "value": null
+    }
+  ],
+  "confidence": "low",
+  "flags": [
+    "QF-001",
+    "QF-002"
+  ]
+}

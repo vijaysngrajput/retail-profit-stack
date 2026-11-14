@@ -8,8 +8,11 @@ dependencies = [
     "ipykernel>=7.0.0",
     "langchain>=1.0.0",
     "langchain-openai>=1.0.0",
+    "nbformat>=5.11.1",
     "openai>=2.0.0",
     "pandas>=2.3.0",
+    "plotly>=7.1.0",
+    "pyarrow>=26.0.1",
     "pydantic>=2.12.0",
     "python-dotenv>=1.2.0",
 ]
@@ -40,6 +43,7 @@ exclude = ["**/tests", "**/notebooks", "**/.venv"]
 # Each milestone is a self-contained copy of the code, so each needs its own import root.
 executionEnvironments = [
     { root = "src/m1_mocked_business_answer" },
+    { root = "src/m2_metric_calculation_layer" },
 ]
 venvPath = "."
 venv = ".venv"

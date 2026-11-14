@@ -41,6 +41,9 @@ Thumbs.db
 HANDOFF.md
 MILESTONES.md
 
+# Calculated tables: produced by running the pipeline
+src/*/data/warehouse/
+
 # A learner's own lab results (the answer key is kept)
 src/*/notebooks/results/*
 !src/*/notebooks/results/answer_key.json
