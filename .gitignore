@@ -50,3 +50,7 @@ src/*/notebooks/results/*
 
 # Folders an AI agent works in during a lab
 src/*/notebooks/desk*/
+
+# The lab's own pipeline runs and its copy of the records (milestone 4)
+src/*/notebooks/lab_warehouse/
+src/*/notebooks/lab_source/
