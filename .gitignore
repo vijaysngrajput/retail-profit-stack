@@ -54,3 +54,14 @@ src/*/notebooks/desk*/
 # The lab's own pipeline runs and its copy of the records (milestone 4)
 src/*/notebooks/lab_warehouse/
 src/*/notebooks/lab_source/
+
+# What the loader writes (milestone 5): loaded pieces, its saved state, and the lab's own copies
+src/*/data/loaded/
+src/*/data/loader_state.sqlite*
+src/*/notebooks/lab_landing/
+src/*/notebooks/lab_loaded/
+src/*/notebooks/lab_state.sqlite*
+src/*/notebooks/lab_mappings.json
+
+# What the live pipeline page loads and calculates
+pipeline_live/workspace/

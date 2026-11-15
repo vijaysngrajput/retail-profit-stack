@@ -10,6 +10,7 @@ dependencies = [
     "langchain>=1.0.0",
     "langchain-openai>=1.0.0",
     "langfuse>=5.2.0",
+    "langgraph-checkpoint-sqlite>=3.1.3",
     "nbformat>=5.11.1",
     "openai>=2.0.0",
     "pandas>=2.3.0",
@@ -48,6 +49,7 @@ executionEnvironments = [
     { root = "src/m2_metric_calculation_layer" },
     { root = "src/m3_quality_trust_layer" },
     { root = "src/m4_lineage_run_history" },
+    { root = "src/m5_raw_data_ingestion" },
 ]
 venvPath = "."
 venv = ".venv"

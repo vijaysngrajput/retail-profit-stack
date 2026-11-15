@@ -1,0 +1,19 @@
+{
+  "order_items": [
+    {
+      "list_price": "unit_list_price",
+      "discount": "discount_amount"
+    }
+  ],
+  "payment_fees": [
+    {
+      "fee_usd": "fee_amount"
+    }
+  ],
+  "shipments": [
+    {
+      "cost_1": "pick_pack_cost",
+      "cost_2": "carrier_cost"
+    }
+  ]
+}

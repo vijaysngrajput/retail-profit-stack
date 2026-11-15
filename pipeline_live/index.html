@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live pipeline · Retail Profit Stack</title>
+<style>
+  /* Same palette and type as understand_business/business_workflow.html */
+  :root {
+    color-scheme: light;
+    --bg: #f6f4ef; --surface: #fffdf9; --ink: #1d2327; --muted: #5c6670; --line: #d9d4c8;
+    --accent: #0f6b5c; --accent-ink: #ffffff; --accent-soft: #dcefe9;
+    --gold: #9a6b0c; --gold-soft: #f6ead0; --red: #a23b2a; --red-soft: #f6dcd6;
+    --blue: #2a5d8f; --blue-soft: #dbe8f4; --minus: #b9b3a6;
+    --shadow: 0 1px 2px rgba(29, 35, 39, .06), 0 10px 30px rgba(29, 35, 39, .08);
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #14181a; --surface: #1c2226; --ink: #e8e6e1; --muted: #9aa4ab; --line: #2e373c;
+      --accent: #5fc5b0; --accent-ink: #0d1f1c; --accent-soft: #1d3a35;
+      --gold: #e7c36a; --gold-soft: #3a3220; --red: #f0907e; --red-soft: #3d231f;
+      --blue: #8fbde8; --blue-soft: #1f303f; --minus: #55616a;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 10px 30px rgba(0, 0, 0, .3);
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  button, input, select { font: inherit; color: inherit; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; }
+  .mono { font-family: var(--mono); font-size: .88em; }
+  .muted { color: var(--muted); } .small { font-size: 13px; }
+
+  header.top { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding: 10px 20px; display: flex; align-items: center; gap: 14px; }
+  header.top h1 { font-size: 20px; flex: 1; }
+  .status { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-size: 13.5px; font-weight: 600; }
+  .status i { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
+  .status.busy i { background: var(--gold); animation: pulse 1s infinite; }
+  .status.waiting i { background: var(--blue); animation: pulse 1s infinite; }
+  .status.done i { background: var(--accent); } .status.error i { background: var(--red); }
+  @keyframes pulse { 50% { opacity: .3; } }
+
+  .layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; padding: 20px; max-width: 1500px; margin: 0 auto; align-items: start; }
+  @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; box-shadow: var(--shadow); }
+  .chooser { position: sticky; top: 64px; max-height: calc(100vh - 84px); overflow: auto; }
+  @media (max-width: 980px) { .chooser { position: static; max-height: none; } }
+  .chooser h2 { font-size: 17px; margin-bottom: 8px; }
+  .quick { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 13px; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; padding: 10px 14px; font-size: 15px; width: 100%; }
+  .btn.primary:disabled { opacity: .5; cursor: not-allowed; }
+  .btn.good { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  .btn.bad { color: var(--red); border-color: var(--red); }
+  .btn.on { background: var(--accent-soft); border-color: var(--accent); }
+  .feed { margin-bottom: 8px; }
+  .feed-name { display: flex; justify-content: space-between; font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+  .feed-name button { border: 0; background: none; color: var(--accent); cursor: pointer; font-size: 12px; padding: 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chip { border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; font-size: 12px; cursor: pointer; user-select: none; font-family: var(--mono); background: var(--bg); }
+  .chip.on { background: var(--accent-soft); border-color: var(--accent); }
+  .chip.loaded::after { content: " ✓"; color: var(--accent); }
+  .key { display: flex; gap: 12px; font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+  .options { border-top: 1px solid var(--line); margin-top: 10px; padding-top: 10px; display: grid; gap: 6px; font-size: 13px; }
+  .options label { display: flex; gap: 8px; align-items: center; }
+  .options select { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; }
+  .row-between { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; }
+  .link { border: 0; background: none; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 13px; padding: 0; }
+
+  .stage { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; transition: border-color .4s, box-shadow .4s; }
+  .stage.active { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+  .stage.attention { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+  .stage-head { display: flex; align-items: center; gap: 10px; }
+  .stage-head .no { width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center; font-weight: 700; font-size: 13px; background: var(--line); flex: none; }
+  .stage.finished .no { background: var(--accent); color: var(--accent-ink); }
+  .stage.active .no { background: var(--gold); color: #fff; }
+  .stage-head h2 { font-size: 18px; }
+  .stage-head .say { color: var(--muted); font-size: 13px; }
+  .stage-head .who { margin-left: auto; font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .stage-head .who.ai { color: var(--blue); }
+  .body { margin-top: 12px; }
+  .body:empty { display: none; }
+  .pipe { height: 18px; width: 2px; background: var(--line); margin-left: 30px; position: relative; }
+  .pipe.flow { background: var(--accent); }
+  .pipe.flow::after { content: ""; position: absolute; left: -3px; top: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: drop .8s linear infinite; }
+  @keyframes drop { to { top: 12px; } }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(24px, 1fr)); gap: 4px; max-width: 760px; }
+  .tile { height: 24px; border-radius: 5px; background: var(--line); transition: background .3s; }
+  .tile.pending { animation: pulse 1.2s infinite; }
+  .tile.loaded { background: var(--accent); } .tile.already_loaded { background: var(--accent); opacity: .45; }
+  .tile.skipped { background: var(--gold); } .tile.rejected { background: var(--red); } .tile.waiting { background: var(--blue); }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; background: var(--c); }
+  .notes { margin: 8px 0 0; padding: 0; list-style: none; font-size: 13px; display: grid; gap: 3px; }
+
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .badge.pass, .badge.loaded, .badge.high { background: var(--accent-soft); color: var(--accent); }
+  .badge.quarantine, .badge.skipped { background: var(--gold-soft); color: var(--gold); }
+  .badge.needs_review, .badge.waiting, .badge.medium { background: var(--blue-soft); color: var(--blue); }
+  .badge.rejected, .badge.low, .badge.fail { background: var(--red-soft); color: var(--red); }
+
+  .tablebars { display: grid; gap: 4px; margin-top: 12px; max-width: 620px; }
+  .tbar { display: grid; grid-template-columns: 110px 1fr 70px; gap: 8px; align-items: center; font-size: 12.5px; }
+  .tbar .track { height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+  .tbar .fill { height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; transition: width .8s; }
+  .tbar .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+  .checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .check { border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; background: var(--bg); }
+  .check .name { font-size: 13px; font-weight: 600; }
+  .check .count { font-family: var(--serif); font-size: 22px; line-height: 1.2; }
+  .find { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .find .f { border: 1px solid var(--line); border-radius: 8px; padding: 3px 8px; font-size: 12.5px; background: var(--bg); cursor: default; }
+  .flow3 { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px; margin-top: 12px; font-size: 12.5px; }
+  .flow3 .box { border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px; background: var(--bg); flex: 1 1 150px; }
+  .flow3 .box b { display: block; font-size: 13px; }
+  .flow3 .box.todo { border-style: dashed; color: var(--muted); }
+  .flow3 .arrow { align-self: center; color: var(--muted); }
+
+  .chart-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .chart-head h3 { font-size: 15px; font-family: inherit; font-weight: 600; }
+  .bars { display: grid; gap: 3px; }
+  .bar { display: grid; grid-template-columns: 150px 1fr 96px; gap: 8px; align-items: center; font-size: 13px; cursor: pointer; padding: 2px 4px; border-radius: 6px; }
+  .bar:hover, .bar.sel { background: var(--accent-soft); }
+  .bar .track { height: 14px; }
+  .bar .fill { height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; min-width: 2px; transition: width .6s; }
+  .bar .v { text-align: right; font-variant-numeric: tabular-nums; }
+  .wf { display: grid; gap: 3px; margin-top: 6px; }
+  .wrow { display: grid; grid-template-columns: 150px 1fr 96px; gap: 8px; align-items: center; font-size: 13px; }
+  .wrow .track { height: 16px; position: relative; }
+  .wrow .seg { position: absolute; top: 0; height: 100%; border-radius: 4px; transition: left .6s, width .6s; }
+  .wrow.total .seg { background: var(--accent); } .wrow.minus .seg { background: var(--minus); }
+  .wrow.total .lab { font-weight: 700; } .wrow .v { text-align: right; font-variant-numeric: tabular-nums; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  @media (max-width: 900px) { .two { grid-template-columns: 1fr; } }
+
+  .lin { position: relative; display: grid; grid-template-columns: 1.7fr 1fr 1fr 1fr 1.1fr; gap: 0 44px; align-items: center; margin-bottom: 16px; }
+  .lin svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .lin path { fill: none; stroke: var(--muted); opacity: .55; stroke-width: 1.5; transition: stroke .2s, stroke-width .2s, opacity .2s; }
+  .lin.focus path { opacity: .25; } .lin.focus path.hot { stroke: var(--accent); stroke-width: 2.5; opacity: 1; }
+  .lcol { display: grid; gap: 8px; position: relative; z-index: 1; }
+  .lhead { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; margin-bottom: 4px; }
+  .lnode { border: 1px solid var(--line); border-radius: 9px; padding: 6px 9px; background: var(--bg); font-size: 12.5px; cursor: default; transition: border-color .2s, opacity .2s; }
+  .lnode b { font-family: var(--mono); font-size: 12px; font-weight: 600; display: block; }
+  .lnode small { color: var(--muted); }
+  .lnode.final { border-color: var(--accent); background: var(--accent-soft); }
+  .lin.focus .lnode { opacity: .35; } .lin.focus .lnode.hot { opacity: 1; border-color: var(--accent); }
+  .parts { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+  .part { font-family: var(--mono); font-size: 10.5px; padding: 0 4px; border-radius: 4px; background: var(--accent-soft); color: var(--ink); }
+  @media (max-width: 900px) { .lin { grid-template-columns: 1fr; gap: 14px; } .lin svg { display: none; } }
+  .heat { display: grid; gap: 3px; font-size: 12px; overflow-x: auto; }
+  .hrow { display: grid; grid-template-columns: 110px repeat(var(--n), minmax(34px, 1fr)); gap: 3px; align-items: center; }
+  .hcell { height: 26px; border-radius: 4px; background: var(--bg); display: grid; place-items: center; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .hcell.on { background: color-mix(in srgb, var(--accent) calc(var(--a) * 1%), var(--bg)); }
+  .hcell.dark { color: var(--accent-ink); }
+  .hhead { color: var(--muted); text-align: center; font-size: 11px; }
+  .stat { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .tilebox { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; background: var(--bg); }
+  .tilebox b { display: block; font-family: var(--serif); font-size: 20px; }
+  .tilebox span { color: var(--muted); font-size: 12px; }
+
+  .runs { display: flex; align-items: flex-end; gap: 10px; height: 120px; margin: 4px 0 6px; }
+  .run { flex: 1 1 0; max-width: 90px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; font-size: 12px; }
+  .run .col { width: 100%; background: var(--minus); border-radius: 4px 4px 0 0; min-height: 2px; transition: height .6s; }
+  .run.now .col { background: var(--accent); }
+  .run .id { margin-top: 4px; font-family: var(--mono); font-size: 11px; }
+  .moves { display: grid; gap: 4px; margin-top: 8px; }
+  .move { display: grid; grid-template-columns: 220px 1fr 90px; gap: 8px; align-items: center; font-size: 13px; }
+  .move .track { height: 14px; position: relative; }
+  .move .line { position: absolute; top: 6px; height: 2px; background: var(--muted); }
+  .move .dot { position: absolute; top: 2px; width: 10px; height: 10px; border-radius: 50%; margin-left: -5px; }
+  .move .dot.was { background: var(--surface); border: 2px solid var(--muted); } .move .dot.now { background: var(--accent); }
+
+  .question { border: 1px solid var(--blue); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; background: var(--bg); }
+  .question h3 { font-family: var(--mono); font-size: 13.5px; }
+  .map { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0; font-size: 13.5px; align-items: center; }
+  .map code { font-family: var(--mono); background: var(--surface); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line); }
+  .question .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .question.answered { border-color: var(--line); padding: 6px 12px; margin-bottom: 4px; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+  .question.answered details { display: none; }
+  .question.answered .map { margin: 0; }
+  details { margin: 6px 0; font-size: 13px; } summary { cursor: pointer; color: var(--accent); }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th, td { text-align: left; padding: 4px 10px 4px 0; border-bottom: 1px solid var(--line); }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .scroll { overflow-x: auto; }
+  .error-box { border: 1px solid var(--red); background: var(--red-soft); border-radius: 10px; padding: 8px 12px; margin-top: 8px; }
+  .ask { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ask input { flex: 1 1 320px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  .answer h3 { font-size: 17px; margin: 12px 0 6px; }
+  .steps { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 8px 0; font-size: 12.5px; }
+  .steps .s { border: 1px solid var(--line); border-radius: 7px; padding: 2px 8px; background: var(--bg); font-family: var(--mono); }
+  .steps .s.model { border-style: dashed; color: var(--muted); }
+  #tip { position: fixed; z-index: 20; pointer-events: none; background: var(--ink); color: var(--bg); padding: 6px 9px; border-radius: 7px; font-size: 12.5px; max-width: 340px; display: none; }
+  #stale { display: none; background: var(--red-soft); border-bottom: 2px solid var(--red); padding: 14px 20px; font-size: 15px; }
+  #stale code { font-family: var(--mono); background: var(--surface); padding: 2px 8px; border-radius: 5px; border: 1px solid var(--line); }
+  .foot { color: var(--muted); font-size: 12px; padding: 0 20px 26px; max-width: 1500px; margin: 0 auto; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>Live pipeline</h1>
+  <span class="status" id="status"><i></i><span id="status-text">Ready</span></span>
+</header>
+
+<div id="stale"><b>This page is newer than the program behind it, so the charts below would be wrong.</b> Restart the program: in its terminal press <code>Ctrl+C</code>, run <code>uv run python pipeline_live/server.py</code>, then refresh this page.</div>
+
+<div class="layout">
+  <aside class="panel chooser">
+    <h2>1 · Choose the files that arrive</h2>
+    <div class="quick">
+      <button class="btn" data-pick="all">Everything</button>
+      <button class="btn" data-pick="september">September</button>
+      <button class="btn" data-pick="clean">No surprises</button>
+      <button class="btn" data-pick="none">None</button>
+    </div>
+    <p class="key"><span><span class="chip on">chosen</span></span><span><span class="chip loaded">loaded</span></span></p>
+    <div id="feeds"></div>
+    <div class="options">
+      <label><input type="checkbox" id="use-ai" checked> AI suggests mappings <span class="muted">(0.04¢ a file)</span></label>
+      <label>Load <select id="at-once"><option value="1">1</option><option value="5" selected>5</option><option value="50">all</option></select> at once</label>
+    </div>
+    <div class="row-between"><span class="small muted" id="chosen"></span><button class="link" id="reset">Start over</button></div>
+    <button class="btn primary" id="run">Run the pipeline</button>
+  </aside>
+
+  <main id="stages">
+    <section class="stage" id="s-load">
+      <div class="stage-head"><span class="no">2</span><h2>Load</h2><span class="say">one tile per file</span><span class="who">code</span></div>
+      <div class="body" id="b-load"></div>
+    </section>
+    <div class="pipe" id="p-desk"></div>
+
+    <section class="stage" id="s-desk">
+      <div class="stage-head"><span class="no">3</span><h2>Your desk</h2><span class="say">renamed columns wait for you</span><span class="who ai">AI suggests · you approve</span></div>
+      <div class="body" id="b-desk"></div>
+    </section>
+    <div class="pipe" id="p-checks"></div>
+
+    <section class="stage" id="s-checks">
+      <div class="stage-head"><span class="no">4</span><h2>Check</h2><span class="say">five checks on the records</span><span class="who">code</span></div>
+      <div class="body" id="b-checks"></div>
+    </section>
+    <div class="pipe" id="p-calculate"></div>
+
+    <section class="stage" id="s-calculate">
+      <div class="stage-head"><span class="no">5</span><h2>Calculate</h2><span class="say">click a product</span><span class="who">code</span></div>
+      <div class="body" id="b-calculate"></div>
+    </section>
+    <div class="pipe" id="p-lineage"></div>
+
+    <section class="stage" id="s-lineage">
+      <div class="stage-head"><span class="no">6</span><h2>Lineage</h2><span class="say">lineage: tables back to files and dates</span><span class="who">code</span></div>
+      <div class="body" id="b-lineage"></div>
+    </section>
+    <div class="pipe" id="p-record"></div>
+
+    <section class="stage" id="s-record">
+      <div class="stage-head"><span class="no">7</span><h2>Run history</h2><span class="say">every run is kept, so runs can be compared</span><span class="who">code</span></div>
+      <div class="body" id="b-record"></div>
+    </section>
+    <div class="pipe" id="p-ask"></div>
+
+    <section class="stage" id="s-ask">
+      <div class="stage-head"><span class="no">8</span><h2>Ask</h2><span class="say">about half a US cent a question</span><span class="who ai">AI explains · code verifies</span></div>
+      <div class="body" id="b-ask">
+        <div class="ask">
+          <input id="question" value="Which products and categories generated the most contribution profit last month, what changed, and how confident should I be in those numbers?">
+          <button class="btn good" id="ask" disabled>Ask</button>
+        </div>
+        <div id="answer"></div>
+      </div>
+    </section>
+  </main>
+</div>
+<p class="foot" id="foot"></p>
+<div id="tip"></div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var FEED_ORDER = ['products', 'product_costs', 'orders', 'order_items', 'payment_fees', 'shipments', 'refunds'];
+  var STAGES = ['load', 'desk', 'checks', 'calculate', 'lineage', 'record', 'ask'];
+  var files = [], chosen = {}, seen = 0, polling = null, notes = [], waitingCount = 0, replaying = false;
+  var profit = [], month = '', picked = null, lineageInfo = null;
+  var NEEDS_VERSION = 4, stale = false;  // the version of server.py this page was written for
+
+  // ---- Helpers ---------------------------------------------------------------
+  function esc(text) { return String(text == null ? '' : text).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function money(value) { return value == null ? 'unavailable' : (value < 0 ? '−' : '') + '$' + Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function count(value) { return Number(value).toLocaleString('en-US'); }
+  function badge(word) { return '<span class="badge ' + esc(word) + '">' + esc(String(word).replace(/_/g, ' ')) + '</span>'; }
+  function api(path, body) {
+    var options = body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {};
+    return fetch(path, options).then(function (reply) { return reply.json(); });
+  }
+  function weekOf(name) { var match = name.match(/\d{4}-\d{2}(-\d{2})?/); return match ? match[0] : ''; }
+  function short(name) { return name.replace(/\.csv$/, '').replace(/^[a-z_]+?_(?=\d)/, ''); }
+  function nice(name) { return String(name).replace(/_/g, ' '); }
+
+  // One tooltip for every chart mark: any element with data-tip.
+  document.addEventListener('mousemove', function (event) {
+    var mark = event.target.closest('[data-tip]'), tip = $('tip');
+    if (!mark) { tip.style.display = 'none'; return; }
+    tip.innerHTML = mark.getAttribute('data-tip'); tip.style.display = 'block';
+    tip.style.left = Math.min(event.clientX + 14, window.innerWidth - tip.offsetWidth - 8) + 'px';
+    tip.style.top = (event.clientY + 16) + 'px';
+  });
+
+  // ---- 1. The file chooser ---------------------------------------------------
+  function drawFeeds() {
+    var html = '';
+    FEED_ORDER.forEach(function (feed) {
+      var mine = files.filter(function (file) { return file.feed === feed; });
+      if (!mine.length) return;
+      html += '<div class="feed"><div class="feed-name"><span>' + nice(feed) + '</span><button data-feed="' + feed + '">all / none</button></div><div class="chips">';
+      mine.forEach(function (file) {
+        var classes = 'chip' + (chosen[file.name] ? ' on' : '') + (file.outcome === 'loaded' ? ' loaded' : '');
+        html += '<span class="' + classes + '" data-file="' + esc(file.name) + '" data-tip="' + esc(file.name + '<br>' + file.rows + ' rows<br>' + file.columns.join(', ')) + '">' + esc(short(file.name)) + '</span>';
+      });
+      html += '</div></div>';
+    });
+    $('feeds').innerHTML = html;
+    var total = files.filter(function (file) { return chosen[file.name]; }).length;
+    $('chosen').textContent = total + ' of ' + files.length + ' chosen';
+  }
+  function pick(which) {
+    var expected = { products: 3, product_costs: 3, orders: 3, order_items: 6, payment_fees: 5, shipments: 6, refunds: 6 };
+    files.forEach(function (file) {
+      var plain = file.columns.length === expected[file.feed] && !/_resend/.test(file.name) && !/cost_1|list_price|fee_usd/.test(file.columns.join(','));
+      if (which === 'all') chosen[file.name] = true;
+      if (which === 'none') chosen[file.name] = false;
+      if (which === 'september') chosen[file.name] = weekOf(file.name) < '2026-09-28' || file.feed === 'products';
+      if (which === 'clean') chosen[file.name] = plain;
+    });
+    drawFeeds();
+  }
+  $('feeds').addEventListener('click', function (event) {
+    var file = event.target.getAttribute('data-file'), feed = event.target.getAttribute('data-feed');
+    if (file) { chosen[file] = !chosen[file]; drawFeeds(); }
+    if (feed) {
+      var mine = files.filter(function (item) { return item.feed === feed; });
+      var allOn = mine.every(function (item) { return chosen[item.name]; });
+      mine.forEach(function (item) { chosen[item.name] = !allOn; });
+      drawFeeds();
+    }
+  });
+  document.querySelector('.quick').addEventListener('click', function (event) { var which = event.target.getAttribute('data-pick'); if (which) pick(which); });
+  function loadFiles(keepChoice) {
+    return api('/api/files').then(function (reply) {
+      files = reply.files;
+      stale = reply.version !== NEEDS_VERSION;
+      $('stale').style.display = stale ? 'block' : 'none';
+      $('foot').textContent = 'Real production code (' + reply.milestone + '), fictional data. Steps are played back slowly so you can follow them.';
+      if (!keepChoice) pick('september'); else drawFeeds();
+    });
+  }
+
+  // ---- Status and stages -----------------------------------------------------
+  function setStatus(status) {
+    var words = { idle: 'Ready', loading: 'Loading files', waiting: 'Waiting for you', running: 'Running', done: 'Finished', error: 'Error' };
+    $('status').className = 'status ' + ({ loading: 'busy', running: 'busy', waiting: 'waiting', done: 'done', error: 'error' }[status] || '');
+    $('status-text').textContent = words[status] || status;
+    var busy = status === 'loading' || status === 'running' || status === 'waiting';
+    $('run').disabled = busy || stale; $('run').textContent = busy ? 'Running…' : 'Run the pipeline';
+    $('ask').disabled = status !== 'done';
+    if (status === 'done' && !$('answer').innerHTML) mark('ask', 'attention');
+  }
+  function mark(stage, state) {
+    var element = $('s-' + stage); if (!element) return;
+    element.classList.remove('active', 'finished', 'attention');
+    if (state) element.classList.add(state);
+    var pipe = $('p-' + stage); if (pipe) pipe.classList.toggle('flow', state === 'active');
+    if (!replaying && state === 'active') element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function clearStages() {
+    STAGES.forEach(function (stage) { mark(stage, ''); });
+    ['load', 'desk', 'checks', 'calculate', 'lineage', 'record'].forEach(function (stage) { $('b-' + stage).innerHTML = ''; });
+    $('answer').innerHTML = ''; notes = []; waitingCount = 0; picked = null;
+  }
+
+  // ---- 2. Load ---------------------------------------------------------------
+  function startLoad(data) {
+    var html = '<div class="tiles">';
+    data.files.forEach(function (name) { html += '<div class="tile pending" id="t-' + esc(name) + '" data-tip="' + esc(name) + '"></div>'; });
+    html += '</div><div class="legend"><span style="--c:var(--accent)">loaded</span><span style="--c:var(--gold)">skipped: sent twice</span><span style="--c:var(--red)">rejected</span><span style="--c:var(--blue)">waiting for you</span></div><ul class="notes" id="load-notes"></ul><div id="tables"></div>';
+    $('b-load').innerHTML = html;
+  }
+  function fileDone(result) {
+    var tile = document.getElementById('t-' + result.file_name);
+    if (tile) { tile.className = 'tile ' + result.outcome; tile.setAttribute('data-tip', '<b>' + esc(result.file_name) + '</b><br>' + esc(nice(result.outcome)) + '<br>' + esc(result.reason)); }
+    if (result.outcome === 'skipped' || result.outcome === 'rejected') {
+      notes.push('<li>' + badge(result.outcome) + ' <span class="mono">' + esc(result.file_name) + '</span> <span class="muted">' + esc(result.reason) + '</span></li>');
+      $('load-notes').innerHTML = notes.join('');
+    }
+  }
+  function loadDone(data) {
+    mark('load', 'finished');
+    if (!data.counts.waiting) { $('b-desk').innerHTML = '<span class="small muted">Nothing waited this time. Choose October files to see this step.</span>'; mark('desk', 'finished'); }
+  }
+  function showRecords(data) {
+    var most = 1, html = '<div class="tablebars">';
+    Object.keys(data.inputs).forEach(function (name) { most = Math.max(most, data.inputs[name].rows); });
+    Object.keys(data.inputs).forEach(function (name) {
+      var input = data.inputs[name];
+      html += '<div class="tbar" data-tip="' + esc(nice(name) + ': ' + count(input.rows) + ' records from ' + input.files + ' files') + '"><span>' + esc(nice(name)) + '</span><span class="track"><span class="fill" style="display:block;width:' + (input.rows / most * 100) + '%"></span></span><span class="n">' + count(input.rows) + '</span></div>';
+    });
+    $('tables').innerHTML = html + '</div>';
+  }
+
+  // ---- 3. The desk -----------------------------------------------------------
+  function rowsTable(rows) {
+    if (!rows || !rows.length) return '<span class="muted">none loaded yet</span>';
+    var columns = Object.keys(rows[0]);
+    var html = '<div class="scroll"><table><tr>' + columns.map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') + '</tr>';
+    rows.forEach(function (row) { html += '<tr>' + columns.map(function (c) { return '<td class="mono">' + esc(row[c]) + '</td>'; }).join('') + '</tr>'; });
+    return html + '</table></div>';
+  }
+  function addQuestion(question) {
+    if (!waitingCount) $('b-desk').innerHTML = '';
+    waitingCount += 1; mark('desk', 'attention');
+    var suggestion = question.suggestion || {}, columns = suggestion.columns || [];
+    var html = '<div class="question" id="q-' + esc(question.file_name) + '"><h3>' + esc(question.file_name) + '</h3><div class="map">';
+    if (columns.length) {
+      columns.forEach(function (guess) { if (guess.expected_column !== 'none') html += '<span data-tip="' + esc(guess.reason) + '"><code>' + esc(guess.file_column) + '</code> → <code>' + esc(guess.expected_column) + '</code></span>'; });
+      html += '<span>' + badge(suggestion.confidence) + ' confidence</span>';
+    } else { html += '<span class="muted">No suggestion (AI is off). Type it: <code>new name=expected name</code></span>'; }
+    html += '</div>';
+    if (suggestion.note) html += '<details><summary>The model\'s note</summary>' + esc(suggestion.note) + '</details>';
+    html += '<details><summary>Compare the rows</summary><p class="small"><b>This file</b></p>' + rowsTable(question.file_rows) + '<p class="small"><b>An earlier file</b></p>' + rowsTable(question.earlier_rows) + '</details>';
+    var prefill = Object.keys(question.suggested_mapping || {}).map(function (key) { return key + '=' + question.suggested_mapping[key]; }).join(', ');
+    html += '<div class="actions"><input class="mono" style="flex:1 1 240px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 8px" value="' + esc(prefill) + '" aria-label="The mapping to approve"><button class="btn good" data-answer="yes">Approve</button><button class="btn bad" data-answer="no">Refuse</button></div></div>';
+    $('b-desk').insertAdjacentHTML('beforeend', html);
+  }
+  $('b-desk').addEventListener('click', function (event) {
+    var which = event.target.getAttribute('data-answer'); if (!which) return;
+    var box = event.target.closest('.question'), fileName = box.id.slice(2), mapping = {};
+    box.querySelector('input').value.split(',').forEach(function (pair) { var sides = pair.split('='); if (sides.length === 2 && sides[0].trim()) mapping[sides[0].trim()] = sides[1].trim(); });
+    box.querySelectorAll('button').forEach(function (button) { button.disabled = true; });
+    api('/api/answer', { file_name: fileName, approved: which === 'yes', person: 'you', mapping: mapping }).then(function (reply) {
+      if (reply.error) { box.insertAdjacentHTML('beforeend', '<div class="error-box">' + esc(reply.error) + '</div>'); box.querySelectorAll('button').forEach(function (button) { button.disabled = false; }); }
+    });
+  });
+  function questionAnswered(result) {
+    var box = document.getElementById('q-' + result.file_name); if (!box) return;
+    box.classList.add('answered');
+    box.querySelector('.actions').innerHTML = badge(result.outcome) + ' <span class="small muted">' + (result.outcome === 'loaded' ? count(result.rows_loaded) + ' rows' : esc(result.reason)) + '</span>';
+    var tile = document.getElementById('t-' + result.file_name); if (tile) tile.className = 'tile ' + result.outcome;
+    waitingCount -= 1; if (waitingCount <= 0) mark('desk', 'finished');
+  }
+
+  // ---- 4. Checks and quarantine ----------------------------------------------
+  var CHECK_WORDS = { duplicate_records: 'Sent twice', missing_product_cost: 'No cost', event_out_of_order: 'Dated before its order', refund_exceeds_line: 'Refund too large', totals_do_not_match: 'Totals add up' };
+  var checkData = null;
+  function showChecks(data) { checkData = data; }
+  function showQuarantine(data) {
+    var counts = {}, aside = 0, review = 0;
+    checkData.findings.forEach(function (finding) { counts[finding.check_name] = (counts[finding.check_name] || 0) + 1; if (finding.outcome === 'needs_review') review += 1; });
+    Object.keys(data.kept).forEach(function (name) { aside += data.set_aside[name] || 0; });
+    var html = '<div class="checks">';
+    Object.keys(checkData.outcomes).forEach(function (name) {
+      html += '<div class="check" data-tip="' + esc(name) + '"><div class="name">' + esc(CHECK_WORDS[name] || name) + '</div><div class="count">' + (counts[name] || 0) + '</div>' + badge(checkData.outcomes[name]) + '</div>';
+    });
+    html += '</div><div class="find">';
+    checkData.findings.forEach(function (finding) { html += '<span class="f" data-tip="' + esc(finding.description) + '"><span class="mono">' + esc(finding.finding_id) + '</span> ' + esc(finding.product_id) + ' · ' + esc(finding.month) + ' ' + badge(finding.outcome) + '</span>'; });
+    html += '</div><div class="flow3">';
+    html += '<div class="box"><b>' + badge('quarantine') + ' ' + aside + ' records</b>set aside, kept, not counted</div>';
+    html += '<div class="arrow">·</div><div class="box"><b>' + badge('needs_review') + ' ' + review + ' findings</b>still counted, with a warning</div>';
+    html += '<div class="arrow">→</div><div class="box"><b>The answer warns</b>and its confidence drops</div>';
+    html += '<div class="arrow">→</div><div class="box todo"><b>A person decides</b>no screen for this yet: milestone 6</div></div>';
+    $('b-checks').innerHTML = html;
+  }
+
+  // ---- 5. Calculate: a bar per product, and how one figure is built ----------
+  function showCalculate(data) {
+    profit = data.profit;
+    if (!profit.length) { $('b-calculate').innerHTML = '<span class="small muted">No profit yet. Choose order and order_items files.</span>'; return; }
+    var months = profit.map(function (row) { return row.month; }).filter(function (value, index, all) { return all.indexOf(value) === index; });
+    month = months[0];
+    $('b-calculate').innerHTML = '<div class="two"><div><div class="chart-head"><h3>Contribution profit by product</h3><span id="months"></span></div><div class="bars" id="bars"></div></div><div><div class="chart-head"><h3 id="wf-title"></h3></div><div class="wf" id="wf"></div></div></div>';
+    $('months').innerHTML = months.map(function (value) { return '<button class="btn" data-month="' + value + '">' + value + '</button>'; }).join(' ');
+    drawBars();
+  }
+  function drawBars() {
+    var rows = profit.filter(function (row) { return row.month === month; });
+    var most = Math.max.apply(null, rows.map(function (row) { return row.contribution_profit || 0; }).concat([1]));
+    $('bars').innerHTML = rows.map(function (row) {
+      var value = row.contribution_profit, width = value == null ? 0 : Math.max(value, 0) / most * 100;
+      return '<div class="bar" data-product="' + esc(row.product_id) + '" data-tip="' + esc((row.product_name || row.product_id) + '<br>' + money(value) + '<br>' + count(row.units_sold) + ' units') + '"><span>' + esc(row.product_name || row.product_id) + '</span><span class="track">' + (value == null ? '<span class="muted small">no cost on file</span>' : '<span class="fill" style="display:block;width:' + width + '%"></span>') + '</span><span class="v">' + money(value) + '</span></div>';
+    }).join('');
+    document.querySelectorAll('#months .btn').forEach(function (button) { button.classList.toggle('on', button.getAttribute('data-month') === month); });
+    select(rows[0].product_id);
+  }
+  $('b-calculate').addEventListener('click', function (event) {
+    var monthButton = event.target.closest('[data-month]'), bar = event.target.closest('.bar');
+    if (monthButton) { month = monthButton.getAttribute('data-month'); drawBars(); }
+    if (bar) select(bar.getAttribute('data-product'));
+  });
+  function select(productId) {
+    picked = productId;
+    document.querySelectorAll('#bars .bar').forEach(function (bar) { bar.classList.toggle('sel', bar.getAttribute('data-product') === productId); });
+    var row = profit.filter(function (item) { return item.month === month && item.product_id === productId; })[0];
+    drawWaterfall(row);
+    if (lineageInfo) drawTrace(row);
+  }
+  function drawWaterfall(row) {
+    $('wf-title').textContent = 'How ' + (row.product_name || row.product_id) + '’s figure is built';
+    var steps = [['Gross sales', row.gross_sales, 'total'], ['− Discounts', row.discounts, 'minus'], ['− Refunds', row.refunds, 'minus'], ['Net sales', row.net_sales, 'total'],
+      ['− Product cost', row.product_cost, 'minus'], ['Gross profit', row.gross_profit, 'total'], ['− Fulfilment', row.fulfillment_cost, 'minus'], ['− Shipping', row.shipping_cost, 'minus'],
+      ['− Payment fees', row.payment_fees, 'minus'], ['− Returns', row.return_cost, 'minus'], ['Contribution profit', row.contribution_profit, 'total']];
+    var scale = row.gross_sales || 1, level = 0, html = '';
+    steps.forEach(function (step) {
+      var value = step[1], kind = step[2], left = 0, width = 0;
+      if (value != null) {
+        if (kind === 'total') { level = value; left = 0; width = value / scale * 100; }
+        else { left = (level - value) / scale * 100; width = value / scale * 100; level -= value; }
+      }
+      width = Math.min(width, 100);
+      html += '<div class="wrow ' + kind + '" data-tip="' + esc(step[0].replace('− ', '') + ': ' + money(value)) + '"><span class="lab">' + esc(step[0]) + '</span><span class="track">' + (value == null ? '<span class="muted small">unavailable</span>' : '<span class="seg" style="left:' + Math.max(left, 0) + '%;width:' + Math.max(width, 0.4) + '%"></span>') + '</span><span class="v">' + money(value) + '</span></div>';
+    });
+    $('wf').innerHTML = html;
+  }
+
+  // ---- 6. Trace: which files a figure came from ------------------------------
+  function drawGraph(graph) {
+    // Which column each table sits in: a source table is 0; any other is one past its furthest input.
+    var level = {}, inputsOf = {};
+    graph.edges.forEach(function (edge) { (inputsOf[edge.to] = inputsOf[edge.to] || []).push(edge.from); });
+    function levelOf(name) {
+      if (level[name] != null) return level[name];
+      var inputs = inputsOf[name] || [];
+      level[name] = inputs.length ? 1 + Math.max.apply(null, inputs.map(levelOf)) : 0;
+      return level[name];
+    }
+    Object.keys(graph.tables).forEach(levelOf);
+    var columns = [[], [], [], []];
+    // Ordered so that each source sits beside the table calculated from it, and lines cross less.
+    ['products', 'orders', 'order_items', 'refunds', 'shipments', 'payment_fees', 'product_costs'].forEach(function (name) { if (graph.tables[name] != null) columns[0].push(name); });
+    Object.keys(graph.tables).forEach(function (name) { if (level[name] > 0) columns[Math.min(level[name], 3)].push(name); });
+    var heads = ['Source tables', 'Calculated', 'Calculated', 'Profit table'];
+    var html = '<svg></svg><div class="lcol"><div class="lhead">Files, by date</div>';
+    columns[0].forEach(function (feed) {
+      var parts = graph.files[feed] || [];
+      html += '<div class="lnode" data-node="files:' + feed + '"><b>' + esc(feed) + '_*.csv</b><small>' + parts.length + (parts.length === 1 ? ' file' : ' files') + '</small><div class="parts">' + parts.map(function (part) { return '<span class="part" data-tip="' + esc('<b>' + part.file + '</b><br>' + count(part.rows) + ' rows') + '">' + esc(short(part.file).replace(/^2026-/, '')) + '</span>'; }).join('') + '</div></div>';
+    });
+    html += '</div>';
+    columns.forEach(function (names, index) {
+      html += '<div class="lcol"><div class="lhead">' + heads[index] + '</div>';
+      names.forEach(function (name) { html += '<div class="lnode' + (index === 3 ? ' final' : '') + '" data-node="' + esc(name) + '"><b>' + esc(name) + '</b><small>' + count(graph.tables[name]) + ' rows</small></div>'; });
+      html += '</div>';
+    });
+    var edges = graph.edges.concat(columns[0].map(function (feed) { return { from: 'files:' + feed, to: feed }; }));
+    var box = $('lin'); box.innerHTML = html;
+    function connect() {
+      var svg = box.querySelector('svg'), frame = box.getBoundingClientRect(), paths = '';
+      edges.forEach(function (edge) {
+        var a = box.querySelector('[data-node="' + edge.from + '"]'), b = box.querySelector('[data-node="' + edge.to + '"]');
+        if (!a || !b) return;
+        var ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+        var x1 = ra.right - frame.left, y1 = ra.top + ra.height / 2 - frame.top, x2 = rb.left - frame.left, y2 = rb.top + rb.height / 2 - frame.top, bend = (x2 - x1) / 2;
+        paths += '<path data-from="' + esc(edge.from) + '" data-to="' + esc(edge.to) + '" d="M' + x1 + ',' + y1 + ' C' + (x1 + bend) + ',' + y1 + ' ' + (x2 - bend) + ',' + y2 + ' ' + x2 + ',' + y2 + '"/>';
+      });
+      svg.innerHTML = paths;
+    }
+    // Draw the lines now, and again whenever the diagram changes size (fonts loading, a resize).
+    connect();
+    if (window.ResizeObserver) new ResizeObserver(connect).observe(box); else window.addEventListener('resize', connect);
+    // Hover a table to light up everything it is made from, back to the files.
+    box.onmouseover = function (event) {
+      var node = event.target.closest('.lnode'); if (!node) return;
+      var hot = {}, queue = [node.getAttribute('data-node')];
+      while (queue.length) { var name = queue.pop(); if (hot[name]) continue; hot[name] = true; edges.forEach(function (edge) { if (edge.to === name) queue.push(edge.from); }); }
+      box.classList.add('focus');
+      box.querySelectorAll('.lnode').forEach(function (item) { item.classList.toggle('hot', !!hot[item.getAttribute('data-node')]); });
+      box.querySelectorAll('path').forEach(function (path) { path.classList.toggle('hot', !!hot[path.getAttribute('data-to')]); });
+    };
+    box.onmouseleave = function () { box.classList.remove('focus'); };
+  }
+  function showLineage(data) {
+    lineageInfo = data;
+    $('b-lineage').innerHTML = '<div class="chart-head"><h3>Which table is made from which, back to the files</h3><span class="small muted">hover a table</span></div><div class="lin" id="lin"></div><div class="chart-head"><h3 id="trace-title">One figure, file by file</h3></div><div id="trace"></div>';
+    drawGraph(data.graph);
+    var row = profit.filter(function (item) { return item.month === month && item.product_id === picked; })[0];
+    if (row) drawTrace(row); else $('trace').innerHTML = '<span class="small muted">No figure to trace yet.</span>';
+  }
+  function drawTrace(row) {
+    api('/api/trace', { month: row.month, product_id: row.product_id }).then(function (trace) {
+      if (!$('trace')) return;
+      if (trace.error) { $('trace').innerHTML = '<div class="error-box">' + esc(trace.error) + '</div>'; return; }
+      if (picked !== row.product_id || month !== row.month) return;
+      var weeks = [], grid = {}, most = 1, total = 0;
+      trace.files.forEach(function (item) {
+        var week = weekOf(item.file); if (weeks.indexOf(week) < 0) weeks.push(week);
+        grid[item.feed] = grid[item.feed] || {}; grid[item.feed][week] = item;
+        most = Math.max(most, item.records); total += item.records;
+      });
+      weeks.sort();
+      var html = '<div class="stat"><div class="tilebox"><b>' + count(total) + ' records</b><span>behind ' + esc(row.product_name || row.product_id) + ', ' + esc(row.month) + '</span></div><div class="tilebox"><b>' + trace.files.length + ' files</b><span>they arrived in</span></div>' + (trace.set_aside ? '<div class="tilebox"><b>' + trace.set_aside + ' set aside</b><span>duplicates, not counted</span></div>' : '') + '<div class="tilebox" data-tip="Code adds every figure’s records up again and compares the total with the figure. ' + count(lineageInfo.rows) + ' lineage rows were checked."><b>' + (lineageInfo.adds_up ? 'Adds up ✓' : 'Does not add up') + '</b><span>records re-added against every figure</span></div></div>';
+      html += '<div class="heat" style="--n:' + weeks.length + '"><div class="hrow"><span class="hhead" style="text-align:left">week of</span>' + weeks.map(function (week) { return '<span class="hhead">' + (week.length === 7 ? 'month ' : '') + esc(week.slice(5)) + '</span>'; }).join('') + '</div>';
+      FEED_ORDER.forEach(function (feed) {
+        if (!grid[feed]) return;
+        html += '<div class="hrow"><span>' + esc(nice(feed)) + '</span>';
+        weeks.forEach(function (week) {
+          var item = grid[feed][week];
+          if (!item) { html += '<span class="hcell"></span>'; return; }
+          var strength = 18 + Math.round(item.records / most * 82);
+          html += '<span class="hcell on' + (strength > 60 ? ' dark' : '') + '" style="--a:' + strength + '" data-tip="' + esc('<b>' + item.file + '</b><br>' + item.records + ' records behind this figure') + '">' + item.records + '</span>';
+        });
+        html += '</div>';
+      });
+      html += '</div><p class="small muted" style="margin:8px 0 0">One cell is one file. A stronger colour means more of this figure’s records came from it.</p>';
+      $('trace-title').textContent = (row.product_name || row.product_id) + ', ' + row.month + ': the files its records came from';
+      $('trace').innerHTML = html;
+    });
+  }
+
+  // ---- 7. Run history --------------------------------------------------------
+  function showRecord(data) {
+    var history = data.history, comparison = data.comparison, most = 1;
+    history.forEach(function (run) { most = Math.max(most, run.total_profit); });
+    var html = '<div class="chart-head"><h3>Total contribution profit, run by run</h3></div><div class="runs">';
+    history.forEach(function (run, index) {
+      var last = index === history.length - 1;
+      html += '<div class="run' + (last ? ' now' : '') + '" data-tip="' + esc('<b>' + run.run_id + '</b> · ' + run.started_at.replace('T', ' ') + '<br>' + run.files + ' files loaded<br>' + money(run.total_profit) + '<br>' + run.findings + ' findings' + (run.unavailable ? '<br>' + run.unavailable + ' figures unavailable' : '')) + '"><span class="small">' + (last ? money(run.total_profit) : '') + '</span><span class="col" style="height:' + Math.max(run.total_profit / most * 78, 2) + '%"></span><span class="id">' + esc(run.run_id.replace('RUN-', '#')) + '</span><span class="muted">' + run.files + ' files</span></div>';
+    });
+    html += '</div>';
+    if (!comparison) { html += '<p class="small muted">First run. Choose more files and run again to compare.</p>'; }
+    else {
+      var changed = comparison.inputs_changed.map(function (item) { return nice(item.name); });
+      var checks = comparison.checks_changed.map(function (item) { return nice(item.name) + ': ' + nice(item.earlier) + ' → ' + nice(item.later); });
+      html += '<div class="chart-head" style="margin-top:10px"><h3>' + esc(comparison.earlier_run) + ' → ' + esc(comparison.later_run) + '</h3>';
+      if (!changed.length && !comparison.figures_changed.length) html += badge('pass') + '<span class="small">Nothing changed: same files, same figures.</span>';
+      changed.forEach(function (name) { html += '<span class="badge needs_review" data-tip="More files were loaded into this table, so its fingerprint changed.">' + esc(name) + ' changed</span>'; });
+      html += '</div>';
+      if (checks.length) html += '<p class="small muted" style="margin:0 0 6px">' + esc(checks.join(' · ')) + '</p>';
+      var moves = comparison.figures_changed.slice().sort(function (a, b) { return Math.abs((b.later || 0) - (b.earlier || 0)) - Math.abs((a.later || 0) - (a.earlier || 0)); });
+      var top = moves.slice(0, 8), scale = Math.max.apply(null, top.map(function (row) { return Math.max(row.earlier || 0, row.later || 0); }).concat([1]));
+      if (top.length) {
+        html += '<div class="moves">';
+        top.forEach(function (row) {
+          var was = (row.earlier || 0) / scale * 100, now = (row.later || 0) / scale * 100, name = nameOf(row.product_id);
+          html += '<div class="move" data-tip="' + esc(name + ', ' + row.month + '<br>before: ' + money(row.earlier) + '<br>now: ' + money(row.later)) + '"><span>' + esc(name) + ' <span class="muted">' + esc(row.month) + (row.earlier == null ? ' · new' : '') + '</span></span><span class="track">' + (row.earlier == null || row.later == null ? '' : '<span class="line" style="left:' + Math.min(was, now) + '%;width:' + Math.abs(now - was) + '%"></span>') + (row.earlier == null ? '' : '<span class="dot was" style="left:' + was + '%"></span>') + (row.later == null ? '' : '<span class="dot now" style="left:' + now + '%"></span>') + '</span><span style="text-align:right;font-variant-numeric:tabular-nums">' + money(row.later) + '</span></div>';
+        });
+        html += '</div><div class="legend"><span style="--c:var(--muted)">before</span><span style="--c:var(--accent)">now</span>' + (moves.length > top.length ? '<span style="--c:transparent">the ' + top.length + ' biggest of ' + moves.length + ' figures that moved</span>' : '') + '</div>';
+      }
+    }
+    $('b-record').innerHTML = html;
+  }
+  function nameOf(productId) { var row = profit.filter(function (item) { return item.product_id === productId; })[0]; return row && row.product_name ? row.product_name : productId; }
+
+  // ---- 8. Ask the analyst ----------------------------------------------------
+  $('ask').addEventListener('click', function () {
+    $('ask').disabled = true; mark('ask', 'active');
+    $('answer').innerHTML = '<p class="small muted">The analyst is calling its tools…</p>';
+    api('/api/ask', { question: $('question').value }).then(function (reply) {
+      $('ask').disabled = false; mark('ask', 'finished');
+      if (!reply.answer) { $('answer').innerHTML = '<div class="error-box">' + esc(reply.error || 'No answer') + '</div>'; return; }
+      var answer = reply.answer, html = '<div class="answer"><h3>' + esc(answer.headline) + '</h3>';
+      html += '<p>' + (answer.confidence ? 'Confidence ' + badge(answer.confidence.level) + ' &nbsp; ' : '') + 'Verifier ' + badge(reply.verified ? 'pass' : 'fail') + ' &nbsp; <span class="mono muted">' + esc(answer.run_id || '') + '</span> &nbsp; <span class="muted small">' + reply.seconds + ' s · $' + Number(reply.cost).toFixed(4) + '</span></p>';
+      html += '<div class="steps">' + reply.steps.map(function (step) { return step.step === 'tool' ? '<span class="s" data-tip="' + esc(step.detail) + '">' + esc(step.name) + '</span>' : '<span class="s model" data-tip="' + esc(step.detail) + '">model</span>'; }).join('<span class="muted">→</span>') + '</div>';
+      if (answer.caveats.length) html += '<div class="find">' + answer.caveats.map(function (caveat) { return '<span class="f" data-tip="' + esc(caveat.text) + '">⚠ ' + esc(caveat.flag_id || 'note') + '</span>'; }).join('') + '</div>';
+      html += '<details><summary>The full answer</summary><p>' + esc(answer.narrative) + (answer.decline_reason ? '<br><b>Declined:</b> ' + esc(answer.decline_reason) : '') + '</p></details>';
+      html += '<details><summary>The verifier’s ' + reply.checks.length + ' checks</summary><table>' + reply.checks.map(function (check) { return '<tr><td>' + badge(check.passed ? 'pass' : 'fail') + '</td><td class="mono">' + esc(check.name) + '</td><td>' + esc(check.detail) + '</td></tr>'; }).join('') + '</table></details></div>';
+      $('answer').innerHTML = html;
+    });
+  });
+
+  // ---- Events from the server ------------------------------------------------
+  var SHOW = { records: showRecords, checks: showChecks, quarantine: showQuarantine, calculate: showCalculate, lineage: showLineage, record: showRecord };
+  var CARD = { records: 'load', checks: 'checks', quarantine: 'checks', calculate: 'calculate', lineage: 'lineage', record: 'record' };
+  function handle(event) {
+    var stage = event.stage, kind = event.kind, data = event.data;
+    if (stage === 'load' && kind === 'start') { mark('load', 'active'); startLoad(data); }
+    else if (stage === 'load' && kind === 'file') fileDone(data);
+    else if (stage === 'load' && kind === 'done') loadDone(data);
+    else if (stage === 'desk' && kind === 'question') addQuestion(data);
+    else if (stage === 'desk' && kind === 'answered') questionAnswered(data);
+    else if (SHOW[stage] && kind === 'start') { if (stage !== 'records' && stage !== 'quarantine') mark(CARD[stage], 'active'); }
+    else if (SHOW[stage] && kind === 'result') { SHOW[stage](data); if (stage !== 'checks') mark(CARD[stage], 'finished'); }
+    else if (stage === 'done') loadFiles(true);
+    else if (stage === 'error') $('b-load').insertAdjacentHTML('beforeend', '<div class="error-box">' + esc(data.message) + '</div>');
+  }
+  function poll() {
+    api('/api/events?since=' + seen).then(function (reply) {
+      reply.events.forEach(function (event) { seen = event.seq + 1; handle(event); });
+      setStatus(reply.status);
+      if (reply.status === 'done' || reply.status === 'error' || reply.status === 'idle') { clearInterval(polling); polling = null; }
+    });
+  }
+  $('run').addEventListener('click', function () {
+    var list = files.filter(function (file) { return chosen[file.name]; }).map(function (file) { return file.name; });
+    if (!list.length) { alert('Choose at least one file.'); return; }
+    clearStages(); seen = 0; lineageInfo = null;
+    api('/api/run', { files: list, at_once: Number($('at-once').value), use_ai: $('use-ai').checked }).then(function (reply) {
+      if (reply.error) { alert(reply.error); return; }
+      setStatus('loading'); if (!polling) polling = setInterval(poll, 350);
+    });
+  });
+  $('reset').addEventListener('click', function () {
+    api('/api/reset', {}).then(function (reply) {
+      if (reply.error) { alert(reply.error); return; }
+      clearStages(); lineageInfo = null; setStatus('idle'); loadFiles(true);
+    });
+  });
+
+  // On opening the page, show the latest run again, and keep watching a run in progress.
+  loadFiles(false).then(function () { return api('/api/events?since=0'); }).then(function (reply) {
+    if (stale) { setStatus('idle'); return; }
+    replaying = true;
+    reply.events.forEach(function (event) { seen = event.seq + 1; if (event.stage !== 'done') handle(event); });
+    replaying = false;
+    setStatus(reply.status);
+    if (reply.status === 'loading' || reply.status === 'waiting' || reply.status === 'running') polling = setInterval(poll, 350);
+  });
+})();
+</script>
+</body>
+</html>

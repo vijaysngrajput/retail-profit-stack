@@ -1,0 +1,24 @@
+{
+ "order_items_2026-10-12.csv": {
+  "list_price": "unit_list_price",
+  "discount": "discount_amount"
+ },
+ "order_items_2026-10-19.csv": {
+  "list_price": "unit_list_price",
+  "discount": "discount_amount"
+ },
+ "order_items_2026-10-26.csv": {
+  "list_price": "unit_list_price",
+  "discount": "discount_amount"
+ },
+ "payment_fees_2026-10-19.csv": {
+  "fee_usd": "fee_amount"
+ },
+ "payment_fees_2026-10-26.csv": {
+  "fee_usd": "fee_amount"
+ },
+ "shipments_2026-10-26.csv": {
+  "cost_1": "pick_pack_cost",
+  "cost_2": "carrier_cost"
+ }
+}
