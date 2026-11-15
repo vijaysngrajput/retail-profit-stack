@@ -1,0 +1,207 @@
+[
+ {
+  "case_id": "H1",
+  "tiny": true,
+  "question": "What was gross profit for the Camp category in September 2026?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "gross_profit",
+    "kind": "value",
+    "month": "2026-09",
+    "entity_id": "Camp",
+    "value": 18794.0
+   }
+  ],
+  "tests": "Held out. Like E2, for another category and metric."
+ },
+ {
+  "case_id": "H2",
+  "question": "What was the headlamp's contribution profit in October 2026, and how confident should I be in that figure?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "contribution_profit",
+    "kind": "value",
+    "month": "2026-10",
+    "entity_id": "P008",
+    "value": 4250.0
+   }
+  ],
+  "expected_flags": [],
+  "expected_confidence": "high",
+  "tests": "Held out. Like E8, for a product with no findings."
+ },
+ {
+  "case_id": "H3",
+  "tiny": true,
+  "question": "What was the hydration pack's contribution profit in October 2026, and how confident should I be in that figure?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "contribution_profit",
+    "kind": "value",
+    "month": "2026-10",
+    "entity_id": "P003",
+    "value": 2499.4
+   }
+  ],
+  "expected_flags": [
+   "QF-006"
+  ],
+  "expected_confidence": "high",
+  "tests": "Held out. Like E8, for a product with a low-severity finding."
+ },
+ {
+  "case_id": "H4",
+  "question": "How is gross profit defined?",
+  "expected_status": "answered",
+  "expected_definitions": [
+   "gross_profit"
+  ],
+  "tests": "Held out. Like E3."
+ },
+ {
+  "case_id": "H5",
+  "tiny": true,
+  "question": "What will net sales be in December 2026?",
+  "expected_status": "declined",
+  "tests": "Held out. A forecast must be declined."
+ },
+ {
+  "case_id": "H6",
+  "question": "How much did we spend on advertising last month?",
+  "expected_status": "declined",
+  "tests": "Held out. Advertising is not an approved metric."
+ },
+ {
+  "case_id": "H7",
+  "tiny": true,
+  "question": "Why did the insulated flask's October 2026 contribution profit change since the last run?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "contribution_profit",
+    "kind": "earlier_run_value",
+    "month": "2026-10",
+    "entity_id": "P002",
+    "value": 2638.14
+   },
+   {
+    "metric": "contribution_profit",
+    "kind": "value",
+    "month": "2026-10",
+    "entity_id": "P002",
+    "value": 2541.35
+   },
+   {
+    "metric": "contribution_profit",
+    "kind": "run_change",
+    "month": "2026-10",
+    "entity_id": "P002",
+    "value": -96.79
+   }
+  ],
+  "expected_flags": [
+   "QF-003"
+  ],
+  "expected_confidence": "high",
+  "expected_tools": [
+   "compare_runs"
+  ],
+  "expected_run": "RUN-0002",
+  "reference": {
+   "month": "2026-10",
+   "product_id": "P002",
+   "metric": "contribution_profit"
+  },
+  "tests": "Held out. Like E12, for another product."
+ },
+ {
+  "case_id": "H8",
+  "question": "Where did the sun hat's September 2026 net sales come from?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "net_sales",
+    "kind": "value",
+    "month": "2026-09",
+    "entity_id": "P011",
+    "value": 5140.0
+   }
+  ],
+  "expected_flags": [
+   "QF-007"
+  ],
+  "expected_confidence": "medium",
+  "expected_tools": [
+   "get_evidence"
+  ],
+  "expected_run": "RUN-0002",
+  "tests": "Held out. Like E11, for another product and metric."
+ },
+ {
+  "case_id": "H9",
+  "stage": "late",
+  "tiny": true,
+  "question": "Why did the fleece pullover's September 2026 net sales change since the last run?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "net_sales",
+    "kind": "earlier_run_value",
+    "month": "2026-09",
+    "entity_id": "P012",
+    "value": 11186.25
+   },
+   {
+    "metric": "net_sales",
+    "kind": "value",
+    "month": "2026-09",
+    "entity_id": "P012",
+    "value": 11115.0
+   },
+   {
+    "metric": "net_sales",
+    "kind": "run_change",
+    "month": "2026-09",
+    "entity_id": "P012",
+    "value": -71.25
+   }
+  ],
+  "expected_flags": [],
+  "expected_confidence": "high",
+  "expected_tools": [
+   "compare_runs"
+  ],
+  "expected_run": "RUN-0003",
+  "reference": {
+   "month": "2026-09",
+   "product_id": "P012",
+   "metric": "net_sales"
+  },
+  "tests": "Held out. Like E15, for another metric."
+ },
+ {
+  "case_id": "H10",
+  "stage": "late",
+  "question": "Did the headlamp's October 2026 contribution profit change since the last run?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "contribution_profit",
+    "kind": "value",
+    "month": "2026-10",
+    "entity_id": "P008",
+    "value": 4250.0
+   }
+  ],
+  "expected_flags": [],
+  "expected_confidence": "high",
+  "expected_tools": [
+   "compare_runs"
+  ],
+  "expected_run": "RUN-0003",
+  "tests": "Held out. Like E14, after the late files. Nothing changed for this product."
+ }
+]

@@ -1,0 +1,9 @@
+[
+  {"finding_id": "QF-001", "check_name": "duplicate_records", "month": "2026-09", "product_id": "P005", "planted_cause": "single_record_resent"},
+  {"finding_id": "QF-002", "check_name": "duplicate_records", "month": "2026-10", "product_id": "P001", "planted_cause": "single_record_resent"},
+  {"finding_id": "QF-003", "check_name": "duplicate_records", "month": "2026-10", "product_id": "P002", "planted_cause": "batch_loaded_twice"},
+  {"finding_id": "QF-004", "check_name": "missing_product_cost", "month": "2026-10", "product_id": "P007", "planted_cause": "monthly_cost_not_updated"},
+  {"finding_id": "QF-005", "check_name": "event_out_of_order", "month": "2026-09", "product_id": "P009", "planted_cause": "order_recorded_late"},
+  {"finding_id": "QF-006", "check_name": "event_out_of_order", "month": "2026-10", "product_id": "P003", "planted_cause": "date_typed_wrong"},
+  {"finding_id": "QF-007", "check_name": "refund_exceeds_line", "month": "2026-09", "product_id": "P011", "planted_cause": "amount_typed_wrong"}
+]

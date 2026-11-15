@@ -1,0 +1,2 @@
+refund_id,order_item_id,product_id,refund_date,refund_amount,return_handling_cost
+REF-0001,OI-00141,P006,2026-09-05,142.50,12.00

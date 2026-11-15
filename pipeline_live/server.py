@@ -17,17 +17,18 @@ import sys
 import threading
 import time
 import webbrowser
+from dataclasses import replace
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 import pyarrow.parquet as pq
 
 HERE = Path(__file__).resolve().parent
-MILESTONE = HERE.parent / "src" / "m5_raw_data_ingestion"  # the production code this page runs
+MILESTONE = HERE.parent / "src" / "m6_realistic_operations"  # the production code this page runs
 sys.path.insert(0, str(MILESTONE))
 
 from retail_profit_stack import tools
-from retail_profit_stack.config import LANDING_DIR
+from retail_profit_stack.config import LANDING_DIR, LATE_DIR
 from retail_profit_stack.ingest import ledger
 from retail_profit_stack.ingest.dispatch import build_dispatcher
 from retail_profit_stack.ingest.feeds import Places, feed_of
@@ -41,13 +42,14 @@ from retail_profit_stack.ingest.workflow import (
 )
 from retail_profit_stack.lineage.compare import compare_runs
 from retail_profit_stack.lineage.lineage import record_counts
-from retail_profit_stack.lineage.runs import read_history
+from retail_profit_stack.lineage.runs import fingerprint, read_history
+from retail_profit_stack.quality.review import decide, open_reviews, read_decisions
 from retail_profit_stack.store import Store
 from retail_profit_stack.transform.pipeline import load_sources, run_pipeline
 from retail_profit_stack.transform.specs import ordered_specs
 
 PORT = 8765
-VERSION = 4  # raise this whenever the page needs something new from this program
+VERSION = 5  # raise this whenever the page needs something new from this program
 WORKSPACE = HERE / "workspace"
 # For testing: "--port 8766 --workspace some/folder" runs a second copy that shares nothing.
 if "--port" in sys.argv:
@@ -61,6 +63,9 @@ PLACES = Places(
     state_file=WORKSPACE / "loader_state.sqlite",
     mappings_file=WORKSPACE / "approved_mappings.json",
 )
+LATE_PLACES = replace(PLACES, landing=LATE_DIR)  # the same records, fed from the late folder
+DECISIONS = WORKSPACE / "review_decisions.json"  # what you decided at the review desk
+LATE = "late/"  # a late file's name on the page starts with this, so two files can share a name
 STEP_PAUSE = 0.7  # seconds between pipeline steps on the page, so a person can follow them
 
 
@@ -109,21 +114,30 @@ def clean(value):
 
 
 def list_files() -> list[dict]:
-    """Every landing file, with its feed, its row count, and whether it is already loaded."""
-    loaded = {
-        entry["file_name"]: entry["outcome"] for entry in ledger.files_seen(PLACES.state_file)
-    }
+    """Every file that can arrive, on time or late, and whether it is already loaded.
+
+    A late file's id starts with "late/". One late file is a correction: it has the same name
+    as a file that arrived on time. A file counts as loaded when the load record holds its
+    name with this exact content.
+    """
+    seen = {entry["file_name"]: entry for entry in ledger.files_seen(PLACES.state_file)}
     files = []
-    for file in sorted(LANDING_DIR.glob("*.csv")):
-        with file.open(encoding="utf-8") as handle:
-            rows = sum(1 for _ in handle) - 1
-        files.append({
-            "name": file.name,
-            "feed": feed_of(file.name),
-            "rows": rows,
-            "columns": read_header(file),
-            "outcome": loaded.get(file.name, ""),
-        })  # fmt: skip
+    for folder, prefix in ((LANDING_DIR, ""), (LATE_DIR, LATE)):
+        for file in sorted(folder.glob("*.csv")):
+            with file.open(encoding="utf-8") as handle:
+                rows = sum(1 for _ in handle) - 1
+            entry = seen.get(file.name, {})
+            same_content = entry.get("fingerprint") == fingerprint(file)
+            files.append({
+                "id": prefix + file.name,
+                "name": file.name,
+                "feed": feed_of(file.name),
+                "rows": rows,
+                "columns": read_header(file),
+                "late": prefix == LATE,
+                "correction": prefix == LATE and (LANDING_DIR / file.name).exists(),
+                "outcome": entry.get("outcome", "") if same_content else "",
+            })  # fmt: skip
     return files
 
 
@@ -159,31 +173,43 @@ def run_everything(files: list[str], at_once: int, use_ai: bool) -> None:
         LIVE.workflow = workflow
         LIVE.emit("load", "start", {"files": files, "at_once": at_once, "use_ai": use_ai})
 
-        # 1. The dispatcher hands each file to its own worker. Each result is reported as it lands.
-        def work_file(file_name: str):
-            result = run_file(workflow, file_name)
-            LIVE.emit("load", "file", result)
-            return {"results": [result]}
-
+        on_time = [name for name in files if not name.startswith(LATE)]
+        late = [name.removeprefix(LATE) for name in files if name.startswith(LATE)]
         started = time.time()
-        build_dispatcher(work_file).invoke(
-            {"files": files, "results": []}, {"max_concurrency": at_once}
-        )
-        LIVE.emit("load", "done", {
-            "seconds": round(time.time() - started, 1),
-            "counts": ledger.outcome_counts(PLACES.state_file),
-        })  # fmt: skip
+
+        # 1. The dispatcher hands each file to its own worker. Each result is reported as it lands.
+        def load(names: list[str], the_workflow, prefix: str) -> None:
+            def work_file(file_name: str):
+                result = run_file(the_workflow, file_name)
+                LIVE.emit("load", "file", {**result, "id": prefix + file_name})
+                return {"results": [result]}
+
+            build_dispatcher(work_file).invoke(
+                {"files": names, "results": []}, {"max_concurrency": at_once}
+            )
+
+        load(on_time, workflow, "")
 
         # 2. Files with a renamed column wait at the desk for a person.
         questions = waiting_files(workflow, PLACES)
         if questions:
             LIVE.status = "waiting"
+            LIVE.emit("load", "done", {"counts": ledger.outcome_counts(PLACES.state_file)})
             for question in questions:
                 file_name = question["file_name"]
                 question["file_rows"] = sample_rows(PLACES.landing / file_name, 3)
                 question["earlier_rows"] = earlier_rows(PLACES, feed_of(file_name), 3)
                 LIVE.emit("desk", "question", question)
             LIVE.desk_done.wait()
+            LIVE.status = "loading"
+
+        # 3. Late files load last, as they would in life. A correction replaces the earlier file.
+        load(late, build_file_workflow(LATE_PLACES, model), LATE)
+        LIVE.emit("load", "done", {
+            "seconds": round(time.time() - started, 1),
+            "counts": ledger.outcome_counts(PLACES.state_file),
+            "replaced": ledger.files_replaced(PLACES.state_file),
+        })  # fmt: skip
 
         run_the_pipeline(len(files))
     except Exception as error:  # noqa: BLE001 - the page must be told, whatever went wrong
@@ -199,7 +225,11 @@ def run_the_pipeline(files_chosen: int) -> None:
     """
     LIVE.status = "running"
     note = f"Live pipeline: {files_chosen} files chosen"
-    run = run_pipeline("sql", source_dir=PLACES.loaded, warehouse_dir=WAREHOUSE, note=note)
+    # incremental: recalculate only the months that changed files touch. The first run is full.
+    run = run_pipeline(
+        "sql", source_dir=PLACES.loaded, warehouse_dir=WAREHOUSE, note=note,
+        incremental=True, decisions_file=DECISIONS,
+    )  # fmt: skip
     LIVE.last_run = run
     record = run.record
 
@@ -218,6 +248,16 @@ def run_the_pipeline(files_chosen: int) -> None:
         for name in record["inputs"]
     }
     step("quarantine", {"set_aside": run.quarantined_counts, "kept": kept})
+
+    # The review desk: records waiting for a decision, and the ones already decided.
+    records = run.finding_records.to_dict(orient="records")
+    people = read_decisions(DECISIONS)
+    decided = [
+        {"record_key": row["record_key"], "decision": row["decision"], "detail": row["detail"],
+         "person": people[row["record_key"]]["person"]}
+        for row in records if row["decision"]
+    ]  # fmt: skip
+    step("review", {"open": open_reviews(run.findings, run.finding_records), "decided": decided})
 
     transformations = [
         {"name": spec.name, "inputs": list(spec.inputs), "rows": run.row_counts[spec.name],
@@ -311,6 +351,7 @@ def run_history() -> list[dict]:
             "started_at": record["started_at"],
             "files": sum(item.get("files", 0) for item in record["inputs"].values()),
             "findings": record["findings"],
+            "mode": record.get("mode", "full"),
             "total_profit": round(float(profit["contribution_profit"].sum()), 2),
             "unavailable": int(profit["contribution_profit"].isna().sum()),
         })  # fmt: skip
@@ -326,10 +367,15 @@ def answer_question(file_name: str, approved: bool, person: str, mapping: dict |
     return result
 
 
+def decide_record(record_key: str, decision: str, note: str) -> dict:
+    """Your decision on one record at the review desk. The next run obeys it."""
+    return decide(DECISIONS, record_key, decision, "you", note)
+
+
 def trace_figure(month: str, product_id: str) -> dict:
     """The records behind one product's figures in one month, from the latest run's lineage."""
     run = LIVE.last_run
-    store = Store(source_dir=PLACES.loaded, warehouse_dir=WAREHOUSE)
+    store = Store(source_dir=PLACES.loaded, warehouse_dir=WAREHOUSE, state_file=PLACES.state_file)
     evidence = tools.get_evidence(month, product_id, store=store)
     return {
         "month": month, "product_id": product_id, "run_id": run.run_id,
@@ -345,7 +391,7 @@ def ask_analyst(question: str) -> dict:
     """Ask the production analyst a question about the latest run. Calls the model."""
     from retail_profit_stack.agent import run_analyst
 
-    store = Store(source_dir=PLACES.loaded, warehouse_dir=WAREHOUSE)
+    store = Store(source_dir=PLACES.loaded, warehouse_dir=WAREHOUSE, state_file=PLACES.state_file)
     run = run_analyst(question, store=store)
     return {
         "answer": run.answer.model_dump() if run.answer else None,
@@ -408,7 +454,8 @@ class Handler(BaseHTTPRequestHandler):
                 if LIVE.status in ("loading", "waiting", "running"):
                     return self.send_json({"error": "A run is already in progress."}, 409)
                 files = sorted(body.get("files", []))
-                if not files:
+                # "again" runs the pipeline on the records already loaded, with your decisions.
+                if not files and not body.get("again"):
                     return self.send_json({"error": "Choose at least one file."}, 400)
                 LIVE.events.clear()
                 arguments = (files, int(body.get("at_once", 5)), bool(body.get("use_ai", True)))
@@ -419,6 +466,10 @@ class Handler(BaseHTTPRequestHandler):
                     body["file_name"], bool(body["approved"]), body.get("person", ""),
                     body.get("mapping"),
                 ))  # fmt: skip
+            if self.path == "/api/decide":
+                return self.send_json(
+                    decide_record(body["record_key"], body["decision"], body.get("note", ""))
+                )
             if self.path == "/api/trace":
                 return self.send_json(trace_figure(body["month"], body["product_id"]))
             if self.path == "/api/ask":

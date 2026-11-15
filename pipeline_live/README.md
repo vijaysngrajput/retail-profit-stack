@@ -9,10 +9,11 @@ You pick which files arrive, press **Run the pipeline**, and watch the real prod
 | 2 Load | One tile per file, coloured by what happened to it. Then the tables that were built |
 | 3 Your desk | Files with renamed columns, each with the model's suggestion, for you to approve or refuse |
 | 4 Check | The five checks with their counts, each finding, and what happens to it |
-| 5 Calculate | A bar per product. Click one to see how its figure is built, step by step |
-| 6 Trace | A grid of the files that product's figure came from: the feed down the side, the week along the top |
-| 7 Run history | A bar per run, and the figures that moved since the run before |
-| 8 Ask | The AI analyst's answer, the tools it called, and the verifier's result |
+| 5 Review desk | Each record that needs a person, with **Accept** and **Exclude**. The next run obeys you |
+| 6 Calculate | A bar per product. Click one to see how its figure is built, step by step |
+| 7 Lineage | Which table is made from which, back to the files and their dates. Then a grid of the files behind one figure |
+| 8 Run health and history | How long each step took, whether the run recalculated every month or only some, a bar per run, and the figures that moved |
+| 9 Ask | The AI analyst's answer, the tools it called, and the verifier's result |
 
 Hover over any bar, tile, or cell for its detail.
 
@@ -42,7 +43,9 @@ A web page cannot run Python by itself. So there are two parts:
 5. **Leave out the product costs.** Every product's profit becomes unavailable, and the missing-cost check says why.
 6. **Switch AI off.** A renamed file still waits. You type the mapping yourself.
 7. **Refuse a mapping.** The file is rejected, and its records are missing from the figures.
-8. **Ask the analyst** the leader's question at the bottom, and read what it did step by step.
+8. **Let the late files arrive.** After an "Everything" run, click "None", then "+ Late files", and run. Three files load, and one of them is a corrected version of a file you loaded before. Step 8 says the run was incremental, names the corrected file, and shows the three figures that moved. The camp stove's profit, unavailable until now, appears.
+9. **Decide a finding.** At the review desk, press Exclude on the refund that is larger than its order line, then "Run again with your decisions". The refund is set aside, and the fleece pullover's September figure moves.
+10. **Ask the analyst** the leader's question at the bottom, and read what it did step by step. After the late files, try: "Why did the trail water bottle's October profit change?"
 
 ## What costs money
 
@@ -55,8 +58,10 @@ Everything else is code and costs nothing.
 
 ## Good to know
 
-- **It uses one milestone's production code**, named in `MILESTONE` near the top of `server.py`. Today that is milestone 5. Change that one line to point it at a later milestone.
+- **It uses one milestone's production code**, named in `MILESTONE` near the top of `server.py`. Today that is milestone 6, the last one.
 - **It works in its own folder**, `pipeline_live/workspace/`. It never changes a milestone's data. "Start over" on the page deletes that folder.
 - **Files stay loaded between runs**, as in a real system. That is what lets a second run be compared with the first.
+- **Late files load last**, after the files that arrived on time and after your desk, as they would in life.
+- **Your decisions are kept** in the workspace folder, with the name "you". "Start over" forgets them.
 - **The steps are played back slowly.** The pipeline itself takes a fraction of a second. The page pauses between steps so you can follow them. The run record shows the real time.
 - **All data is fictional.**

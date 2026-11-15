@@ -1,0 +1,299 @@
+[
+ {
+  "case_id": "E1",
+  "tiny": true,
+  "question": "Which products and categories generated the most contribution profit last month, what changed, and how confident should I be in those numbers?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "contribution_profit",
+    "kind": "value",
+    "month": "2026-10",
+    "entity_id": "P001",
+    "value": 5156.94
+   },
+   {
+    "metric": "contribution_profit",
+    "kind": "value",
+    "month": "2026-10",
+    "entity_id": "P008",
+    "value": 4250.0
+   },
+   {
+    "metric": "contribution_profit",
+    "kind": "value",
+    "month": "2026-10",
+    "entity_id": "P009",
+    "value": 3841.0
+   },
+   {
+    "metric": "contribution_profit",
+    "kind": "value",
+    "month": "2026-10",
+    "entity_id": "Hydration",
+    "value": 13326.8
+   },
+   {
+    "metric": "contribution_profit",
+    "kind": "change",
+    "month": "2026-10",
+    "entity_id": "Hydration",
+    "value": 344.8
+   }
+  ],
+  "expected_flags": [
+   "QF-004",
+   "QF-002"
+  ],
+  "expected_definitions": [
+   "contribution_profit"
+  ],
+  "expected_confidence": "low",
+  "tests": "The main question: ranking, change, quality flags, and confidence together."
+ },
+ {
+  "case_id": "E2",
+  "tiny": true,
+  "question": "What was net sales for the Hydration category in September 2026?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "net_sales",
+    "kind": "value",
+    "month": "2026-09",
+    "entity_id": "Hydration",
+    "value": 40190.5
+   }
+  ],
+  "expected_definitions": [
+   "net_sales"
+  ],
+  "expected_confidence": "high",
+  "tests": "A single category total, which needs four product rows summed. No data problems apply."
+ },
+ {
+  "case_id": "E3",
+  "question": "How is contribution profit defined?",
+  "expected_status": "answered",
+  "expected_definitions": [
+   "contribution_profit"
+  ],
+  "tests": "A definition question: no figures, but the definition and its version must be cited."
+ },
+ {
+  "case_id": "E4",
+  "question": "Why is the camp stove missing from last month's contribution profit ranking?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "contribution_profit",
+    "kind": "value",
+    "month": "2026-10",
+    "entity_id": "P007",
+    "value": null
+   }
+  ],
+  "expected_flags": [
+   "QF-004"
+  ],
+  "expected_confidence": "low",
+  "tests": "An unavailable figure must be reported as unavailable, with the flag that explains it."
+ },
+ {
+  "case_id": "E5",
+  "question": "Which category's contribution profit fell the most between September and October 2026?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "contribution_profit",
+    "kind": "change",
+    "month": "2026-10",
+    "entity_id": "Apparel",
+    "value": -5914.87
+   }
+  ],
+  "expected_definitions": [
+   "contribution_profit"
+  ],
+  "tests": "A comparison. Camp looks like a fall only because one product is missing, so it must not be named."
+ },
+ {
+  "case_id": "E6",
+  "tiny": true,
+  "question": "What will our contribution profit be next quarter?",
+  "expected_status": "declined",
+  "tests": "A forecast is out of scope and must be declined."
+ },
+ {
+  "case_id": "E7",
+  "question": "What is our profit after marketing spend and salaries?",
+  "expected_status": "declined",
+  "tests": "Fixed costs are not in the data, so this must be declined, not guessed."
+ },
+ {
+  "case_id": "E8",
+  "question": "What was the trail water bottle's contribution profit in October 2026, and how confident should I be in that figure?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "contribution_profit",
+    "kind": "value",
+    "month": "2026-10",
+    "entity_id": "P001",
+    "value": 5156.94
+   }
+  ],
+  "expected_flags": [
+   "QF-002"
+  ],
+  "expected_confidence": "high",
+  "tests": "New in milestone 3. Duplicates were found and set aside, so the figure is lower than before and confidence in it is high."
+ },
+ {
+  "case_id": "E9",
+  "tiny": true,
+  "question": "What were the sun hat's net sales in September 2026, and how confident should I be in that figure?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "net_sales",
+    "kind": "value",
+    "month": "2026-09",
+    "entity_id": "P011",
+    "value": 5140.0
+   }
+  ],
+  "expected_flags": [
+   "QF-007"
+  ],
+  "expected_confidence": "medium",
+  "tests": "New in milestone 3. A refund larger than its order line needs review, so confidence drops to medium."
+ },
+ {
+  "case_id": "E10",
+  "question": "Were any records left out of the October 2026 figures, and why?",
+  "expected_status": "answered",
+  "expected_flags": [
+   "QF-002",
+   "QF-003"
+  ],
+  "tests": "New in milestone 3. The two October duplicate findings must be cited: their extra copies were quarantined."
+ },
+ {
+  "case_id": "E11",
+  "question": "Where did the trail water bottle's October 2026 contribution profit come from?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "contribution_profit",
+    "kind": "value",
+    "month": "2026-10",
+    "entity_id": "P001",
+    "value": 5156.94
+   }
+  ],
+  "expected_flags": [
+   "QF-002"
+  ],
+  "expected_confidence": "high",
+  "expected_tools": [
+   "get_evidence"
+  ],
+  "expected_run": "RUN-0002",
+  "tests": "New in milestone 4. The answer must use the lineage (the evidence tool), name the run, and mention the records that were set aside."
+ },
+ {
+  "case_id": "E12",
+  "tiny": true,
+  "question": "Why did the trail water bottle's October 2026 contribution profit change since the last run?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "contribution_profit",
+    "kind": "earlier_run_value",
+    "month": "2026-10",
+    "entity_id": "P001",
+    "value": 5188.2
+   },
+   {
+    "metric": "contribution_profit",
+    "kind": "value",
+    "month": "2026-10",
+    "entity_id": "P001",
+    "value": 5156.94
+   },
+   {
+    "metric": "contribution_profit",
+    "kind": "run_change",
+    "month": "2026-10",
+    "entity_id": "P001",
+    "value": -31.26
+   }
+  ],
+  "expected_flags": [
+   "QF-002"
+  ],
+  "expected_confidence": "high",
+  "expected_tools": [
+   "compare_runs"
+  ],
+  "expected_run": "RUN-0002",
+  "tests": "New in milestone 4. The before, the after, and the change all come from compare_runs. The reason is the duplicates that are now set aside."
+ },
+ {
+  "case_id": "E13",
+  "question": "Which products' contribution profit changed between the last two pipeline runs?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "contribution_profit",
+    "kind": "run_change",
+    "month": "2026-09",
+    "entity_id": "P005",
+    "value": 334.0
+   },
+   {
+    "metric": "contribution_profit",
+    "kind": "run_change",
+    "month": "2026-10",
+    "entity_id": "P001",
+    "value": -31.26
+   },
+   {
+    "metric": "contribution_profit",
+    "kind": "run_change",
+    "month": "2026-10",
+    "entity_id": "P002",
+    "value": -96.79
+   }
+  ],
+  "expected_tools": [
+   "compare_runs"
+  ],
+  "expected_run": "RUN-0002",
+  "tests": "New in milestone 4. Exactly three figures moved between the two runs."
+ },
+ {
+  "case_id": "E14",
+  "question": "Did the sun hat's September 2026 net sales change since the last run?",
+  "expected_status": "answered",
+  "expected_figures": [
+   {
+    "metric": "net_sales",
+    "kind": "value",
+    "month": "2026-09",
+    "entity_id": "P011",
+    "value": 5140.0
+   }
+  ],
+  "expected_flags": [
+   "QF-007"
+  ],
+  "expected_confidence": "medium",
+  "expected_tools": [
+   "compare_runs"
+  ],
+  "expected_run": "RUN-0002",
+  "tests": "New in milestone 4. Nothing changed. The analyst must say so, and not invent a reason."
+ }
+]

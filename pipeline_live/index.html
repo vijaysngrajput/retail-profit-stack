@@ -63,6 +63,8 @@
   .chip { border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; font-size: 12px; cursor: pointer; user-select: none; font-family: var(--mono); background: var(--bg); }
   .chip.on { background: var(--accent-soft); border-color: var(--accent); }
   .chip.loaded::after { content: " ✓"; color: var(--accent); }
+  .chip.late { border-style: dashed; border-color: var(--gold); }
+  .feed.late { border-top: 1px solid var(--line); padding-top: 8px; }
   .key { display: flex; gap: 12px; font-size: 12px; color: var(--muted); margin: 0 0 10px; }
   .options { border-top: 1px solid var(--line); margin-top: 10px; padding-top: 10px; display: grid; gap: 6px; font-size: 13px; }
   .options label { display: flex; gap: 8px; align-items: center; }
@@ -92,14 +94,15 @@
   .tile { height: 24px; border-radius: 5px; background: var(--line); transition: background .3s; }
   .tile.pending { animation: pulse 1.2s infinite; }
   .tile.loaded { background: var(--accent); } .tile.already_loaded { background: var(--accent); opacity: .45; }
+  .tile.late { outline: 2px dashed var(--gold); outline-offset: 1px; }
   .tile.skipped { background: var(--gold); } .tile.rejected { background: var(--red); } .tile.waiting { background: var(--blue); }
   .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--muted); margin-top: 8px; }
   .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; background: var(--c); }
   .notes { margin: 8px 0 0; padding: 0; list-style: none; font-size: 13px; display: grid; gap: 3px; }
 
   .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
-  .badge.pass, .badge.loaded, .badge.high { background: var(--accent-soft); color: var(--accent); }
-  .badge.quarantine, .badge.skipped { background: var(--gold-soft); color: var(--gold); }
+  .badge.pass, .badge.loaded, .badge.high, .badge.reviewed, .badge.accept, .badge.full { background: var(--accent-soft); color: var(--accent); }
+  .badge.quarantine, .badge.skipped, .badge.corrected, .badge.incremental, .badge.exclude { background: var(--gold-soft); color: var(--gold); }
   .badge.needs_review, .badge.waiting, .badge.medium { background: var(--blue-soft); color: var(--blue); }
   .badge.rejected, .badge.low, .badge.fail { background: var(--red-soft); color: var(--red); }
 
@@ -175,6 +178,14 @@
   .move .dot { position: absolute; top: 2px; width: 10px; height: 10px; border-radius: 50%; margin-left: -5px; }
   .move .dot.was { background: var(--surface); border: 2px solid var(--muted); } .move .dot.now { background: var(--accent); }
 
+  .review { border: 1px solid var(--blue); border-radius: 12px; padding: 9px 12px; margin-bottom: 8px; background: var(--bg); display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 13.5px; }
+  .review.decided { border-color: var(--line); }
+  .review .grow { flex: 1 1 260px; }
+  .health { display: grid; gap: 3px; max-width: 620px; margin-bottom: 14px; }
+  .hbar { display: grid; grid-template-columns: 190px 1fr 130px; gap: 8px; align-items: center; font-size: 12.5px; }
+  .hbar .track { height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+  .hbar .fill { display: block; height: 100%; background: var(--accent); border-radius: 0 4px 4px 0; min-width: 2px; }
+  .hbar .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
   .question { border: 1px solid var(--blue); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; background: var(--bg); }
   .question h3 { font-family: var(--mono); font-size: 13.5px; }
   .map { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0; font-size: 13.5px; align-items: center; }
@@ -217,9 +228,10 @@
       <button class="btn" data-pick="all">Everything</button>
       <button class="btn" data-pick="september">September</button>
       <button class="btn" data-pick="clean">No surprises</button>
+      <button class="btn" data-pick="late">+ Late files</button>
       <button class="btn" data-pick="none">None</button>
     </div>
-    <p class="key"><span><span class="chip on">chosen</span></span><span><span class="chip loaded">loaded</span></span></p>
+    <p class="key"><span><span class="chip on">chosen</span></span><span><span class="chip loaded">loaded</span></span><span><span class="chip late">late</span></span></p>
     <div id="feeds"></div>
     <div class="options">
       <label><input type="checkbox" id="use-ai" checked> AI suggests mappings <span class="muted">(0.04¢ a file)</span></label>
@@ -246,28 +258,34 @@
       <div class="stage-head"><span class="no">4</span><h2>Check</h2><span class="say">five checks on the records</span><span class="who">code</span></div>
       <div class="body" id="b-checks"></div>
     </section>
+    <div class="pipe" id="p-review"></div>
+
+    <section class="stage" id="s-review">
+      <div class="stage-head"><span class="no">5</span><h2>Review desk</h2><span class="say">findings that need a person</span><span class="who">you decide · code obeys</span></div>
+      <div class="body" id="b-review"></div>
+    </section>
     <div class="pipe" id="p-calculate"></div>
 
     <section class="stage" id="s-calculate">
-      <div class="stage-head"><span class="no">5</span><h2>Calculate</h2><span class="say">click a product</span><span class="who">code</span></div>
+      <div class="stage-head"><span class="no">6</span><h2>Calculate</h2><span class="say">click a product</span><span class="who">code</span></div>
       <div class="body" id="b-calculate"></div>
     </section>
     <div class="pipe" id="p-lineage"></div>
 
     <section class="stage" id="s-lineage">
-      <div class="stage-head"><span class="no">6</span><h2>Lineage</h2><span class="say">lineage: tables back to files and dates</span><span class="who">code</span></div>
+      <div class="stage-head"><span class="no">7</span><h2>Lineage</h2><span class="say">lineage: tables back to files and dates</span><span class="who">code</span></div>
       <div class="body" id="b-lineage"></div>
     </section>
     <div class="pipe" id="p-record"></div>
 
     <section class="stage" id="s-record">
-      <div class="stage-head"><span class="no">7</span><h2>Run history</h2><span class="say">every run is kept, so runs can be compared</span><span class="who">code</span></div>
+      <div class="stage-head"><span class="no">8</span><h2>Run health and history</h2><span class="say">every run is kept, so runs can be compared</span><span class="who">code</span></div>
       <div class="body" id="b-record"></div>
     </section>
     <div class="pipe" id="p-ask"></div>
 
     <section class="stage" id="s-ask">
-      <div class="stage-head"><span class="no">8</span><h2>Ask</h2><span class="say">about half a US cent a question</span><span class="who ai">AI explains · code verifies</span></div>
+      <div class="stage-head"><span class="no">9</span><h2>Ask</h2><span class="say">about half a US cent a question</span><span class="who ai">AI explains · code verifies</span></div>
       <div class="body" id="b-ask">
         <div class="ask">
           <input id="question" value="Which products and categories generated the most contribution profit last month, what changed, and how confident should I be in those numbers?">
@@ -286,10 +304,10 @@
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   var FEED_ORDER = ['products', 'product_costs', 'orders', 'order_items', 'payment_fees', 'shipments', 'refunds'];
-  var STAGES = ['load', 'desk', 'checks', 'calculate', 'lineage', 'record', 'ask'];
+  var STAGES = ['load', 'desk', 'checks', 'review', 'calculate', 'lineage', 'record', 'ask'];
   var files = [], chosen = {}, seen = 0, polling = null, notes = [], waitingCount = 0, replaying = false;
   var profit = [], month = '', picked = null, lineageInfo = null;
-  var NEEDS_VERSION = 4, stale = false;  // the version of server.py this page was written for
+  var NEEDS_VERSION = 5, stale = false;  // the version of server.py this page was written for
 
   // ---- Helpers ---------------------------------------------------------------
   function esc(text) { return String(text == null ? '' : text).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -314,30 +332,33 @@
   });
 
   // ---- 1. The file chooser ---------------------------------------------------
+  function chipOf(file) {
+    var classes = 'chip' + (chosen[file.id] ? ' on' : '') + (file.outcome === 'loaded' ? ' loaded' : '') + (file.late ? ' late' : '');
+    var what = file.correction ? 'a corrected version of a file sent earlier<br>' : (file.late ? 'arrives after month-end close<br>' : '');
+    return '<span class="' + classes + '" data-file="' + esc(file.id) + '" data-tip="' + esc('<b>' + file.name + '</b><br>' + what + file.rows + ' rows<br>' + file.columns.join(', ')) + '">' + esc(file.late ? nice(file.feed) + ' ' + short(file.name).replace('_late', '') + (file.correction ? ' corrected' : '') : short(file.name)) + '</span>';
+  }
   function drawFeeds() {
     var html = '';
     FEED_ORDER.forEach(function (feed) {
-      var mine = files.filter(function (file) { return file.feed === feed; });
+      var mine = files.filter(function (file) { return file.feed === feed && !file.late; });
       if (!mine.length) return;
-      html += '<div class="feed"><div class="feed-name"><span>' + nice(feed) + '</span><button data-feed="' + feed + '">all / none</button></div><div class="chips">';
-      mine.forEach(function (file) {
-        var classes = 'chip' + (chosen[file.name] ? ' on' : '') + (file.outcome === 'loaded' ? ' loaded' : '');
-        html += '<span class="' + classes + '" data-file="' + esc(file.name) + '" data-tip="' + esc(file.name + '<br>' + file.rows + ' rows<br>' + file.columns.join(', ')) + '">' + esc(short(file.name)) + '</span>';
-      });
-      html += '</div></div>';
+      html += '<div class="feed"><div class="feed-name"><span>' + nice(feed) + '</span><button data-feed="' + feed + '">all / none</button></div><div class="chips">' + mine.map(chipOf).join('') + '</div></div>';
     });
+    var late = files.filter(function (file) { return file.late; });
+    if (late.length) html += '<div class="feed late"><div class="feed-name"><span>Late, after month-end close</span></div><div class="chips">' + late.map(chipOf).join('') + '</div></div>';
     $('feeds').innerHTML = html;
-    var total = files.filter(function (file) { return chosen[file.name]; }).length;
+    var total = files.filter(function (file) { return chosen[file.id]; }).length;
     $('chosen').textContent = total + ' of ' + files.length + ' chosen';
   }
   function pick(which) {
     var expected = { products: 3, product_costs: 3, orders: 3, order_items: 6, payment_fees: 5, shipments: 6, refunds: 6 };
     files.forEach(function (file) {
+      if (which === 'late') { if (file.late) chosen[file.id] = true; return; }
       var plain = file.columns.length === expected[file.feed] && !/_resend/.test(file.name) && !/cost_1|list_price|fee_usd/.test(file.columns.join(','));
-      if (which === 'all') chosen[file.name] = true;
-      if (which === 'none') chosen[file.name] = false;
-      if (which === 'september') chosen[file.name] = weekOf(file.name) < '2026-09-28' || file.feed === 'products';
-      if (which === 'clean') chosen[file.name] = plain;
+      if (which === 'all') chosen[file.id] = !file.late;
+      if (which === 'none') chosen[file.id] = false;
+      if (which === 'september') chosen[file.id] = !file.late && (weekOf(file.name) < '2026-09-28' || file.feed === 'products');
+      if (which === 'clean') chosen[file.id] = !file.late && plain;
     });
     drawFeeds();
   }
@@ -345,9 +366,9 @@
     var file = event.target.getAttribute('data-file'), feed = event.target.getAttribute('data-feed');
     if (file) { chosen[file] = !chosen[file]; drawFeeds(); }
     if (feed) {
-      var mine = files.filter(function (item) { return item.feed === feed; });
-      var allOn = mine.every(function (item) { return chosen[item.name]; });
-      mine.forEach(function (item) { chosen[item.name] = !allOn; });
+      var mine = files.filter(function (item) { return item.feed === feed && !item.late; });
+      var allOn = mine.every(function (item) { return chosen[item.id]; });
+      mine.forEach(function (item) { chosen[item.id] = !allOn; });
       drawFeeds();
     }
   });
@@ -381,20 +402,21 @@
   }
   function clearStages() {
     STAGES.forEach(function (stage) { mark(stage, ''); });
-    ['load', 'desk', 'checks', 'calculate', 'lineage', 'record'].forEach(function (stage) { $('b-' + stage).innerHTML = ''; });
+    ['load', 'desk', 'checks', 'review', 'calculate', 'lineage', 'record'].forEach(function (stage) { $('b-' + stage).innerHTML = ''; });
     $('answer').innerHTML = ''; notes = []; waitingCount = 0; picked = null;
   }
 
   // ---- 2. Load ---------------------------------------------------------------
   function startLoad(data) {
     var html = '<div class="tiles">';
-    data.files.forEach(function (name) { html += '<div class="tile pending" id="t-' + esc(name) + '" data-tip="' + esc(name) + '"></div>'; });
-    html += '</div><div class="legend"><span style="--c:var(--accent)">loaded</span><span style="--c:var(--gold)">skipped: sent twice</span><span style="--c:var(--red)">rejected</span><span style="--c:var(--blue)">waiting for you</span></div><ul class="notes" id="load-notes"></ul><div id="tables"></div>';
+    if (!data.files.length) html = '<p class="small muted" style="margin:0 0 8px">No new files. Running again on the records already loaded.</p>' + html;
+    data.files.forEach(function (name) { html += '<div class="tile pending' + (name.indexOf('late/') === 0 ? ' late' : '') + '" id="t-' + esc(name) + '" data-tip="' + esc(name) + '"></div>'; });
+    html += '</div><div class="legend"><span style="--c:var(--accent)">loaded</span><span style="--c:var(--gold)">skipped: sent twice</span><span style="--c:var(--red)">rejected</span><span style="--c:var(--blue)">waiting for you</span><span style="--c:transparent;outline:2px dashed var(--gold)">late</span></div><ul class="notes" id="load-notes"></ul><div id="tables"></div>';
     $('b-load').innerHTML = html;
   }
   function fileDone(result) {
-    var tile = document.getElementById('t-' + result.file_name);
-    if (tile) { tile.className = 'tile ' + result.outcome; tile.setAttribute('data-tip', '<b>' + esc(result.file_name) + '</b><br>' + esc(nice(result.outcome)) + '<br>' + esc(result.reason)); }
+    var tile = document.getElementById('t-' + (result.id || result.file_name));
+    if (tile) { tile.className = 'tile ' + result.outcome + (tile.classList.contains('late') ? ' late' : ''); tile.setAttribute('data-tip', '<b>' + esc(result.file_name) + '</b><br>' + esc(nice(result.outcome)) + '<br>' + esc(result.reason)); }
     if (result.outcome === 'skipped' || result.outcome === 'rejected') {
       notes.push('<li>' + badge(result.outcome) + ' <span class="mono">' + esc(result.file_name) + '</span> <span class="muted">' + esc(result.reason) + '</span></li>');
       $('load-notes').innerHTML = notes.join('');
@@ -402,7 +424,12 @@
   }
   function loadDone(data) {
     mark('load', 'finished');
-    if (!data.counts.waiting) { $('b-desk').innerHTML = '<span class="small muted">Nothing waited this time. Choose October files to see this step.</span>'; mark('desk', 'finished'); }
+    (data.replaced || []).forEach(function (item) {
+      var line = '<li>' + badge('corrected') + ' <span class="mono">' + esc(item.file_name) + '</span> <span class="muted">a corrected version replaced the earlier one</span></li>';
+      if (notes.indexOf(line) < 0) notes.push(line);
+    });
+    if ($('load-notes')) $('load-notes').innerHTML = notes.join('');
+    if (!data.counts.waiting && !$('b-desk').innerHTML) { $('b-desk').innerHTML = '<span class="small muted">Nothing waited this time. Choose October files to see this step.</span>'; mark('desk', 'finished'); }
   }
   function showRecords(data) {
     var most = 1, html = '<div class="tablebars">';
@@ -471,13 +498,41 @@
     checkData.findings.forEach(function (finding) { html += '<span class="f" data-tip="' + esc(finding.description) + '"><span class="mono">' + esc(finding.finding_id) + '</span> ' + esc(finding.product_id) + ' · ' + esc(finding.month) + ' ' + badge(finding.outcome) + '</span>'; });
     html += '</div><div class="flow3">';
     html += '<div class="box"><b>' + badge('quarantine') + ' ' + aside + ' records</b>set aside, kept, not counted</div>';
-    html += '<div class="arrow">·</div><div class="box"><b>' + badge('needs_review') + ' ' + review + ' findings</b>still counted, with a warning</div>';
+    html += '<div class="arrow">·</div><div class="box"><b>' + badge('needs_review') + ' ' + review + (review === 1 ? ' finding' : ' findings') + '</b>still counted, with a warning</div>';
     html += '<div class="arrow">→</div><div class="box"><b>The answer warns</b>and its confidence drops</div>';
-    html += '<div class="arrow">→</div><div class="box todo"><b>A person decides</b>no screen for this yet: milestone 6</div></div>';
+    html += '<div class="arrow">→</div><div class="box"><b>A person decides</b>at the review desk, next</div></div>';
     $('b-checks').innerHTML = html;
   }
 
-  // ---- 5. Calculate: a bar per product, and how one figure is built ----------
+  // ---- 5. The review desk -----------------------------------------------------
+  function decisionWords(decision) { return decision === 'accept' ? 'accepted: stays counted' : 'excluded: set aside'; }
+  function showReview(data) {
+    var html = '';
+    data.open.forEach(function (item) {
+      html += '<div class="review" data-key="' + esc(item.record_key) + '"><span class="grow"><b>' + esc(CHECK_WORDS[item.check_name] || item.check_name) + '</b> · ' + esc(item.product_id) + ' · ' + esc(item.month) + '<br><span class="muted small" data-tip="' + esc(Object.keys(item.record).map(function (key) { return key + ': ' + item.record[key]; }).join('<br>')) + '">' + esc(item.detail) + '</span></span><button class="btn good" data-decision="accept" data-tip="The record is right. Keep counting it, and stop warning.">Accept</button><button class="btn bad" data-decision="exclude" data-tip="The record is wrong. Set it aside from the next run on.">Exclude</button></div>';
+    });
+    data.decided.forEach(function (item) {
+      html += '<div class="review decided"><span class="grow"><span class="mono">' + esc(item.record_key.split('|')[2]) + '</span> <span class="muted small">' + esc(item.detail) + '</span></span>' + badge(item.decision) + '<span class="small muted">' + decisionWords(item.decision) + ', by ' + esc(item.person) + '</span></div>';
+    });
+    if (!html) html = '<span class="small muted">Nothing needs a decision. Load October files to see this step.</span>';
+    html += '<div id="again-box" style="display:none;margin-top:8px"><button class="btn good" id="again">Run again with your decisions</button> <span class="small muted">The next run obeys them.</span></div>';
+    $('b-review').innerHTML = html;
+  }
+  $('b-review').addEventListener('click', function (event) {
+    var decision = event.target.getAttribute('data-decision');
+    if (event.target.id === 'again') { startRun([], true); return; }
+    if (!decision) return;
+    var box = event.target.closest('.review');
+    api('/api/decide', { record_key: box.getAttribute('data-key'), decision: decision }).then(function (reply) {
+      if (reply.error) { box.insertAdjacentHTML('beforeend', '<div class="error-box">' + esc(reply.error) + '</div>'); return; }
+      box.classList.add('decided');
+      box.querySelectorAll('button').forEach(function (button) { button.remove(); });
+      box.insertAdjacentHTML('beforeend', badge(decision) + '<span class="small muted">' + decisionWords(decision) + ' from the next run</span>');
+      $('again-box').style.display = 'block';
+    });
+  });
+
+  // ---- 6. Calculate: a bar per product, and how one figure is built ----------
   function showCalculate(data) {
     profit = data.profit;
     if (!profit.length) { $('b-calculate').innerHTML = '<span class="small muted">No profit yet. Choose order and order_items files.</span>'; return; }
@@ -527,7 +582,7 @@
     $('wf').innerHTML = html;
   }
 
-  // ---- 6. Trace: which files a figure came from ------------------------------
+  // ---- 7. Trace: which files a figure came from ------------------------------
   function drawGraph(graph) {
     // Which column each table sits in: a source table is 0; any other is one past its furthest input.
     var level = {}, inputsOf = {};
@@ -620,14 +675,22 @@
     });
   }
 
-  // ---- 7. Run history --------------------------------------------------------
+  // ---- 8. Run health and history --------------------------------------------------------
   function showRecord(data) {
     var history = data.history, comparison = data.comparison, most = 1;
     history.forEach(function (run) { most = Math.max(most, run.total_profit); });
-    var html = '<div class="chart-head"><h3>Total contribution profit, run by run</h3></div><div class="runs">';
+    var record = data.record, health = record.health || { steps: [], warnings: [] }, slowest = 0.001;
+    health.steps.forEach(function (step) { slowest = Math.max(slowest, step.seconds); });
+    var html = '<div class="chart-head"><h3>This run’s health</h3>' + badge(record.mode) + '<span class="small muted">' + (record.mode === 'incremental' ? 'only ' + esc(record.months_recalculated.join(', ') || 'no month') + ' recalculated' : 'every month calculated') + ' · ' + record.seconds + ' s</span></div><div class="health">';
+    health.steps.forEach(function (step) {
+      html += '<div class="hbar" data-tip="' + esc(step.step + '<br>' + step.seconds + ' s<br>' + count(step.rows) + ' rows') + '"><span>' + esc(step.step) + '</span><span class="track"><span class="fill" style="width:' + (step.seconds / slowest * 100) + '%"></span></span><span class="n">' + step.seconds.toFixed(3) + ' s · ' + count(step.rows) + '</span></div>';
+    });
+    html += '</div>';
+    if (health.warnings.length) html += '<div class="find" style="margin:-6px 0 14px">' + health.warnings.map(function (warning) { return '<span class="f">⚠ ' + esc(warning) + '</span>'; }).join('') + '</div>';
+    html += '<div class="chart-head"><h3>Total contribution profit, run by run</h3></div><div class="runs">';
     history.forEach(function (run, index) {
       var last = index === history.length - 1;
-      html += '<div class="run' + (last ? ' now' : '') + '" data-tip="' + esc('<b>' + run.run_id + '</b> · ' + run.started_at.replace('T', ' ') + '<br>' + run.files + ' files loaded<br>' + money(run.total_profit) + '<br>' + run.findings + ' findings' + (run.unavailable ? '<br>' + run.unavailable + ' figures unavailable' : '')) + '"><span class="small">' + (last ? money(run.total_profit) : '') + '</span><span class="col" style="height:' + Math.max(run.total_profit / most * 78, 2) + '%"></span><span class="id">' + esc(run.run_id.replace('RUN-', '#')) + '</span><span class="muted">' + run.files + ' files</span></div>';
+      html += '<div class="run' + (last ? ' now' : '') + '" data-tip="' + esc('<b>' + run.run_id + '</b> · ' + run.started_at.replace('T', ' ') + '<br>' + run.files + ' files loaded · ' + run.mode + '<br>' + money(run.total_profit) + '<br>' + run.findings + ' findings' + (run.unavailable ? '<br>' + run.unavailable + ' figures unavailable' : '')) + '"><span class="small">' + (last ? money(run.total_profit) : '') + '</span><span class="col" style="height:' + Math.max(run.total_profit / most * 78, 2) + '%"></span><span class="id">' + esc(run.run_id.replace('RUN-', '#')) + '</span><span class="muted">' + run.files + ' files</span></div>';
     });
     html += '</div>';
     if (!comparison) { html += '<p class="small muted">First run. Choose more files and run again to compare.</p>'; }
@@ -635,8 +698,11 @@
       var changed = comparison.inputs_changed.map(function (item) { return nice(item.name); });
       var checks = comparison.checks_changed.map(function (item) { return nice(item.name) + ': ' + nice(item.earlier) + ' → ' + nice(item.later); });
       html += '<div class="chart-head" style="margin-top:10px"><h3>' + esc(comparison.earlier_run) + ' → ' + esc(comparison.later_run) + '</h3>';
+      (comparison.files_corrected || []).forEach(function (name) { html += '<span class="badge corrected" data-tip="A corrected version of this file replaced the earlier one.">corrected: ' + esc(short(name)) + '</span>'; });
+      var added = comparison.files_added || [];
+      if (added.length && added.length <= 4) added.forEach(function (name) { html += '<span class="badge loaded">added: ' + esc(name.replace(/\.csv$/, '')) + '</span>'; });
+      else if (added.length) html += '<span class="badge loaded" data-tip="' + esc(added.join('<br>')) + '">' + added.length + ' files added</span>';
       if (!changed.length && !comparison.figures_changed.length) html += badge('pass') + '<span class="small">Nothing changed: same files, same figures.</span>';
-      changed.forEach(function (name) { html += '<span class="badge needs_review" data-tip="More files were loaded into this table, so its fingerprint changed.">' + esc(name) + ' changed</span>'; });
       html += '</div>';
       if (checks.length) html += '<p class="small muted" style="margin:0 0 6px">' + esc(checks.join(' · ')) + '</p>';
       var moves = comparison.figures_changed.slice().sort(function (a, b) { return Math.abs((b.later || 0) - (b.earlier || 0)) - Math.abs((a.later || 0) - (a.earlier || 0)); });
@@ -654,7 +720,7 @@
   }
   function nameOf(productId) { var row = profit.filter(function (item) { return item.product_id === productId; })[0]; return row && row.product_name ? row.product_name : productId; }
 
-  // ---- 8. Ask the analyst ----------------------------------------------------
+  // ---- 9. Ask the analyst ----------------------------------------------------
   $('ask').addEventListener('click', function () {
     $('ask').disabled = true; mark('ask', 'active');
     $('answer').innerHTML = '<p class="small muted">The analyst is calling its tools…</p>';
@@ -672,8 +738,8 @@
   });
 
   // ---- Events from the server ------------------------------------------------
-  var SHOW = { records: showRecords, checks: showChecks, quarantine: showQuarantine, calculate: showCalculate, lineage: showLineage, record: showRecord };
-  var CARD = { records: 'load', checks: 'checks', quarantine: 'checks', calculate: 'calculate', lineage: 'lineage', record: 'record' };
+  var SHOW = { records: showRecords, checks: showChecks, quarantine: showQuarantine, review: showReview, calculate: showCalculate, lineage: showLineage, record: showRecord };
+  var CARD = { records: 'load', checks: 'checks', quarantine: 'checks', review: 'review', calculate: 'calculate', lineage: 'lineage', record: 'record' };
   function handle(event) {
     var stage = event.stage, kind = event.kind, data = event.data;
     if (stage === 'load' && kind === 'start') { mark('load', 'active'); startLoad(data); }
@@ -682,7 +748,7 @@
     else if (stage === 'desk' && kind === 'question') addQuestion(data);
     else if (stage === 'desk' && kind === 'answered') questionAnswered(data);
     else if (SHOW[stage] && kind === 'start') { if (stage !== 'records' && stage !== 'quarantine') mark(CARD[stage], 'active'); }
-    else if (SHOW[stage] && kind === 'result') { SHOW[stage](data); if (stage !== 'checks') mark(CARD[stage], 'finished'); }
+    else if (SHOW[stage] && kind === 'result') { SHOW[stage](data); if (stage !== 'checks') mark(CARD[stage], stage === 'review' && data.open.length ? 'attention' : 'finished'); }
     else if (stage === 'done') loadFiles(true);
     else if (stage === 'error') $('b-load').insertAdjacentHTML('beforeend', '<div class="error-box">' + esc(data.message) + '</div>');
   }
@@ -693,14 +759,17 @@
       if (reply.status === 'done' || reply.status === 'error' || reply.status === 'idle') { clearInterval(polling); polling = null; }
     });
   }
-  $('run').addEventListener('click', function () {
-    var list = files.filter(function (file) { return chosen[file.name]; }).map(function (file) { return file.name; });
-    if (!list.length) { alert('Choose at least one file.'); return; }
+  function startRun(list, again) {
     clearStages(); seen = 0; lineageInfo = null;
-    api('/api/run', { files: list, at_once: Number($('at-once').value), use_ai: $('use-ai').checked }).then(function (reply) {
+    api('/api/run', { files: list, again: again, at_once: Number($('at-once').value), use_ai: $('use-ai').checked }).then(function (reply) {
       if (reply.error) { alert(reply.error); return; }
       setStatus('loading'); if (!polling) polling = setInterval(poll, 350);
     });
+  }
+  $('run').addEventListener('click', function () {
+    var list = files.filter(function (file) { return chosen[file.id]; }).map(function (file) { return file.id; });
+    if (!list.length) { alert('Choose at least one file.'); return; }
+    startRun(list, false);
   });
   $('reset').addEventListener('click', function () {
     api('/api/reset', {}).then(function (reply) {

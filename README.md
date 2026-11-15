@@ -22,11 +22,11 @@ The project starts at the business answer and works backward, replacing one mock
 | [3. Quality and trust layer](src/m3_quality_trust_layer/) | Real data quality checks replace the hand-written list of problems; an AI agent investigates what they find | Done |
 | [4. Lineage and run history](src/m4_lineage_run_history/) | Every pipeline run is kept, every figure is traced to its records, and every answer the analyst gives is traced and scored | Done |
 | [5. Raw data and ingestion](src/m5_raw_data_ingestion/) | Records arrive as files and are loaded repeatably; AI suggests what a renamed column means and a person approves | Done |
-| [6. Realistic operations](src/m6_realistic_operations/) | Late data, corrections, and reruns are handled | Not started |
+| [6. Realistic operations](src/m6_realistic_operations/) | Files arrive late and get corrected; a person decides findings; the whole system is evaluated from files to answers, and an AI agent proposes improvements that code keeps or rolls back | Done |
 
 ## See the whole pipeline working
 
-[pipeline_live/](pipeline_live/) is a page that shows the entire data pipeline running, on files you choose. It is not a milestone. You pick which files arrive, and the real production code loads them, checks them, calculates the figures, and answers the leader's question, one visible step at a time.
+[pipeline_live/](pipeline_live/) is a page that shows the entire data pipeline running, on files you choose. It is not a milestone. You pick which files arrive, on time or late, and the real production code of milestone 6 loads them, checks them, waits for your decisions, calculates the figures, and answers the leader's question, one visible step at a time.
 
 ```
 uv run python pipeline_live/server.py
@@ -82,7 +82,7 @@ uv sync
 
 Copy `.env.example` to `.env` and add an OpenRouter API key. Keep `.env` private; it is ignored by Git.
 
-Milestone 4 also uses [Langfuse](https://cloud.langfuse.com), a website that keeps a record of every step the AI analyst takes. It has a free plan. The milestone's [README](src/m4_lineage_run_history/README.md#set-up-langfuse-once) says how to add its three settings to `.env`. Milestones 1 to 3 do not need it.
+Milestone 4 also uses [Langfuse](https://cloud.langfuse.com), a website that keeps a record of every step the AI analyst takes. It has a free plan. The milestone's [README](src/m4_lineage_run_history/README.md#set-up-langfuse-once) says how to add its three settings to `.env`. Milestones 5 and 6 use it too. Milestones 1 to 3 do not need it.
 
 The labs are tested with `anthropic/claude-haiku-5.5`, a low-cost paid model, which is the default in `.env.example`. A whole milestone's lab costs a few US cents. You can set `MODEL_NAME=openrouter/free` to pay nothing, but free models are slow and often fail at the structured calls the labs rely on.
 

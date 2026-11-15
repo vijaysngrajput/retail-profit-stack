@@ -65,3 +65,9 @@ src/*/notebooks/lab_mappings.json
 
 # What the live pipeline page loads and calculates
 pipeline_live/workspace/
+
+# Milestone 6: the end-to-end evaluation's own build, and a learner's own decisions and versions
+src/*/notebooks/lab_e2e/
+src/*/notebooks/lab_decisions.json
+src/*/notebooks/lab_versions.json
+src/*/data/e2e/

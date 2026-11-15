@@ -50,6 +50,7 @@ executionEnvironments = [
     { root = "src/m3_quality_trust_layer" },
     { root = "src/m4_lineage_run_history" },
     { root = "src/m5_raw_data_ingestion" },
+    { root = "src/m6_realistic_operations" },
 ]
 venvPath = "."
 venv = ".venv"

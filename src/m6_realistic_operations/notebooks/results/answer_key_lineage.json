@@ -1,0 +1,16 @@
+{
+  "product_id": "P001",
+  "month": "2026-10",
+  "contribution_profit": 5156.94,
+  "record_counts": {
+    "order_items": 250,
+    "refunds": 3,
+    "shipments": 250,
+    "payment_fees": 250,
+    "product_costs": 1
+  },
+  "total_records": 754,
+  "gross_sales": 20280.0,
+  "earlier_contribution_profit": 5188.2,
+  "change": -31.26
+}
