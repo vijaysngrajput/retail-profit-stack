@@ -1,6 +1,6 @@
 # Milestone 1: Mocked business answer
 
-**Status:** Done, signed off by the learner on 2026-11-11. Design documents approved, six lab notebooks reviewed by the learner, production code and tests passing.
+**Status:** Done. Design documents, lab notebooks, production code, and tests are complete.
 
 This folder is self-contained. Everything the milestone needs is here, and nothing in it imports from another milestone.
 

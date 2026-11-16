@@ -1,6 +1,6 @@
 # Milestone 3: Quality and trust layer
 
-**Status:** Done. Design documents approved; lab notebooks run live; production code and tests passing; signed off by the learner.
+**Status:** Done. Design documents, lab notebooks, production code, and tests are complete.
 
 **What it adds:** quality checks that run on the business's records and decide what happens to them, replacing the hand-written list of data problems. Records that are certainly wrong are set aside and left out of the figures. An AI agent then investigates each problem the checks found and writes a report for a person.
 

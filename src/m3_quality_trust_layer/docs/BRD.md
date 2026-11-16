@@ -1,6 +1,6 @@
 # BRD: Milestone 3, Quality and trust layer
 
-**Status:** Approved by the learner; built
+**Status:** Final; built
 **Milestone:** 3 of 6 (see the project [README](../../../README.md#milestones))
 
 > **What this document is.** A business requirements document (BRD) says what the business needs and why, in business language, with no technology. Read it first. Next, read the [HLD](HLD.md) to see what gets built to meet these needs.
@@ -59,7 +59,7 @@ flowchart LR
 
 Compared with milestone 2, the list of problems is no longer written by hand. The checks produce it. Records that are certainly wrong no longer reach the profit figures.
 
-## 5. Business rules agreed with the learner
+## 5. Business rules
 
 | Rule | Decision |
 |---|---|

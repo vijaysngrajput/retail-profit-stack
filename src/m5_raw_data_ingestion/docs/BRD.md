@@ -1,6 +1,6 @@
 # BRD: Milestone 5, Raw data and ingestion
 
-**Status:** Approved by the learner; built
+**Status:** Final; built
 **Milestone:** 5 of 6 (see the project [README](../../../README.md#milestones))
 
 > **What this document is.** A business requirements document (BRD) says what the business needs and why, in business language, with no technology. Read it first. Next, read the [HLD](HLD.md) to see what gets built to meet these needs.
@@ -80,7 +80,7 @@ Compared with milestone 4, the records are no longer simply there. They are buil
 | **Load record** | A list of every file seen, with what happened to it and when. Also called a ledger |
 | **Durable** | Saved somewhere that survives a crash. A durable workflow can stop and carry on later |
 
-## 6. Business rules agreed with the learner
+## 6. Business rules
 
 | Rule | Decision |
 |---|---|
@@ -100,8 +100,8 @@ Compared with milestone 4, the records are no longer simply there. They are buil
 | A load that stops | It carries on from where it stopped. Nothing is loaded twice |
 | The figures | Every profit figure, finding, and lineage count equals milestone 4's. Only the way the records arrive has changed |
 | Which models | Only models available through OpenRouter. Nothing is installed on the learner's computer |
-| Where the workflow's state is saved | In a file on the learner's computer. The learner chose this over a hosted database, so no new account is needed |
-| Spending | The learner set a limit of $2 of OpenRouter credit for building this milestone |
+| Where the workflow's state is saved | In a file on the learner's computer, not in a hosted database, so no new account is needed |
+| Spending | The lab must be cheap to run. The milestone's [README](../README.md) says what a full run cost when it was built |
 
 ## 7. Scope
 

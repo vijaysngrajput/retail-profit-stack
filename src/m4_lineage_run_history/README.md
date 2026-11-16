@@ -1,6 +1,6 @@
 # Milestone 4: Lineage and run history
 
-**Status:** Done. Design documents approved; lab notebooks run live; production code and tests passing; signed off by the learner.
+**Status:** Done. Design documents, lab notebooks, production code, and tests are complete.
 
 **What it adds:** the system now remembers how each result was made.
 

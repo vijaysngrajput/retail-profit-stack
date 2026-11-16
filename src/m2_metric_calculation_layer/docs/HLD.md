@@ -1,6 +1,6 @@
 # HLD: Milestone 2, Metric and calculation layer
 
-**Status:** Approved by the learner; built
+**Status:** Final; built
 **Satisfies:** [BRD](BRD.md)
 
 > **What this document is.** A high-level design (HLD) names the parts of the system, what each part is responsible for, and how data moves between them. It does not give exact columns or function signatures. Read it after the [BRD](BRD.md) and before the notebooks. The [LLD](LLD.md) then gives the exact detail of each part.
@@ -160,7 +160,7 @@ The model never produces a business figure. It produces code, and the code is tr
 | The profit table keeps milestone 1's exact columns | The six tools and the evaluation set work unchanged |
 | Duplicated records are counted, not removed | Quality is milestone 3's job. Removing them now would change milestone 1's figures |
 | AI-written code runs with restrictions | A model's code is untrusted until reviewed. See the LLD for the limits |
-| Only OpenRouter models | The learner chose not to install models locally |
+| Only OpenRouter models | Nothing needs installing, and one key reaches every model |
 
 ## 9. Technology
 

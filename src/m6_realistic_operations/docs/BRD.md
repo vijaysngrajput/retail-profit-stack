@@ -1,6 +1,6 @@
 # BRD: Milestone 6, Realistic operations
 
-**Status:** Approved by the learner; built
+**Status:** Final; built
 **Milestone:** 6 of 6 (see the project [README](../../../README.md#milestones))
 
 > **What this document is.** A business requirements document (BRD) says what the business needs and why, in business language, with no technology. Read it first. Next, read the [HLD](HLD.md) to see what gets built to meet these needs.
@@ -85,7 +85,7 @@ Two loops are new. A person decides a finding, and the next run obeys. An AI pro
 | **Judge** | An AI model that grades an explanation against a reference explanation |
 | **Improver** | An AI agent that reads the analyst's mistakes and proposes a change to the analyst's instructions |
 
-## 6. Business rules agreed with the learner
+## 6. Business rules
 
 | Rule | Decision |
 |---|---|
@@ -104,7 +104,7 @@ Two loops are new. A person decides a finding, and the next run obeys. An AI pro
 | What the improver may not touch | The business's objectives, the budget, the list of allowed models, the held-out questions, and the verifier |
 | A budget | The improver stops when its evaluations have cost the amount set by the business |
 | Which models | Only models available through OpenRouter. The judge is a different model from the analyst it grades |
-| Spending | The learner set a limit of $5 of OpenRouter credit for building this milestone |
+| Spending | The lab must be cheap to run. The milestone's [README](../README.md) says what a full run cost when it was built |
 
 ## 7. Scope
 

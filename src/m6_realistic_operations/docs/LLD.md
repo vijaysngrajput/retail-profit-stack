@@ -1,6 +1,6 @@
 # LLD: Milestone 6, Realistic operations
 
-**Status:** Approved by the learner; built
+**Status:** Final; built
 **Fits inside:** [HLD](HLD.md)
 
 > **What this document is.** A low-level design (LLD) gives the exact detail needed to build each part named in the [HLD](HLD.md): files, tables, rules, functions, and tests. Keep it open beside the notebooks and the code. Section 12 tells you which notebook and which code file build each part.

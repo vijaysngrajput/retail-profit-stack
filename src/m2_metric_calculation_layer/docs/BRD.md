@@ -1,6 +1,6 @@
 # BRD: Milestone 2, Metric and calculation layer
 
-**Status:** Approved by the learner; built
+**Status:** Final; built
 **Milestone:** 2 of 6 (see the project [README](../../../README.md#milestones))
 
 > **What this document is.** A business requirements document (BRD) says what the business needs and why, in business language, with no technology. Read it first. Whenever a piece of code or a notebook cell seems arbitrary, the reason for it should trace back to something here. Next, read the [HLD](HLD.md) to see what gets built to meet these needs.
@@ -63,7 +63,7 @@ Compared with milestone 1, the monthly profit figures are no longer prepared by 
 5. For any figure, the analyst can show real records that fed it.
 6. The learner can show, with numbers, how each AI model performed at drafting the calculations.
 
-## 6. Business rules agreed with the learner
+## 6. Business rules
 
 The rules from milestone 1 still apply. These are added or made exact.
 

@@ -1,6 +1,6 @@
 # HLD: Milestone 6, Realistic operations
 
-**Status:** Approved by the learner; built
+**Status:** Final; built
 **Satisfies:** [BRD](BRD.md)
 
 > **What this document is.** A high-level design (HLD) names the parts of the system, what each part does, and how data moves between them. Read it after the [BRD](BRD.md) and before the notebooks. The [LLD](LLD.md) then gives the exact detail of each part.

@@ -1,6 +1,6 @@
 # LLD: Milestone 1, Mocked business answer
 
-**Status:** Approved by the learner; built
+**Status:** Final; built
 **Fits inside:** [HLD](HLD.md)
 
 > **What this document is.** A low-level design (LLD) gives the exact detail needed to build each part named in the [HLD](HLD.md): table columns, formulas, function signatures, and checks. Keep it open beside the notebook and the code. Section 11 tells you which part of the lab and which code file build each part of this document.

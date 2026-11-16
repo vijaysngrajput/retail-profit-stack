@@ -1,6 +1,6 @@
 # HLD: Milestone 1, Mocked business answer
 
-**Status:** Approved by the learner; built
+**Status:** Final; built
 **Satisfies:** [BRD](BRD.md)
 
 > **What this document is.** A high-level design (HLD) names the parts of the system, what each part is responsible for, and how data moves between them. It does not give exact columns or function signatures. Read it after the [BRD](BRD.md) and before the notebook, so that each notebook section has a place on the map below. The [LLD](LLD.md) then gives the exact detail of each part.

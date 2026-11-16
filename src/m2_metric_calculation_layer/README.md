@@ -1,6 +1,6 @@
 # Milestone 2: Metric and calculation layer
 
-**Status:** Done. Design documents approved; lab notebooks run live; production code and tests passing; signed off by the learner.
+**Status:** Done. Design documents, lab notebooks, production code, and tests are complete.
 
 **What it adds:** profit is calculated from orders, refunds, and costs by explicit, repeatable transformations, replacing milestone 1's prepared profit table. The same rule can run on pandas or SQL today, and on PySpark later. AI drafts the transformations, tests judge its work, and several models are compared on accuracy, cost, and speed.
 

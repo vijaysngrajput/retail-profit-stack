@@ -1,6 +1,6 @@
 # Milestone 6: Realistic operations
 
-**Status:** Built. Design documents written and the build completed without a pause, as the learner asked; lab notebooks run live; production code and tests passing. Waiting for the learner to run the lab and sign off.
+**Status:** Done. Design documents, lab notebooks, production code, and tests are complete.
 
 **What it adds:** the system stops assuming that data arrives once, complete, and on time, and it starts measuring and improving its own AI analyst.
 

@@ -1,6 +1,6 @@
 # BRD: Milestone 4, Lineage and run history
 
-**Status:** Approved by the learner; built
+**Status:** Final; built
 **Milestone:** 4 of 6 (see the project [README](../../../README.md#milestones))
 
 > **What this document is.** A business requirements document (BRD) says what the business needs and why, in business language, with no technology. Read it first. Next, read the [HLD](HLD.md) to see what gets built to meet these needs.
@@ -83,7 +83,7 @@ Compared with milestone 3, three things are new: lineage, run history, and the r
 | **Trace** | A record of every step an AI agent took to reach one answer: what it was asked, which tools it called, what came back, how long it took, and what it cost |
 | **Experiment** | Running the analyst on a fixed list of questions and scoring every answer, so two versions of the analyst can be compared |
 
-## 6. Business rules agreed with the learner
+## 6. Business rules
 
 | Rule | Decision |
 |---|---|
@@ -96,10 +96,10 @@ Compared with milestone 3, three things are new: lineage, run history, and the r
 | Every answer names its run | An answer says which run its figures came from. Code knows the run, so if the AI leaves it out, code fills it in. An answer that names a different run is rejected |
 | What AI does | It explains a figure's lineage and the difference between two runs, in plain words. Every number it uses is worked out by code |
 | What AI never does | It never works out a difference itself, and never guesses a reason that the comparison does not show |
-| Recording the analyst's steps | Each answer's steps are sent to Langfuse, an outside service the learner approved. Only fictional data is sent. The system still works when Langfuse is switched off |
+| Recording the analyst's steps | Each answer's steps are sent to Langfuse, an outside service. Only fictional data is sent. The system still works when Langfuse is switched off |
 | The cost of a mistake | Not every mistake costs the same. The table below gives each kind of mistake a cost. The figures are fictional and are for learning |
 | Which models | Only models available through OpenRouter. Nothing is installed on the learner's computer |
-| Spending | The learner set a limit of $5 of OpenRouter credit for building this milestone |
+| Spending | The lab must be cheap to run. The milestone's [README](../README.md) says what a full run cost when it was built |
 
 **The cost of each kind of mistake.** An answer is charged for one mistake only. Milestone 1's verifier checks every answer before it is shown. An answer it rejects never reaches the leader, so it costs the same as no answer. The large costs are for mistakes that get past the verifier.
 

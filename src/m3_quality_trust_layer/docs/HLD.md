@@ -1,6 +1,6 @@
 # HLD: Milestone 3, Quality and trust layer
 
-**Status:** Approved by the learner; built
+**Status:** Final; built
 **Satisfies:** [BRD](BRD.md)
 
 > **What this document is.** A high-level design (HLD) names the parts of the system, what each part does, and how data moves between them. Read it after the [BRD](BRD.md) and before the notebooks. The [LLD](LLD.md) then gives the exact detail of each part.
@@ -152,7 +152,7 @@ Software that gives an agent these things ready-made is called a **harness**. Th
 | The agent picks a cause from a list in the rulebook | A fixed list can be scored by code against the causes we planted |
 | The agent works on copies in a folder | It cannot change the source records, the findings, or the profit table |
 | A small by-hand version before the harness | Each new idea is built by hand once before a library does it |
-| Only OpenRouter models | The learner's choice |
+| Only OpenRouter models | Nothing needs installing, and one key reaches every model |
 
 ## 9. Technology
 

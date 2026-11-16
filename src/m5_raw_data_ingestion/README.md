@@ -1,6 +1,6 @@
 # Milestone 5: Raw data and ingestion
 
-**Status:** Done. Design documents approved; lab notebooks run live; production code and tests passing; signed off by the learner.
+**Status:** Done. Design documents, lab notebooks, production code, and tests are complete.
 
 **What it adds:** the business's records now arrive as files and are loaded by a repeatable process.
 

@@ -1,6 +1,6 @@
 # HLD: Milestone 5, Raw data and ingestion
 
-**Status:** Approved by the learner; built
+**Status:** Final; built
 **Satisfies:** [BRD](BRD.md)
 
 > **What this document is.** A high-level design (HLD) names the parts of the system, what each part does, and how data moves between them. Read it after the [BRD](BRD.md) and before the notebooks. The [LLD](LLD.md) then gives the exact detail of each part.
@@ -164,11 +164,11 @@ Running files in any order gives the same records, because each file becomes its
 | A missing column with nothing new is rejected, with no AI | There is nothing for AI to map. Guessing a value would be inventing data |
 | A person approves every mapping | A wrong mapping would silently put prices in the wrong column. This is the one decision too risky for a model |
 | Approved mappings are saved and reused | A person should be asked a question once |
-| State is saved in a SQLite file on disk | The learner's choice: no account, nothing leaves the computer, and the same lesson. A real team would use a shared database |
+| State is saved in a SQLite file on disk | No account, nothing leaves the computer, and the same lesson. A real team would use a shared database |
 | The load record lives in the same SQLite file | One place for everything the loader must remember. A fingerprint is its key, which is what makes a second load do nothing |
 | A graph by hand before the dispatcher uses it | Each new idea is built by hand once before a library does more |
 | The analyst and its tools are unchanged | The leader's question does not depend on how records arrive. Milestone 6 brings load problems into the analyst's warnings |
-| Only OpenRouter models | The learner's choice |
+| Only OpenRouter models | Nothing needs installing, and one key reaches every model |
 
 ## 10. Technology
 
