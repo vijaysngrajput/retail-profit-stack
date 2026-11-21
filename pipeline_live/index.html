@@ -234,7 +234,7 @@
     <p class="key"><span><span class="chip on">chosen</span></span><span><span class="chip loaded">loaded</span></span><span><span class="chip late">late</span></span></p>
     <div id="feeds"></div>
     <div class="options">
-      <label><input type="checkbox" id="use-ai" checked> AI suggests mappings <span class="muted">(0.04¢ a file)</span></label>
+      <label><input type="checkbox" id="use-ai" checked> AI suggests mappings <span class="muted" id="ai-note">(0.04¢ a file)</span></label>
       <label>Load <select id="at-once"><option value="1">1</option><option value="5" selected>5</option><option value="50">all</option></select> at once</label>
     </div>
     <div class="row-between"><span class="small muted" id="chosen"></span><button class="link" id="reset">Start over</button></div>
@@ -307,7 +307,7 @@
   var STAGES = ['load', 'desk', 'checks', 'review', 'calculate', 'lineage', 'record', 'ask'];
   var files = [], chosen = {}, seen = 0, polling = null, notes = [], waitingCount = 0, replaying = false;
   var profit = [], month = '', picked = null, lineageInfo = null;
-  var NEEDS_VERSION = 5, stale = false;  // the version of server.py this page was written for
+  var NEEDS_VERSION = 6, stale = false;  // the version of server.py this page was written for
 
   // ---- Helpers ---------------------------------------------------------------
   function esc(text) { return String(text == null ? '' : text).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -378,6 +378,11 @@
       files = reply.files;
       stale = reply.version !== NEEDS_VERSION;
       $('stale').style.display = stale ? 'block' : 'none';
+      if (!reply.has_key) {
+        $('use-ai').checked = false; $('use-ai').disabled = true;
+        $('ai-note').textContent = '(needs a key in .env)';
+        document.querySelector('#s-ask .say').textContent = 'needs an OpenRouter key in .env; everything above works without one';
+      }
       $('foot').textContent = 'Real production code (' + reply.milestone + '), fictional data. Steps are played back slowly so you can follow them.';
       if (!keepChoice) pick('september'); else drawFeeds();
     });
@@ -698,7 +703,7 @@
       var changed = comparison.inputs_changed.map(function (item) { return nice(item.name); });
       var checks = comparison.checks_changed.map(function (item) { return nice(item.name) + ': ' + nice(item.earlier) + ' → ' + nice(item.later); });
       html += '<div class="chart-head" style="margin-top:10px"><h3>' + esc(comparison.earlier_run) + ' → ' + esc(comparison.later_run) + '</h3>';
-      (comparison.files_corrected || []).forEach(function (name) { html += '<span class="badge corrected" data-tip="A corrected version of this file replaced the earlier one.">corrected: ' + esc(short(name)) + '</span>'; });
+      (comparison.files_corrected || []).forEach(function (name) { html += '<span class="badge corrected" data-tip="A corrected version of this file replaced the earlier one.">corrected: ' + esc(name.replace(/\.csv$/, '')) + '</span>'; });
       var added = comparison.files_added || [];
       if (added.length && added.length <= 4) added.forEach(function (name) { html += '<span class="badge loaded">added: ' + esc(name.replace(/\.csv$/, '')) + '</span>'; });
       else if (added.length) html += '<span class="badge loaded" data-tip="' + esc(added.join('<br>')) + '">' + added.length + ' files added</span>';

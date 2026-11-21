@@ -2,7 +2,7 @@
 
 **Status:** Done. Design documents, lab notebooks, production code, and tests are complete.
 
-**What it adds:** profit is calculated from orders, refunds, and costs by explicit, repeatable transformations, replacing milestone 1's prepared profit table. The same rule can run on pandas or SQL today, and on PySpark later. AI drafts the transformations, tests judge its work, and several models are compared on accuracy, cost, and speed.
+**What it adds:** profit is calculated from orders, refunds, and costs by explicit, repeatable transformations, replacing milestone 1's prepared profit table. The same rule runs on pandas or on SQL, and the design leaves a slot for a PySpark engine. AI drafts the transformations, tests judge its work, and several models are compared on accuracy, cost, and speed.
 
 This folder is self-contained. It started as a copy of milestone 1 and imports nothing from another milestone.
 

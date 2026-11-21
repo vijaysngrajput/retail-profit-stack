@@ -12,6 +12,7 @@ folder of its own (pipeline_live/workspace/), so it never changes that milestone
 
 import json
 import math
+import os
 import shutil
 import sys
 import threading
@@ -22,12 +23,14 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 import pyarrow.parquet as pq
+from dotenv import load_dotenv
 
 HERE = Path(__file__).resolve().parent
 MILESTONE = HERE.parent / "src" / "m6_realistic_operations"  # the production code this page runs
 sys.path.insert(0, str(MILESTONE))
 
 from retail_profit_stack import tools
+from retail_profit_stack.agent import ENV_FILE
 from retail_profit_stack.config import LANDING_DIR, LATE_DIR
 from retail_profit_stack.ingest import ledger
 from retail_profit_stack.ingest.dispatch import build_dispatcher
@@ -49,7 +52,7 @@ from retail_profit_stack.transform.pipeline import load_sources, run_pipeline
 from retail_profit_stack.transform.specs import ordered_specs
 
 PORT = 8765
-VERSION = 5  # raise this whenever the page needs something new from this program
+VERSION = 6  # raise this whenever the page needs something new from this program
 WORKSPACE = HERE / "workspace"
 # For testing: "--port 8766 --workspace some/folder" runs a second copy that shares nothing.
 if "--port" in sys.argv:
@@ -151,9 +154,21 @@ def start_over() -> None:
     LIVE.last_run = None
 
 
+NO_KEY = (
+    "This needs an OpenRouter key. Copy .env.example to .env, add your key, and restart "
+    "this program. Everything else on the page works without one."
+)
+
+
+def has_key() -> bool:
+    """Whether an OpenRouter key is set. Without one the page still works, with AI switched off."""
+    load_dotenv(ENV_FILE)
+    return bool(os.getenv("OPENROUTER_API_KEY"))
+
+
 def make_live_model(use_ai: bool):
-    """The model that suggests mappings, or None when the person switched AI off."""
-    if not use_ai:
+    """The model that suggests mappings, or None when AI is switched off or there is no key."""
+    if not use_ai or not has_key():
         return None
     from retail_profit_stack.agent import make_model
 
@@ -391,6 +406,10 @@ def ask_analyst(question: str) -> dict:
     """Ask the production analyst a question about the latest run. Calls the model."""
     from retail_profit_stack.agent import run_analyst
 
+    if not has_key():
+        return {"answer": None, "error": NO_KEY}
+    if LIVE.last_run is None:
+        return {"answer": None, "error": "Run the pipeline first, then ask."}
     store = Store(source_dir=PLACES.loaded, warehouse_dir=WAREHOUSE, state_file=PLACES.state_file)
     run = run_analyst(question, store=store)
     return {
@@ -437,6 +456,7 @@ class Handler(BaseHTTPRequestHandler):
                     "milestone": MILESTONE.name,
                     "status": LIVE.status,
                     "version": VERSION,
+                    "has_key": has_key(),
                 }
             )
         elif self.path.startswith("/api/events"):

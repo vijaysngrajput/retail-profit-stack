@@ -60,4 +60,17 @@ uv run python --version
 uv run jupyter --version
 ```
 
-The initial environment is focused on Python, notebooks, local analytics, and AI experiments. Add web and dashboard tooling when that part of the project begins.
+## Check that it works
+
+No API key is needed for either of these:
+
+```sh
+cd src/m1_mocked_business_answer
+uv run pytest
+```
+
+```sh
+uv run python pipeline_live/server.py
+```
+
+The second command is run from the project folder. It opens the live pipeline page in your browser.

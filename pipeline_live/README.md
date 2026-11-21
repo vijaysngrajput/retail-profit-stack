@@ -47,6 +47,20 @@ A web page cannot run Python by itself. So there are two parts:
 9. **Decide a finding.** At the review desk, press Exclude on the refund that is larger than its order line, then "Run again with your decisions". The refund is set aside, and the fleece pullover's September figure moves.
 10. **Ask the analyst** the leader's question at the bottom, and read what it did step by step. After the late files, try: "Why did the trail water bottle's October profit change?"
 
+## No key? It still works
+
+Without an OpenRouter key in `.env`, the page switches AI off. Every step still runs: a renamed file waits at your desk and you type the mapping yourself. Only step 9, "Ask", needs a key.
+
+The mappings to type for the renamed October files:
+
+| File | Type this |
+|---|---|
+| `order_items_2026-10-12`, `-19`, `-26` | `list_price=unit_list_price, discount=discount_amount` |
+| `payment_fees_2026-10-19`, `-26` | `fee_usd=fee_amount` |
+| `shipments_2026-10-26` | `cost_1=pick_pack_cost, cost_2=carrier_cost` |
+
+Open "Compare the rows" on each file to see why.
+
 ## What costs money
 
 Two things call the model, through OpenRouter, with the key in your `.env` file:

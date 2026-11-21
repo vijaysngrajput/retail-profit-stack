@@ -183,4 +183,4 @@ Python 3.12, DuckDB, pandas, Pydantic, LangChain, and OpenRouter, as before. Two
 | Quality flags, and the duplicated records they describe | Milestone 3, real checks |
 | Evidence as a sample of source rows | Milestone 4, full lineage |
 | Generated source tables | Milestone 5, ingestion |
-| The PySpark engine slot | A later milestone, when data volume calls for it |
+| The PySpark engine slot | Not built in this project. The slot shows where a third engine would go; building it is a good exercise of your own |
